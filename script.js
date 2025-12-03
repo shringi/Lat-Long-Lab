@@ -11,6 +11,8 @@ let isFilteringEnabled = true;
 const csvFileInput = document.getElementById('csvFile');
 const csvTextInput = document.getElementById('csvInput');
 const loadBtn = document.getElementById('loadBtn');
+const urlInput = document.getElementById('urlInput');
+const urlBtn = document.getElementById('urlBtn');
 const pointCountSpan = document.getElementById('pointCount');
 const dataStatsDiv = document.getElementById('dataStats');
 const selectionSection = document.getElementById('selectionSection');
@@ -103,6 +105,7 @@ function setupEventListeners() {
     loadBtn.addEventListener('click', handleDataLoad);
     enrichBtn.addEventListener('click', handleEnrichment);
     exportBtn.addEventListener('click', handleExport);
+    if (urlBtn) urlBtn.addEventListener('click', handleUrlLoad);
 
     // Auto-load on file selection
     csvFileInput.addEventListener('change', () => {
@@ -148,24 +151,92 @@ function handleDataLoad() {
     const text = csvTextInput.value.trim();
 
     if (file) {
-        Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
-            complete: (results) => processParsedData(results.data),
-            error: (err) => alert('CSV Parse Error: ' + err.message)
-        });
+        const fileName = file.name.toLowerCase();
+        if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+            readExcelFile(file);
+        } else {
+            // Assume CSV/TSV/TXT
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                delimiter: "", // Auto-detect
+                complete: (results) => processParsedData(results.data),
+                error: (err) => alert('Parse Error: ' + err.message)
+            });
+        }
     } else if (text) {
         const results = Papa.parse(text, {
             header: true,
-            skipEmptyLines: true
+            skipEmptyLines: true,
+            delimiter: "" // Auto-detect
         });
         if (results.errors.length > 0) {
             console.warn('CSV Parse Warnings:', results.errors);
         }
         processParsedData(results.data);
     } else {
-        alert('Please upload a file or paste CSV data.');
+        alert('Please upload a file or paste data.');
     }
+}
+
+function handleUrlLoad() {
+    const url = urlInput.value.trim();
+    if (!url) {
+        alert('Please enter a URL.');
+        return;
+    }
+
+    // Note: This will fail if the server doesn't support CORS
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.text();
+        })
+        .then(text => {
+            // Check if it looks like JSON
+            if (text.trim().startsWith('[') || text.trim().startsWith('{')) {
+                try {
+                    const json = JSON.parse(text);
+                    // If array, use directly. If object, look for data property? 
+                    // For now assume array of objects
+                    if (Array.isArray(json)) {
+                        processParsedData(json);
+                    } else {
+                        alert('JSON format not supported. Expected an array of objects.');
+                    }
+                } catch (e) {
+                    alert('Failed to parse JSON.');
+                }
+            } else {
+                // Assume CSV
+                const results = Papa.parse(text, {
+                    header: true,
+                    skipEmptyLines: true,
+                    delimiter: ""
+                });
+                processParsedData(results.data);
+            }
+        })
+        .catch(error => {
+            alert('Failed to fetch URL. CORS restrictions may apply. Error: ' + error.message);
+        });
+}
+
+function readExcelFile(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        // Use first sheet
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+
+        // Convert to JSON
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        processParsedData(jsonData);
+    };
+    reader.readAsArrayBuffer(file);
 }
 
 function processParsedData(data) {
@@ -186,7 +257,7 @@ function processParsedData(data) {
     });
 
     if (validPoints.length === 0) {
-        alert('No valid data found. Ensure CSV has "latitude" and "longitude" columns.');
+        alert('No valid data found. Ensure data has "latitude" and "longitude" columns.');
         return;
     }
 
