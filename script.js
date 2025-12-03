@@ -7,6 +7,7 @@ let worldGeoJSON = null;
 let layerGroup; // To hold the markers
 let isFilteringEnabled = true;
 let rawData = []; // Store raw data for re-mapping
+let table; // Tabulator instance
 
 // DOM Elements
 const csvFileInput = document.getElementById('csvFile');
@@ -24,6 +25,7 @@ const exportBtn = document.getElementById('exportBtn');
 const loadingOverlay = document.getElementById('loadingOverlay');
 const filterToggle = document.getElementById('filterToggle');
 const filterHelpText = document.getElementById('filterHelpText');
+const downloadTableBtn = document.getElementById('downloadTableBtn');
 
 // Tabs
 const tabInput = document.getElementById('tabInput');
@@ -43,6 +45,7 @@ const cancelMappingBtn = document.getElementById('cancelMappingBtn');
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     initMap();
+    initTable();
     loadWorldData();
     setupEventListeners();
 });
@@ -51,10 +54,25 @@ function initMap() {
     // Initialize Leaflet Map
     map = L.map('map').setView([20, 0], 2); // World view
 
-    // Add OpenStreetMap Tile Layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Basemaps
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    });
+
+    const satellite = L.tileLayer.provider('Esri.WorldImagery');
+    const topo = L.tileLayer.provider('OpenTopoMap');
+    const dark = L.tileLayer.provider('CartoDB.DarkMatter');
+
+    // Add default
+    osm.addTo(map);
+
+    // Layer Control
+    const baseMaps = {
+        "OpenStreetMap": osm,
+        "Satellite (Esri)": satellite,
+        "Topographic": topo,
+        "Dark Mode": dark
+    };
 
     // Initialize FeatureGroup to store editable layers (the selection box)
     drawnItems = new L.FeatureGroup();
@@ -62,6 +80,13 @@ function initMap() {
 
     // Initialize LayerGroup for points
     layerGroup = L.layerGroup().addTo(map);
+
+    const overlayMaps = {
+        "Points": layerGroup,
+        "Selection": drawnItems
+    };
+
+    L.control.layers(baseMaps, overlayMaps).addTo(map);
 
     // Initialize Draw Control
     const drawControl = new L.Control.Draw({
@@ -106,6 +131,19 @@ function initMap() {
     });
 }
 
+function initTable() {
+    table = new Tabulator("#dataTable", {
+        height: "100%",
+        layout: "fitColumns",
+        pagination: "local",
+        paginationSize: 50,
+        placeholder: "No Data Loaded",
+        columns: [
+            { title: "No Data", field: "id" }
+        ],
+    });
+}
+
 async function loadWorldData() {
     // Data is loaded via script tag (world_data.js) to avoid CORS on file://
     if (window.worldGeoJSON) {
@@ -122,6 +160,7 @@ function setupEventListeners() {
     enrichBtn.addEventListener('click', handleEnrichment);
     exportBtn.addEventListener('click', handleExport);
     if (urlBtn) urlBtn.addEventListener('click', handleUrlLoad);
+    if (downloadTableBtn) downloadTableBtn.addEventListener('click', () => table.download("csv", "data_table.csv"));
 
     // Auto-load on file selection
     csvFileInput.addEventListener('change', () => {
@@ -141,7 +180,10 @@ function setupEventListeners() {
     // Tabs
     tabInput.addEventListener('click', () => switchTab('input'));
     tabMap.addEventListener('click', () => switchTab('map'));
-    tabTable.addEventListener('click', () => switchTab('table'));
+    tabTable.addEventListener('click', () => {
+        switchTab('table');
+        table.redraw(); // Redraw table to fix layout issues
+    });
 
     // Modal
     confirmMappingBtn.addEventListener('click', applyColumnMapping);
@@ -357,6 +399,10 @@ function applyColumnMapping() {
     selectionSection.classList.remove('opacity-50', 'pointer-events-none');
 
     columnMappingModal.classList.add('hidden');
+
+    // Update Table
+    updateTable(allPoints);
+
     plotPoints();
 
     if (!isFilteringEnabled) {
@@ -365,10 +411,29 @@ function applyColumnMapping() {
     }
 }
 
+function updateTable(data) {
+    if (!table) return;
+
+    // Clean data for table (remove internal keys if desired, or keep them)
+    // We'll keep them but maybe hide them in columns? 
+    // Tabulator auto-columns is easiest for dynamic data
+    table.setData(data);
+    table.setColumns("auto");
+}
+
 function plotPoints() {
     layerGroup.clearLayers();
 
     allPoints.forEach(point => {
+        // Create popup content
+        let popupContent = '<div class="text-xs"><table class="table-auto">';
+        for (const [key, value] of Object.entries(point)) {
+            if (key !== '_lat' && key !== '_lng') {
+                popupContent += `<tr><td class="font-bold pr-2">${key}:</td><td>${value}</td></tr>`;
+            }
+        }
+        popupContent += '</table></div>';
+
         L.circleMarker([point._lat, point._lng], {
             radius: 4,
             fillColor: "#3b82f6", // blue-500
@@ -376,7 +441,9 @@ function plotPoints() {
             weight: 1,
             opacity: 1,
             fillOpacity: 0.8
-        }).addTo(layerGroup);
+        })
+            .bindPopup(popupContent)
+            .addTo(layerGroup);
     });
 
     if (allPoints.length > 0) {
@@ -399,6 +466,16 @@ function filterPointsInBounds(bounds) {
 function updateSelectionUI() {
     selectedCountSpan.textContent = filteredPoints.length;
     enrichBtn.disabled = filteredPoints.length === 0;
+
+    // Update table to show filtered points? 
+    // Or should table always show all points? 
+    // Let's update table to show filtered points if filtering is active, or maybe just highlight them?
+    // For simplicity, let's just show filtered points in the table if filtering is enabled.
+    if (isFilteringEnabled && filteredPoints.length > 0) {
+        updateTable(filteredPoints);
+    } else if (!isFilteringEnabled) {
+        updateTable(allPoints);
+    }
 }
 
 function handleEnrichment() {
@@ -430,9 +507,11 @@ function handleEnrichment() {
             };
         });
 
-        // Update filtered points with enriched data (removing internal keys if desired, or keeping them)
-        // We'll keep them for now but clean up on export
+        // Update filtered points with enriched data
         filteredPoints = enrichedData;
+
+        // Update table with enriched data
+        updateTable(filteredPoints);
 
         loadingOverlay.classList.add('hidden');
         exportSection.classList.remove('hidden');
