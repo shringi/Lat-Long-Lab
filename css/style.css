@@ -1,0 +1,233 @@
+/* Custom Styles */
+
+/* Ensure map takes full height minus any layout constraints if needed */
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+/* Main Content Layout Fix */
+#mainContent {
+    overflow: hidden;
+    /* Prevent split view from expanding horizontally */
+    width: 100%;
+}
+
+/* Customizing Leaflet Draw Toolbar */
+.leaflet-draw-toolbar a {
+    background-color: white;
+    border-color: #e5e7eb;
+    color: #374151;
+}
+
+.leaflet-draw-toolbar a:hover {
+    background-color: #f9fafb;
+    color: #4f46e5;
+}
+
+/* Scrollbar styling for sidebar */
+aside ::-webkit-scrollbar {
+    width: 6px;
+}
+
+aside ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+aside ::-webkit-scrollbar-thumb {
+    background: #c7c7c7;
+    border-radius: 3px;
+}
+
+aside ::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* --- Flexible View Modes --- */
+
+/* Toggle Mode (Default) */
+.view-mode-toggle #mapContainer {
+    height: 100%;
+}
+
+.view-mode-toggle #tableContainer:not(.hidden) {
+    position: absolute !important;
+    inset: 0;
+    z-index: 1500;
+}
+
+/* Split Mode */
+.view-mode-split #mapContainer {
+    height: 60%;
+    flex: none;
+}
+
+.view-mode-split #tableContainer {
+    height: 40% !important;
+    flex: none;
+    display: flex !important;
+    /* Override hidden */
+    position: relative !important;
+    /* Not absolute */
+    inset: auto !important;
+    border-top: 4px solid #e5e7eb;
+}
+
+.view-mode-split #showTableBtn,
+.view-mode-split #closeTableBtn {
+    display: none !important;
+}
+
+/* Modal Mode */
+.view-mode-modal #mapContainer {
+    height: 100%;
+}
+
+.view-mode-modal #tableContainer:not(.hidden) {
+    display: flex !important;
+    /* Override hidden */
+    position: absolute !important;
+    inset: 4rem 4rem !important;
+    /* Margins */
+    z-index: 2000;
+    border-radius: 0.75rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid #e5e7eb;
+}
+
+.view-mode-modal #showTableBtn {
+    display: none !important;
+}
+
+.view-mode-modal #closeTableBtn {
+    display: block !important;
+}
+
+/* Active Control Button */
+.active-mode {
+    background-color: #e5e7eb;
+    color: #111827;
+    font-weight: 600;
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Ensure View Mode Controls are always on top */
+#viewModeControls {
+    z-index: 10000 !important;
+}
+
+/* Grid.js Customization */
+#dataTable {
+    min-width: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Make the Grid.js container a flex column */
+.gridjs-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Header and Footer should not grow */
+.gridjs-head,
+.gridjs-footer {
+    flex: none;
+}
+
+/* Wrapper takes remaining space */
+.gridjs-wrapper {
+    flex: 1;
+    height: auto !important;
+    /* Override 100% from JS if needed */
+    width: 100%;
+    overflow: auto !important;
+    /* Allow both scrollbars */
+    border-radius: 0;
+    box-shadow: none;
+    display: block;
+}
+
+/* Ensure the table takes up space and forces scroll if needed */
+.gridjs-table {
+    width: max-content !important;
+    min-width: 100%;
+    height: auto !important;
+}
+
+.gridjs-th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 200px;
+    /* Increased to force horizontal scroll */
+    padding: 12px !important;
+}
+
+.gridjs-td {
+    font-size: 0.8rem;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 400px;
+    min-width: 200px;
+    /* Increased to force horizontal scroll */
+    padding: 8px 12px !important;
+    line-height: 1.4;
+}
+
+.gridjs-tr:hover td {
+    background-color: #f9fafb;
+}
+
+/* Toast Notification */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background-color: #333;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-success {
+    background-color: #10B981;
+    /* Green */
+}
+
+.toast-error {
+    background-color: #EF4444;
+    /* Red */
+}
+
+.toast-info {
+    background-color: #3B82F6;
+    /* Blue */
+}
