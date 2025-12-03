@@ -5,6 +5,7 @@ let allPoints = [];
 let filteredPoints = [];
 let worldGeoJSON = null;
 let layerGroup; // To hold the markers
+let isFilteringEnabled = true;
 
 // DOM Elements
 const csvFileInput = document.getElementById('csvFile');
@@ -18,6 +19,8 @@ const enrichBtn = document.getElementById('enrichBtn');
 const exportSection = document.getElementById('exportSection');
 const exportBtn = document.getElementById('exportBtn');
 const loadingOverlay = document.getElementById('loadingOverlay');
+const filterToggle = document.getElementById('filterToggle');
+const filterHelpText = document.getElementById('filterHelpText');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -72,12 +75,16 @@ function initMap() {
         const layer = e.layer;
         drawnItems.addLayer(layer);
 
-        filterPointsInBounds(layer.getBounds());
+        if (isFilteringEnabled) {
+            filterPointsInBounds(layer.getBounds());
+        }
     });
 
     map.on(L.Draw.Event.DELETED, function () {
-        filteredPoints = [];
-        updateSelectionUI();
+        if (isFilteringEnabled) {
+            filteredPoints = [];
+            updateSelectionUI();
+        }
     });
 }
 
@@ -103,6 +110,37 @@ function setupEventListeners() {
             handleDataLoad();
         }
     });
+
+    // Filter Toggle
+    if (filterToggle) {
+        filterToggle.addEventListener('change', (e) => {
+            isFilteringEnabled = e.target.checked;
+            updateFilterState();
+        });
+    }
+}
+
+function updateFilterState() {
+    if (isFilteringEnabled) {
+        filterHelpText.textContent = "Only points inside the rectangle will be enriched.";
+        enrichBtn.textContent = "Enrich Selection (Local)";
+
+        // Re-apply filter based on existing box
+        const layers = drawnItems.getLayers();
+        if (layers.length > 0 && layers[0] instanceof L.Rectangle) {
+            filterPointsInBounds(layers[0].getBounds());
+        } else {
+            filteredPoints = [];
+            updateSelectionUI();
+        }
+    } else {
+        filterHelpText.textContent = "All loaded points will be enriched.";
+        enrichBtn.textContent = "Enrich All (Local)";
+
+        // Select all points
+        filteredPoints = [...allPoints];
+        updateSelectionUI();
+    }
 }
 
 function handleDataLoad() {
@@ -160,6 +198,12 @@ function processParsedData(data) {
     selectionSection.classList.remove('opacity-50', 'pointer-events-none');
 
     plotPoints();
+
+    // If filtering is disabled initially (unlikely default, but possible), update state
+    if (!isFilteringEnabled) {
+        filteredPoints = [...allPoints];
+        updateSelectionUI();
+    }
 }
 
 function plotPoints() {
@@ -186,6 +230,8 @@ function plotPoints() {
 }
 
 function filterPointsInBounds(bounds) {
+    if (!isFilteringEnabled) return;
+
     filteredPoints = allPoints.filter(p => {
         const latLng = L.latLng(p._lat, p._lng);
         return bounds.contains(latLng);
@@ -197,9 +243,6 @@ function filterPointsInBounds(bounds) {
 function updateSelectionUI() {
     selectedCountSpan.textContent = filteredPoints.length;
     enrichBtn.disabled = filteredPoints.length === 0;
-
-    // Optional: Highlight selected points visually?
-    // For now, we rely on the box.
 }
 
 function handleEnrichment() {
