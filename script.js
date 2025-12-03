@@ -6,6 +6,7 @@ let filteredPoints = [];
 let worldGeoJSON = null;
 let layerGroup; // To hold the markers
 let isFilteringEnabled = true;
+let rawData = []; // Store raw data for re-mapping
 
 // DOM Elements
 const csvFileInput = document.getElementById('csvFile');
@@ -23,6 +24,21 @@ const exportBtn = document.getElementById('exportBtn');
 const loadingOverlay = document.getElementById('loadingOverlay');
 const filterToggle = document.getElementById('filterToggle');
 const filterHelpText = document.getElementById('filterHelpText');
+
+// Tabs
+const tabInput = document.getElementById('tabInput');
+const tabMap = document.getElementById('tabMap');
+const tabTable = document.getElementById('tabTable');
+const contentInput = document.getElementById('contentInput');
+const contentMap = document.getElementById('contentMap');
+const contentTable = document.getElementById('contentTable');
+
+// Column Mapping Modal
+const columnMappingModal = document.getElementById('columnMappingModal');
+const latColSelect = document.getElementById('latColSelect');
+const lngColSelect = document.getElementById('lngColSelect');
+const confirmMappingBtn = document.getElementById('confirmMappingBtn');
+const cancelMappingBtn = document.getElementById('cancelMappingBtn');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -121,6 +137,41 @@ function setupEventListeners() {
             updateFilterState();
         });
     }
+
+    // Tabs
+    tabInput.addEventListener('click', () => switchTab('input'));
+    tabMap.addEventListener('click', () => switchTab('map'));
+    tabTable.addEventListener('click', () => switchTab('table'));
+
+    // Modal
+    confirmMappingBtn.addEventListener('click', applyColumnMapping);
+    cancelMappingBtn.addEventListener('click', () => {
+        columnMappingModal.classList.add('hidden');
+    });
+}
+
+function switchTab(tabName) {
+    // Reset classes
+    [tabInput, tabMap, tabTable].forEach(btn => {
+        btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+        btn.classList.add('text-gray-500');
+    });
+    [contentInput, contentMap, contentTable].forEach(content => content.classList.add('hidden'));
+
+    // Activate selected
+    if (tabName === 'input') {
+        tabInput.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+        tabInput.classList.remove('text-gray-500');
+        contentInput.classList.remove('hidden');
+    } else if (tabName === 'map') {
+        tabMap.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+        tabMap.classList.remove('text-gray-500');
+        contentMap.classList.remove('hidden');
+    } else if (tabName === 'table') {
+        tabTable.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+        tabTable.classList.remove('text-gray-500');
+        contentTable.classList.remove('hidden');
+    }
 }
 
 function updateFilterState() {
@@ -186,19 +237,15 @@ function handleUrlLoad() {
         return;
     }
 
-    // Note: This will fail if the server doesn't support CORS
     fetch(url)
         .then(response => {
             if (!response.ok) throw new Error('Network response was not ok');
             return response.text();
         })
         .then(text => {
-            // Check if it looks like JSON
             if (text.trim().startsWith('[') || text.trim().startsWith('{')) {
                 try {
                     const json = JSON.parse(text);
-                    // If array, use directly. If object, look for data property? 
-                    // For now assume array of objects
                     if (Array.isArray(json)) {
                         processParsedData(json);
                     } else {
@@ -208,7 +255,6 @@ function handleUrlLoad() {
                     alert('Failed to parse JSON.');
                 }
             } else {
-                // Assume CSV
                 const results = Papa.parse(text, {
                     header: true,
                     skipEmptyLines: true,
@@ -227,12 +273,8 @@ function readExcelFile(file) {
     reader.onload = (e) => {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
-
-        // Use first sheet
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-
-        // Convert to JSON
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
         processParsedData(jsonData);
     };
@@ -240,24 +282,70 @@ function readExcelFile(file) {
 }
 
 function processParsedData(data) {
+    if (!data || data.length === 0) {
+        alert('No data found.');
+        return;
+    }
+
+    rawData = data; // Store raw data
+
+    // Get headers from first row
+    const headers = Object.keys(data[0]);
+
+    // Populate dropdowns
+    latColSelect.innerHTML = '';
+    lngColSelect.innerHTML = '';
+
+    headers.forEach(header => {
+        const option1 = document.createElement('option');
+        option1.value = header;
+        option1.textContent = header;
+        latColSelect.appendChild(option1);
+
+        const option2 = document.createElement('option');
+        option2.value = header;
+        option2.textContent = header;
+        lngColSelect.appendChild(option2);
+    });
+
+    // Try to auto-select
+    const latCandidates = ['latitude', 'lat', 'Lat', 'LATITUDE'];
+    const lngCandidates = ['longitude', 'lng', 'lon', 'long', 'Long', 'LONGITUDE'];
+
+    const foundLat = headers.find(h => latCandidates.includes(h));
+    const foundLng = headers.find(h => lngCandidates.includes(h));
+
+    if (foundLat) latColSelect.value = foundLat;
+    if (foundLng) lngColSelect.value = foundLng;
+
+    // Show Modal
+    columnMappingModal.classList.remove('hidden');
+}
+
+function applyColumnMapping() {
+    const latCol = latColSelect.value;
+    const lngCol = lngColSelect.value;
+
+    if (!latCol || !lngCol) {
+        alert('Please select both Latitude and Longitude columns.');
+        return;
+    }
+
     // Validate and clean data
-    const validPoints = data.filter(row => {
-        const lat = parseFloat(row.latitude || row.lat || row.Lat || row.Latitude);
-        const lng = parseFloat(row.longitude || row.lng || row.lon || row.Long || row.Longitude);
+    const validPoints = rawData.filter(row => {
+        const lat = parseFloat(row[latCol]);
+        const lng = parseFloat(row[lngCol]);
         return !isNaN(lat) && !isNaN(lng);
     }).map(row => {
-        // Normalize lat/lng keys for internal use, keep original data
-        const lat = parseFloat(row.latitude || row.lat || row.Lat || row.Latitude);
-        const lng = parseFloat(row.longitude || row.lng || row.lon || row.Long || row.Longitude);
         return {
             ...row,
-            _lat: lat,
-            _lng: lng
+            _lat: parseFloat(row[latCol]),
+            _lng: parseFloat(row[lngCol])
         };
     });
 
     if (validPoints.length === 0) {
-        alert('No valid data found. Ensure data has "latitude" and "longitude" columns.');
+        alert('No valid data found with selected columns.');
         return;
     }
 
@@ -268,9 +356,9 @@ function processParsedData(data) {
     // Enable selection section
     selectionSection.classList.remove('opacity-50', 'pointer-events-none');
 
+    columnMappingModal.classList.add('hidden');
     plotPoints();
 
-    // If filtering is disabled initially (unlikely default, but possible), update state
     if (!isFilteringEnabled) {
         filteredPoints = [...allPoints];
         updateSelectionUI();
@@ -280,8 +368,6 @@ function processParsedData(data) {
 function plotPoints() {
     layerGroup.clearLayers();
 
-    // Performance optimization: Don't plot if too many? 
-    // For now, just plot them as simple circle markers
     allPoints.forEach(point => {
         L.circleMarker([point._lat, point._lng], {
             radius: 4,
@@ -293,7 +379,6 @@ function plotPoints() {
         }).addTo(layerGroup);
     });
 
-    // Fit bounds
     if (allPoints.length > 0) {
         const bounds = L.latLngBounds(allPoints.map(p => [p._lat, p._lng]));
         map.fitBounds(bounds);

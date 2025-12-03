@@ -30,123 +30,150 @@
             <p class="text-xs mt-1 opacity-70">Client-side Geographic Processor</p>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+        <!-- Tabs Navigation -->
+        <div class="flex border-b border-gray-200">
+            <button id="tabInput"
+                class="flex-1 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 focus:outline-none transition-colors">Input</button>
+            <button id="tabMap"
+                class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none transition-colors">Map</button>
+            <button id="tabTable"
+                class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none transition-colors">Table</button>
+        </div>
 
-            <!-- Input Section -->
-            <div class="space-y-4">
-                <h2 class="text-sm uppercase tracking-wider text-gray-500 font-semibold">1. Data Input</h2>
+        <div class="flex-1 overflow-y-auto p-6 space-y-6 relative">
 
-                <!-- File Input -->
-                <div class="relative group">
-                    <label for="csvFile"
-                        class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-blue-50 hover:border-blue-400 transition-all duration-200">
-                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                            <svg class="w-8 h-8 mb-2 text-gray-400 group-hover:text-blue-500" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
-                                </path>
-                            </svg>
-                            <p class="text-sm text-gray-500 group-hover:text-blue-600"><span class="font-semibold">Click
-                                    to upload</span> (CSV, Excel, TXT)</p>
+            <!-- Tab: Input -->
+            <div id="contentInput" class="space-y-6">
+                <!-- Input Section -->
+                <div class="space-y-4">
+                    <h2 class="text-sm uppercase tracking-wider text-gray-500 font-semibold">1. Load Data</h2>
+
+                    <!-- File Input -->
+                    <div class="relative group">
+                        <label for="csvFile"
+                            class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-blue-50 hover:border-blue-400 transition-all duration-200">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg class="w-8 h-8 mb-2 text-gray-400 group-hover:text-blue-500" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                    </path>
+                                </svg>
+                                <p class="text-sm text-gray-500 group-hover:text-blue-600"><span
+                                        class="font-semibold">Click
+                                        to upload</span> (CSV, Excel, TXT)</p>
+                            </div>
+                            <input id="csvFile" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls" class="hidden" />
+                        </label>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-200"></div>
                         </div>
-                        <input id="csvFile" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls" class="hidden" />
-                    </label>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">OR</span>
+                        </div>
+                    </div>
+
+                    <!-- URL Input -->
+                    <div class="flex space-x-2">
+                        <input type="text" id="urlInput" placeholder="Paste URL (CSV/JSON)..."
+                            class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border bg-gray-50 text-xs">
+                        <button id="urlBtn"
+                            class="px-3 py-2 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-gray-600 hover:bg-gray-700 focus:outline-none transition-colors">
+                            Fetch
+                        </button>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-200"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">OR</span>
+                        </div>
+                    </div>
+
+                    <!-- Text Area -->
+                    <div>
+                        <textarea id="csvInput" rows="3"
+                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 border bg-gray-50 font-mono text-xs"
+                            placeholder="Paste data here..."></textarea>
+                    </div>
+
+                    <button id="loadBtn"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Load Pasted Data
+                    </button>
+
+                    <div id="dataStats" class="hidden text-xs text-gray-500 text-center bg-gray-100 p-2 rounded">
+                        Loaded <span id="pointCount" class="font-bold text-gray-800">0</span> points.
+                    </div>
                 </div>
 
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-200"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">OR</span>
-                    </div>
-                </div>
+                <hr class="border-gray-200">
 
-                <!-- URL Input -->
-                <div class="flex space-x-2">
-                    <input type="text" id="urlInput" placeholder="Paste URL (CSV/JSON)..."
-                        class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border bg-gray-50 text-xs">
-                    <button id="urlBtn"
-                        class="px-3 py-2 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-gray-600 hover:bg-gray-700 focus:outline-none transition-colors">
-                        Fetch
+                <!-- Selection Info -->
+                <div id="selectionSection"
+                    class="space-y-4 opacity-50 pointer-events-none transition-opacity duration-300">
+                    <h2 class="text-sm uppercase tracking-wider text-gray-500 font-semibold">2. Process</h2>
+
+                    <!-- Filter Toggle -->
+                    <div class="flex items-center justify-between bg-gray-100 p-3 rounded-md">
+                        <span class="text-sm text-gray-700 font-medium">Filter by Map Selection</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="filterToggle" class="sr-only peer" checked>
+                            <div
+                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                            </div>
+                        </label>
+                    </div>
+
+                    <p id="filterHelpText" class="text-xs text-gray-500">Only points inside the rectangle will be
+                        enriched.</p>
+
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r shadow-sm">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700">
+                                    Selected: <span id="selectedCount" class="font-bold">0</span> points
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="enrichBtn" disabled
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Enrich Data (Local)
                     </button>
                 </div>
 
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-200"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">OR</span>
-                    </div>
-                </div>
-
-                <!-- Text Area -->
-                <div>
-                    <textarea id="csvInput" rows="3"
-                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 border bg-gray-50 font-mono text-xs"
-                        placeholder="Paste data here..."></textarea>
-                </div>
-
-                <button id="loadBtn"
-                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                    Load Pasted Data
-                </button>
-
-                <div id="dataStats" class="hidden text-xs text-gray-500 text-center bg-gray-100 p-2 rounded">
-                    Loaded <span id="pointCount" class="font-bold text-gray-800">0</span> points.
+                <!-- Export Section -->
+                <div id="exportSection" class="space-y-4 hidden">
+                    <h2 class="text-sm uppercase tracking-wider text-gray-500 font-semibold">3. Export</h2>
+                    <button id="exportBtn"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                        Download CSV
+                    </button>
                 </div>
             </div>
 
-            <!-- Selection Info -->
-            <div id="selectionSection" class="space-y-4 opacity-50 pointer-events-none transition-opacity duration-300">
-                <h2 class="text-sm uppercase tracking-wider text-gray-500 font-semibold">2. Select & Enrich</h2>
-
-                <!-- Filter Toggle -->
-                <div class="flex items-center justify-between bg-gray-100 p-3 rounded-md">
-                    <span class="text-sm text-gray-700 font-medium">Filter by Map Selection</span>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="filterToggle" class="sr-only peer" checked>
-                        <div
-                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                        </div>
-                    </label>
-                </div>
-
-                <p id="filterHelpText" class="text-xs text-gray-500">Only points inside the rectangle will be enriched.
-                </p>
-
-                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r shadow-sm">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-blue-700">
-                                Selected: <span id="selectedCount" class="font-bold">0</span> points
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <button id="enrichBtn" disabled
-                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                    Enrich Data (Local)
-                </button>
+            <!-- Tab: Map Settings -->
+            <div id="contentMap" class="hidden space-y-6">
+                <p class="text-sm text-gray-500">Map settings coming soon...</p>
             </div>
 
-            <!-- Export Section -->
-            <div id="exportSection" class="space-y-4 hidden">
-                <h2 class="text-sm uppercase tracking-wider text-gray-500 font-semibold">3. Export</h2>
-                <button id="exportBtn"
-                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
-                    Download CSV
-                </button>
+            <!-- Tab: Table -->
+            <div id="contentTable" class="hidden space-y-6">
+                <p class="text-sm text-gray-500">Data table coming soon...</p>
             </div>
 
         </div>
@@ -167,6 +194,36 @@
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
             <p class="text-indigo-800 font-semibold animate-pulse">Processing...</p>
             <p id="loadingText" class="text-sm text-gray-600 mt-2">Enriching data locally...</p>
+        </div>
+
+        <!-- Column Mapping Modal -->
+        <div id="columnMappingModal"
+            class="absolute inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+            <div class="bg-white rounded-lg shadow-xl p-6 w-96 max-w-full m-4">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Map Columns</h3>
+                <p class="text-sm text-gray-600 mb-4">Please select the columns that contain the coordinates.</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Latitude Column</label>
+                        <select id="latColSelect"
+                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Longitude Column</label>
+                        <select id="lngColSelect"
+                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"></select>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button id="cancelMappingBtn"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">Cancel</button>
+                    <button id="confirmMappingBtn"
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">Confirm
+                        & Plot</button>
+                </div>
+            </div>
         </div>
     </main>
 
