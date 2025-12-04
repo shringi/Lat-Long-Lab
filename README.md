@@ -1,45 +1,81 @@
-# Geo-Filter & Enrich
+# Lat-Long Lab
 
-**Geo-Filter & Enrich** is a powerful, client-side web application designed to visualize, filter, and enrich geographic data directly in your browser. It processes data locally, ensuring privacy and speed without requiring a backend server.
+**Client-side Geographic Processor & Visualizer**
 
-## 🚀 Features
+![Lat-Long Lab](icons/logo_192.png)
 
-*   **Data Loading:**
-    *   Upload **CSV**, **Excel (.xlsx, .xls)**, or **JSON** files.
-    *   Paste data directly or fetch from a URL.
-    *   Automatic column mapping for Latitude and Longitude.
-*   **Interactive Map:**
-    *   Visualize thousands of points on a responsive map.
-    *   Switch between **Satellite**, **Topographic**, and **Dark** basemaps.
-    *   **Draw Rectangles** to spatially filter data.
-*   **Data Enrichment:**
-    *   **Offline Geocoding:** Automatically tag points with their **Country** name based on coordinates.
-    *   Uses a local GeoJSON dataset for instant results.
-*   **Data Management:**
-    *   **Flexible Views:** Toggle between Map-only, Split-view, or Modal-view for the data table.
-    *   **Search & Sort:** Powerful data grid with search and sort capabilities.
-    *   **Export:** Download your filtered and enriched data as a CSV file.
+## Motivation
 
-## 🛠️ Setup & Usage
+We often encounter datasets containing latitude and longitude points along with various associated columns. The need to quickly visualize and locate these points is common. Frequently, the goal is to filter this data for a specific country, a selected area, or by a specific property.
 
-This application is built with **Vanilla JavaScript** and relies on **CDNs** for dependencies. No build step is required.
+Researchers and analysts often deal with supplementary materials from publications and need to filter data for particular regions. While tools like R, Python, or QGIS are powerful, they can be overkill for quick visualization and filtering tasks, often requiring code execution or heavy software loading.
 
-1.  **Download:** Clone or download this repository.
-2.  **Run:** Open `index.html` in any modern web browser (Chrome, Firefox, Edge).
+**Lat-Long Lab** was created to bridge this gap. It is a tool that:
+- **Does not depend on any server or API calls.**
+- **Is super fast to plot** (performance depends only on your browser).
+- **Runs entirely on the client-side**, ensuring data privacy and ease of use.
 
-## 📦 Dependencies
+## Features
 
-All dependencies are loaded via CDN:
+- **Versatile Data Loading**:
+    - Upload **CSV, Excel (.xlsx, .xls), or TXT** files.
+    - **Paste** data directly from your clipboard.
+    - **Fetch** data from a URL (CSV/JSON).
+- **Interactive Mapping**:
+    - Visualize thousands of points instantly on a Leaflet map.
+    - Switch between different basemaps (OpenStreetMap, Satellite, etc.).
+- **Geographic Filtering**:
+    - Draw a **rectangular area** on the map to select specific points.
+    - Filter your dataset to include only points within the selected region.
+- **Data Inspection**:
+    - View your data in a powerful, sortable, and searchable table (powered by DataTables).
+    - Toggle between Map View, Split View, and Table View.
+- **Export**:
+    - Download your filtered or enriched dataset as a CSV file.
+- **Privacy-First**:
+    - 100% Client-side processing. Your data never leaves your browser.
 
-*   **Leaflet:** Interactive maps.
-*   **Leaflet Draw:** Drawing tools for filtering.
-*   **Leaflet Providers:** Various map tiles (Satellite, Topo, etc.).
-*   **Turf.js:** Geospatial analysis (point-in-polygon).
-*   **PapaParse:** Fast CSV parsing.
-*   **SheetJS (XLSX):** Excel file parsing.
-*   **Grid.js:** Advanced data table.
-*   **Tailwind CSS:** Utility-first styling.
+## Usage Instructions
 
-## 📝 License
+### 1. Load Your Data
+You have three options to get your data into the lab:
+- **Upload File**: Click the upload box to select a `.csv`, `.xlsx`, or `.txt` file from your computer.
+- **Paste Data**: Copy your raw data (CSV format) and paste it into the text area, then click "Load Pasted Data".
+- **Fetch from URL**: Enter a direct link to a CSV or JSON file and click "Fetch".
 
-Open Source. Feel free to modify and use for your projects.
+*Note: The application will attempt to automatically detect `Latitude` and `Longitude` columns. If it can't, you will be prompted to map them manually.*
+
+### 2. Explore the Map
+- Once loaded, your points will appear as markers on the map.
+- Use the **Layer Control** (top-right) to change the base map style.
+- Click on individual clusters to zoom in and see individual points.
+
+### 3. Filter by Area
+1.  Use the **Draw Tools** on the map (toolbar on the left).
+2.  Select the **Rectangle** tool.
+3.  Draw a box around the area of interest.
+4.  In the sidebar, toggle **"Filter by Map Selection"**.
+5.  The "Selected Points" count will update to show how many points are inside your box.
+
+### 4. View and Export
+- Click **"Show Data Table"** (or use the view controls at the top) to inspect the raw data.
+- If you have filtered the data, the table will reflect the selection.
+- Click **"Download CSV"** in the sidebar or the table view to save your processed dataset.
+
+## Reporting Bugs & Feature Requests
+
+We welcome feedback! If you encounter any issues or have ideas for new features:
+
+1.  Navigate to the **[Issues](https://github.com/YOUR_USERNAME/Lat-Long-Lab/issues)** tab of this repository.
+2.  Click **"New Issue"**.
+3.  Choose **"Bug Report"** or **"Feature Request"**.
+4.  Provide as much detail as possible (browser version, steps to reproduce, screenshots).
+
+## Credits
+Built with open-source power:
+- [Leaflet](https://leafletjs.com/)
+- [DataTables](https://datatables.net/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [PapaParse](https://www.papaparse.com/)
+- [SheetJS](https://sheetjs.com/)
+- [Turf.js](https://turfjs.org/)
