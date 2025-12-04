@@ -1,8 +1,11 @@
 # 1.x.x
-- [ ] 1.0.1:  Rename folder name
+- [x] 1.0.1:  Rename folder name
+- [x] 1.0.2: Adding Icons
+- [x] 1.0.3: Adding README and screenshot
 - [ ] 1.1.0: Create additional tab for data processing
     - [ ] 1.1.1: Add country name in the column functionality
     - [ ] 1.1.2: Filter data by rectangular area
 - [ ] 1.2.0:  Add option to sample data
 - [ ] 1.3.0: Add wdpa data 
 - [ ] 1.4.0: Add guess feature for potential latitude and longitude column name
+- [ ] 1.5.0: Make debug icon floatable or tucked in the corner.

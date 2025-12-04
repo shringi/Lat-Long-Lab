@@ -2,6 +2,12 @@
 
 **Client-side Geographic Processor & Visualizer**
 
+https://shringi.github.io/Lat-Long-Lab/
+
+Current Version: 1.0.3
+
+Last Updated on: 2025-Dec-04
+
 ![Lat-Long Lab](icons/logo_192.png)
 
 ## Motivation
@@ -12,11 +18,11 @@ Researchers and analysts often deal with supplementary materials from publicatio
 
 **Lat-Long Lab** was created to bridge this gap. It is a tool that:
 - **Does not depend on any server or API calls.**
-- **Is super fast to plot** (performance depends only on your browser).
+- **Fast and Responsive** (performance depends only on your browser).
 - **Runs entirely on the client-side**, ensuring data privacy and ease of use.
 
 ## Features
-
+![Screenshot](icons/screenshot_v1.0.2.png)
 - **Versatile Data Loading**:
     - Upload **CSV, Excel (.xlsx, .xls), or TXT** files.
     - **Paste** data directly from your clipboard.
