@@ -907,3 +907,18 @@ function setupEventListeners() {
     confirmMappingBtn.addEventListener('click', () => App.applyColumnMapping(latColSelect.value, lngColSelect.value));
     cancelMappingBtn.addEventListener('click', App.hideColumnMappingModal);
 }
+
+// ==========================================
+// Loading Overlay
+// ==========================================
+window.addEventListener('load', () => {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        setTimeout(() => {
+            overlay.classList.add('opacity-0');
+            setTimeout(() => {
+                overlay.remove();
+            }, 500);
+        }, 800);
+    }
+});
