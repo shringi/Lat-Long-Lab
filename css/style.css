@@ -116,75 +116,42 @@ aside ::-webkit-scrollbar-thumb:hover {
     z-index: 10000 !important;
 }
 
-/* Grid.js Customization */
-#dataTable {
-    min-width: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+/* DataTables Customization */
+#dataTableContainer {
+    /* Ensure container handles overflow */
+    overflow-x: auto;
 }
 
-/* Make the Grid.js container a flex column */
-.gridjs-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
+table.dataTable {
+    font-size: 12px;
 }
 
-/* Header and Footer should not grow */
-.gridjs-head,
-.gridjs-footer {
-    flex: none;
+table.dataTable thead th {
+    background-color: #f3f4f6;
+    color: #374151;
+    font-weight: 600;
+    padding: 10px !important;
 }
 
-/* Wrapper takes remaining space */
-.gridjs-wrapper {
-    flex: 1;
-    height: auto !important;
-    /* Override 100% from JS if needed */
-    width: 100%;
-    overflow: auto !important;
-    /* Allow both scrollbars */
-    border-radius: 0;
-    box-shadow: none;
-    display: block;
+table.dataTable tbody td {
+    padding: 8px 10px !important;
+    color: #374151;
+    /* Ensure text is visible (gray-700) */
 }
 
-/* Ensure the table takes up space and forces scroll if needed */
-.gridjs-table {
-    width: max-content !important;
-    min-width: 100%;
-    height: auto !important;
+/* Hide DataTables length menu and filter if needed, or style them */
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+    background-color: #fff;
 }
 
-.gridjs-th {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 200px;
-    /* Increased to force horizontal scroll */
-    padding: 12px !important;
-}
-
-.gridjs-td {
-    font-size: 0.8rem;
-    white-space: normal;
-    word-break: break-word;
-    max-width: 400px;
-    min-width: 200px;
-    /* Increased to force horizontal scroll */
-    padding: 8px 12px !important;
-    line-height: 1.4;
-}
-
-.gridjs-tr:hover td {
-    background-color: #f9fafb;
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    margin-left: 0.5rem;
 }
 
 /* Toast Notification */

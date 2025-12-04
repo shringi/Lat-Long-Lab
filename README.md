@@ -26,7 +26,6 @@ This application is built with **Vanilla JavaScript** and relies on **CDNs** for
 
 1.  **Download:** Clone or download this repository.
 2.  **Run:** Open `index.html` in any modern web browser (Chrome, Firefox, Edge).
-    *   *Note: For best performance with local files, consider using a simple local server (e.g., `python -m http.server` or VS Code Live Server), though it works directly from the file system too.*
 
 ## 📦 Dependencies
 

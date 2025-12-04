@@ -1,6 +1,151 @@
 
+console.log("SCRIPT.JS STARTING EXECUTION");
+
 // Global Namespace
 window.App = window.App || {};
+
+// ==========================================
+// debug.js
+// ==========================================
+(() => {
+    const MAX_LOGS = 1000;
+    const logs = [];
+
+    // UI Elements
+    let consoleEl, outputEl, showBtn;
+
+    function initDebugUI() {
+        consoleEl = document.getElementById('debugConsole');
+        outputEl = document.getElementById('debugOutput');
+        showBtn = document.getElementById('showDebugBtn');
+
+        if (!consoleEl) return;
+
+        document.getElementById('closeDebugBtn').addEventListener('click', () => toggleConsole(false));
+        document.getElementById('showDebugBtn').addEventListener('click', () => toggleConsole(true));
+        document.getElementById('clearLogsBtn').addEventListener('click', clearLogs);
+        document.getElementById('copyLogsBtn').addEventListener('click', copyLogs);
+
+        // Initial render of any logs captured before UI init
+        renderLogs();
+    }
+
+    function toggleConsole(show) {
+        if (show) {
+            consoleEl.classList.remove('hidden');
+            showBtn.classList.add('hidden');
+            scrollToBottom();
+        } else {
+            consoleEl.classList.add('hidden');
+            showBtn.classList.remove('hidden');
+        }
+    }
+
+    function addLog(type, args) {
+        const timestamp = new Date().toISOString().split('T')[1].slice(0, -1);
+        const message = args.map(arg => {
+            if (typeof arg === 'object') {
+                try {
+                    return JSON.stringify(arg);
+                } catch (e) {
+                    return '[Object]';
+                }
+            }
+            return String(arg);
+        }).join(' ');
+
+        logs.push({ timestamp, type, message });
+        if (logs.length > MAX_LOGS) logs.shift();
+
+        if (outputEl) {
+            const row = document.createElement('div');
+            row.className = `font-mono text-xs border-b border-gray-800 pb-0.5 mb-0.5 ${getColorForType(type)}`;
+            row.innerHTML = `<span class="opacity-50 mr-2">[${timestamp}]</span><span>${escapeHtml(message)}</span>`;
+            outputEl.appendChild(row);
+            scrollToBottom();
+        }
+    }
+
+    function renderLogs() {
+        if (!outputEl) return;
+        outputEl.innerHTML = '';
+        logs.forEach(l => {
+            const row = document.createElement('div');
+            row.className = `font-mono text-xs border-b border-gray-800 pb-0.5 mb-0.5 ${getColorForType(l.type)}`;
+            row.innerHTML = `<span class="opacity-50 mr-2">[${l.timestamp}]</span><span>${escapeHtml(l.message)}</span>`;
+            outputEl.appendChild(row);
+        });
+        scrollToBottom();
+    }
+
+    function getColorForType(type) {
+        switch (type) {
+            case 'error': return 'text-red-400';
+            case 'warn': return 'text-yellow-400';
+            case 'info': return 'text-blue-400';
+            default: return 'text-green-400';
+        }
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function scrollToBottom() {
+        if (outputEl) outputEl.scrollTop = outputEl.scrollHeight;
+    }
+
+    function clearLogs() {
+        logs.length = 0;
+        if (outputEl) outputEl.innerHTML = '';
+    }
+
+    function copyLogs() {
+        const text = logs.map(l => `[${l.timestamp}] [${l.type.toUpperCase()}] ${l.message}`).join('\n');
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Logs copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy logs:', err);
+        });
+    }
+
+    // Override Console
+    const originalLog = console.log;
+    const originalWarn = console.warn;
+    const originalError = console.error;
+    const originalInfo = console.info;
+
+    console.log = function (...args) {
+        originalLog.apply(console, args);
+        addLog('log', args);
+    };
+
+    console.warn = function (...args) {
+        originalWarn.apply(console, args);
+        addLog('warn', args);
+    };
+
+    console.error = function (...args) {
+        originalError.apply(console, args);
+        addLog('error', args);
+    };
+
+    console.info = function (...args) {
+        originalInfo.apply(console, args);
+        addLog('info', args);
+    };
+
+    // Initialize UI on load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDebugUI);
+    } else {
+        initDebugUI();
+    }
+})();
 
 // ==========================================
 // Geo-Filter & Enrich - Main Script
@@ -29,6 +174,7 @@ App.state = {
     };
 
     App.initMap = function () {
+        console.log('App.initMap starting...');
         map = L.map('map').setView([20, 0], 2);
         const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -95,12 +241,28 @@ App.state = {
             }
         });
 
+        console.log('App.initMap completed.');
         return map;
     };
 
-    App.plotPoints = function () {
+    App.plotPoints = function (dataOverride) {
+        const pointsToPlot = dataOverride || (App.state.isFilteringEnabled ? App.state.filteredPoints : App.state.allPoints);
+        console.log('App.plotPoints called. Points to plot:', pointsToPlot ? pointsToPlot.length : 'undefined');
+
         layerGroup.clearLayers();
-        App.state.allPoints.forEach(point => {
+
+        if (!pointsToPlot || !Array.isArray(pointsToPlot)) {
+            console.error('App.plotPoints: Invalid data provided', pointsToPlot);
+            return;
+        }
+
+        pointsToPlot.forEach(point => {
+            // Ensure we have coordinates
+            if (point._lat === undefined || point._lng === undefined) {
+                // console.warn('Point missing coordinates:', point); // Reduce noise
+                return;
+            }
+
             let popupContent = '<div class="text-xs"><table class="table-auto">';
             for (const [key, value] of Object.entries(point)) {
                 if (!key.startsWith('_')) {
@@ -121,8 +283,8 @@ App.state = {
                 .addTo(layerGroup);
         });
 
-        if (App.state.allPoints.length > 0) {
-            const bounds = L.latLngBounds(App.state.allPoints.map(p => [p._lat, p._lng]));
+        if (pointsToPlot.length > 0) {
+            const bounds = L.latLngBounds(pointsToPlot.map(p => [p._lat, p._lng]));
             map.fitBounds(bounds);
         }
     };
@@ -149,56 +311,117 @@ App.state = {
 // table.js
 // ==========================================
 (() => {
-    let gridInstance = null;
+    let dataTable = null;
 
     App.initTable = function () {
-        gridInstance = new gridjs.Grid({
-            columns: [{ name: "No Data" }],
+        console.log('App.initTable starting...');
+        // Initial empty table
+        const table = $('#dataTable');
+        table.empty();
+
+        dataTable = table.DataTable({
             data: [],
-            pagination: { limit: 20, summary: true },
-            search: true,
-            sort: true,
-            resizable: true,
-            fixedHeader: true,
-            height: '100%',
-            style: {
-                table: { 'font-size': '12px' },
-                th: { 'background-color': '#f3f4f6', 'color': '#374151', 'font-weight': '600' }
-            },
-            className: {
-                table: 'w-full',
-                td: 'p-2 border-b border-gray-100',
-                th: 'p-2 text-left'
+            columns: [{ title: "No Data" }],
+            dom: 'Bfrtip',
+            buttons: ['colvis'],
+            responsive: true,
+            language: {
+                emptyTable: "No data available in table",
+                zeroRecords: "No matching records found"
             }
-        }).render(document.getElementById("dataTable"));
+        });
+        console.log('App.initTable completed.');
     };
 
     App.updateTable = function (data) {
-        if (!gridInstance) return;
+        console.log('App.updateTable called with data:', data ? data.length : 0);
+        if (!dataTable) return;
+
         if (!data || data.length === 0) {
-            gridInstance.updateConfig({ columns: ["No Data"], data: [] }).forceRender();
+            dataTable.clear().draw();
             return;
         }
+
         const sample = data[0];
-        // Ensure we have valid columns. Filter out internal keys and ensure ID is present.
-        const columns = Object.keys(sample)
-            .filter(k => !k.startsWith('_'))
-            .map(k => ({
-                name: k || "Untitled",
-                id: k
-            }));
+
+        // Generate columns from sample data
+        const columns = Object.keys(sample).map(k => {
+            if (k.startsWith('_')) {
+                return {
+                    title: k,
+                    data: k,
+                    visible: false,
+                    searchable: false
+                };
+            }
+            return {
+                title: k,
+                data: k,
+                defaultContent: "<em>(empty)</em>",
+                render: function (data, type, row) {
+                    return (data === null || data === undefined) ? "" : data;
+                }
+            };
+        });
+
+        if (!sample.hasOwnProperty('_lat') || !sample.hasOwnProperty('_lng')) {
+            console.error('CRITICAL: Data passed to updateTable is missing _lat or _lng!', sample);
+            App.showToast('Data missing coordinates. Check console.', 'error');
+        }
 
         if (columns.length === 0) {
-            console.warn('App.updateTable: No columns found', sample);
-            gridInstance.updateConfig({ columns: ["No Columns"], data: [] }).forceRender();
+            console.warn('App.updateTable: No columns found');
             return;
         }
 
+        // Destroy and re-init
+        if (dataTable) {
+            dataTable.destroy();
+            $('#dataTable').empty();
+        }
 
-        try {
-            gridInstance.updateConfig({ columns: columns, data: data }).forceRender();
-        } catch (e) {
-            console.error('App.updateTable: Grid.js error', e);
+        const table = $('#dataTable');
+
+        // Initialize DataTable with ColumnControl
+        dataTable = table.DataTable({
+            data: data,
+            columns: columns,
+            paging: true,
+            searching: true,
+            ordering: true,
+            fixedHeader: true,
+            responsive: true,
+            info: true,
+            scrollY: '50vh',
+            scrollCollapse: true,
+            scrollX: true,
+            scroller: false,
+            columnControl: ['order', ['search', 'searchList']],
+            ordering: {
+                indicators: false,
+                handler: false
+            },
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+            autoWidth: false
+        });
+
+        // Re-attach listener
+        dataTable.on('draw', function () {
+            if (!App.state.isFilteringEnabled) {
+                const filteredData = dataTable.rows({ search: 'applied' }).data().toArray();
+                console.log('DataTable Draw - Filtered Data Count:', filteredData.length);
+
+                App.state.filteredPoints = filteredData;
+                App.plotPoints(filteredData);
+            }
+        });
+
+        // Trigger initial plot
+        if (!App.state.isFilteringEnabled) {
+            const filteredData = dataTable.rows({ search: 'applied' }).data().toArray();
+            console.log('Initial Table Load - Data Count:', filteredData.length);
+            App.state.filteredPoints = filteredData;
+            App.plotPoints(filteredData);
         }
     };
 })();
@@ -209,10 +432,6 @@ App.state = {
 (() => {
     let onViewChanged = null;
     App.setViewChangeCallback = function (callback) { onViewChanged = callback; };
-
-    // DOM Elements (Scoped to this IIFE, but we need to access them in event listeners)
-    // We will query them inside functions or expose them if needed. 
-    // Actually, for simplicity, we'll query them on demand or cache them here.
 
     const getEl = (id) => document.getElementById(id);
 
@@ -355,6 +574,21 @@ App.state = {
 
     App.showToast = function (message, type = 'info') {
         const container = getEl('toast-container');
+
+        // Log to debug console
+        if (type === 'error') console.error(message);
+        else console.info(message);
+
+        // Auto-open debug console on error
+        if (type === 'error') {
+            const debugConsole = document.getElementById('debugConsole');
+            const showDebugBtn = document.getElementById('showDebugBtn');
+            if (debugConsole && debugConsole.classList.contains('hidden')) {
+                debugConsole.classList.remove('hidden');
+                if (showDebugBtn) showDebugBtn.classList.add('hidden');
+            }
+        }
+
         if (!container) return;
 
         const toast = document.createElement('div');
@@ -383,6 +617,7 @@ App.state = {
 // ==========================================
 (() => {
     App.handleDataLoad = function (file, text) {
+        console.log('App.handleDataLoad called');
         if (file) {
             const fileName = file.name.toLowerCase();
             if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
@@ -392,7 +627,10 @@ App.state = {
                     header: true,
                     skipEmptyLines: true,
                     delimiter: "",
-                    complete: (results) => processParsedData(results.data),
+                    complete: (results) => {
+                        console.log('Papa Parse Complete. Rows:', results.data.length);
+                        processParsedData(results.data);
+                    },
                     error: (err) => App.showToast('Parse Error: ' + err.message, 'error')
                 });
             }
@@ -534,7 +772,6 @@ App.state = {
 
             App.showToast(`Country names added to ${enrichedCount} points!`, 'success');
             document.getElementById('exportSection').classList.remove('hidden');
-            document.getElementById('loadingOverlay').classList.add('hidden');
         }, 100);
     };
 
@@ -565,28 +802,36 @@ App.state = {
 // main.js
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded FIRED');
     console.log('App Initializing...');
 
-    // Initialize Components
-    App.initMap();
-    App.initTable();
-    App.switchViewMode('toggle');
+    try {
+        // Initialize Components
+        App.initMap();
+        App.initTable();
+        App.switchViewMode('toggle');
 
-    // Load World Data
-    if (window.worldGeoJSON) {
-        App.state.worldGeoJSON = window.worldGeoJSON;
-    } else {
-        console.warn('World data not found in window.worldGeoJSON');
+        // Load World Data
+        if (window.worldGeoJSON) {
+            App.state.worldGeoJSON = window.worldGeoJSON;
+        } else {
+            console.warn('World data not found in window.worldGeoJSON');
+        }
+
+        setupEventListeners();
+
+        // Default View
+        App.switchViewMode('toggle');
+
+        // Callbacks
+        App.setSelectionCallback(App.updateSelectionUI);
+        App.setViewChangeCallback(App.invalidateMapSize);
+
+        console.log('App Initialization COMPLETE');
+    } catch (e) {
+        console.error('CRITICAL INITIALIZATION ERROR:', e);
+        App.showToast('Initialization Error: ' + e.message, 'error');
     }
-
-    setupEventListeners();
-
-    // Default View
-    App.switchViewMode('toggle');
-
-    // Callbacks
-    App.setSelectionCallback(App.updateSelectionUI);
-    App.setViewChangeCallback(App.invalidateMapSize);
 });
 
 function setupEventListeners() {

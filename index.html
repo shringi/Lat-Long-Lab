@@ -1,23 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Geo-Filter & Enrich</title>
+    <!-- Global Error Handler -->
+    <script>
+        window.onerror = function (msg, url, line, col, error) {
+            var extra = !col ? '' : '\ncolumn: ' + col;
+            extra += !error ? '' : '\nerror: ' + error;
+            console.error("Error: " + msg + "\nurl: " + url + "\nline: " + line + extra);
+
+            var errorDiv = document.createElement("div");
+            errorDiv.style.position = "fixed";
+            errorDiv.style.top = "0";
+            errorDiv.style.left = "0";
+            errorDiv.style.width = "100%";
+            errorDiv.style.backgroundColor = "red";
+            errorDiv.style.color = "white";
+            errorDiv.style.zIndex = "999999";
+            errorDiv.style.padding = "10px";
+            errorDiv.style.fontFamily = "monospace";
+            errorDiv.innerText = "CRITICAL ERROR: " + msg + " at " + url + ":" + line;
+            document.body.appendChild(errorDiv);
+            return false;
+        };
+        console.log("Global error handler registered");
+    </script>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
     <!-- Leaflet Draw CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
-    <!-- Grid.js CSS -->
-    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+
+    <!-- jQuery 3.7.1 -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- DataTables 2.3.5 CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.5/css/dataTables.dataTables.css">
+    <!-- ColumnControl 1.1.1 CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/columncontrol/1.1.1/css/columnControl.dataTables.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="h-screen flex flex-col sm:flex-row overflow-hidden bg-gray-50 text-gray-800 font-sans">
+<body class="h-full flex flex-col sm:flex-row overflow-hidden">
     <!-- Sidebar / Controls -->
     <aside
         class="w-full sm:w-96 bg-white shadow-xl z-20 flex flex-col h-1/2 sm:h-full border-r border-gray-200 sm:flex-none">
@@ -173,7 +202,12 @@
                         </svg></button>
                 </div>
             </div>
-            <div id="dataTable" class="flex-1 w-full text-xs"></div>
+            <div id="dataTableContainer" class="flex-1 w-full text-xs overflow-auto p-2">
+                <table id="dataTable" class="display w-full" style="width:100%">
+                    <thead></thead>
+                    <tfoot></tfoot>
+                </table>
+            </div>
         </div>
 
         <!-- View Mode Controls (Moved to center top) -->
@@ -227,15 +261,40 @@
     <!-- Toast Container -->
     <div id="toast-container"></div>
 
+    <!-- Debug Console -->
+    <div id="debugConsole"
+        class="fixed bottom-0 left-0 w-full h-48 bg-gray-900 text-green-400 font-mono text-xs z-[20000] hidden flex flex-col border-t-2 border-gray-700 transition-all duration-300">
+        <div class="flex justify-between items-center bg-gray-800 px-4 py-1 border-b border-gray-700 select-none">
+            <span class="font-bold text-gray-300">Debug Console</span>
+            <div class="flex space-x-2">
+                <button id="copyLogsBtn" class="hover:text-white text-gray-400" title="Copy Logs">📋</button>
+                <button id="clearLogsBtn" class="hover:text-white text-gray-400" title="Clear Logs">🚫</button>
+                <button id="closeDebugBtn" class="hover:text-white text-gray-400" title="Minimize">⬇️</button>
+            </div>
+        </div>
+        <div id="debugOutput" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
+    </div>
+
+    <!-- Debug Toggle Button (Visible when console is hidden) -->
+    <button id="showDebugBtn"
+        style="position: fixed; bottom: 10px; left: 10px; z-index: 99999; display: block; background-color: #1f2937; color: white; padding: 10px; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 20px;"
+        title="Show Debug Console">
+        🐞
+    </button>
+
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <script src="https://unpkg.com/leaflet-providers@1.13.0/leaflet-providers.js"></script>
     <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
-    <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+
+    <!-- DataTables 2.3.5 JS -->
+    <script src="https://cdn.datatables.net/2.3.5/js/dataTables.js"></script>
+    <!-- ColumnControl 1.1.1 JS -->
+    <script src="https://cdn.datatables.net/columncontrol/1.1.1/js/dataTables.columnControl.js"></script>
+
     <script src="js/world_data.js"></script>
     <script src="js/script.js"></script>
 </body>
