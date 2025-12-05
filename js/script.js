@@ -437,20 +437,26 @@ App.state = {
 
     App.switchTab = function (tabName) {
         const tabInput = getEl('tabInput');
+        const tabProcess = getEl('tabProcess');
         const tabMap = getEl('tabMap');
         const contentInput = getEl('contentInput');
+        const contentProcess = getEl('contentProcess');
         const contentMap = getEl('contentMap');
 
-        [tabInput, tabMap].forEach(btn => {
+        [tabInput, tabProcess, tabMap].forEach(btn => {
             btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
             btn.classList.add('text-gray-500');
         });
-        [contentInput, contentMap].forEach(content => content.classList.add('hidden'));
+        [contentInput, contentProcess, contentMap].forEach(content => content.classList.add('hidden'));
 
         if (tabName === 'input') {
             tabInput.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
             tabInput.classList.remove('text-gray-500');
             contentInput.classList.remove('hidden');
+        } else if (tabName === 'process') {
+            tabProcess.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+            tabProcess.classList.remove('text-gray-500');
+            contentProcess.classList.remove('hidden');
         } else if (tabName === 'map') {
             tabMap.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
             tabMap.classList.remove('text-gray-500');
@@ -738,6 +744,11 @@ App.state = {
         App.switchViewMode('toggle');
         App.toggleTableVisibility(true);
         App.showToast(`Loaded ${validPoints.length} points successfully!`, 'success');
+        
+        // Auto-switch to process tab to guide user
+        setTimeout(() => {
+            App.switchTab('process');
+        }, 500);
     };
 
     App.enrichData = function () {
@@ -847,6 +858,7 @@ function setupEventListeners() {
     const filterToggle = getEl('filterToggle');
     const downloadTableBtn = getEl('downloadTableBtn');
     const tabInput = getEl('tabInput');
+    const tabProcess = getEl('tabProcess');
     const tabMap = getEl('tabMap');
     const viewModeControls = getEl('viewModeControls');
     const showTableBtn = getEl('showTableBtn');
@@ -895,6 +907,7 @@ function setupEventListeners() {
     }
 
     tabInput.addEventListener('click', () => App.switchTab('input'));
+    tabProcess.addEventListener('click', () => App.switchTab('process'));
     tabMap.addEventListener('click', () => App.switchTab('map'));
 
     viewModeControls.querySelectorAll('button').forEach(btn => {

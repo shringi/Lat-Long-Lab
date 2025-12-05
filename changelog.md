@@ -2,6 +2,10 @@
 - [x] 1.0.1:  Rename folder name
 - [x] 1.0.2: Adding Icons
 - [x] 1.0.3: Adding README and screenshot
+- [ ] 1.0.4: Rename the button Enrich data to Add Country Column
+- [ ] 1.0.5: Add date and version in the site footer
+- [ ] 1.0.6: Readme: Update the details about debug logs.
+- [ ] 1.0.7: Readme: Update the details about screenshot loads points from chave et al 2014
 - [ ] 1.1.0: Create additional tab for data processing
     - [ ] 1.1.1: Add country name in the column functionality
     - [ ] 1.1.2: Filter data by rectangular area

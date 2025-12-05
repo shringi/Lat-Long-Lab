@@ -1,14 +1,16 @@
 # Lat-Long Lab
 
-**Client-side Geographic Processor & Visualizer**
+![Lat-Long Lab](icons/logo_192.png)
+
+**A super light, privacy focused web app for a quick latitude-longitude visualization and data filtering.**
 
 https://shringi.github.io/Lat-Long-Lab/
 
-Current Version: 1.0.3
+Current Version: 1.1.0
 
-Last Updated on: 2025-Dec-04
+Last Updated on: 2025-Dec-05
 
-![Lat-Long Lab](icons/logo_192.png)
+
 
 ## Motivation
 

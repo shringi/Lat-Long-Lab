@@ -49,7 +49,8 @@
 
 <body class="h-full flex flex-col sm:flex-row overflow-hidden relative">
     <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-white z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
+    <div id="loadingOverlay"
+        class="fixed inset-0 bg-white z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
         <img src="icons/loading_icon.png" alt="Loading..." class="w-16 h-16 animate-pulse mb-4">
         <p class="text-gray-500 text-sm font-medium">Initializing Lat-Long Lab...</p>
     </div>
@@ -57,17 +58,23 @@
     <!-- Sidebar / Controls -->
     <aside
         class="w-full sm:w-96 bg-white shadow-xl z-20 flex flex-col h-1/2 sm:h-full border-r border-gray-200 sm:flex-none">
-        <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex items-center space-x-3">
+        <div
+            class="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex items-center space-x-3">
             <img src="icons/logo_192.png" alt="Logo" class="w-10 h-10 bg-white rounded-lg p-1 shadow-sm">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight leading-none">Lat-Long Lab</h1>
-                <p class="text-xs mt-1 opacity-70">Client-side Geographic Processor</p>
+                <p class="text-xs mt-1 opacity-70">A Lat-Long Explorer Tool</p>
+                <p class="text-xs mt-1 opacity-70">Version 1.1.0</p>
+                <p class="text-xs mt-1 opacity-70">Source Code: <a href="https://github.com/shringi/Lat-Long-Lab"
+                        target="_blank">github.com/shringi/Lat-Long-Lab</a></p>
             </div>
         </div>
         <!-- Tabs Navigation -->
         <div class="flex border-b border-gray-200">
             <button id="tabInput"
                 class="flex-1 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 focus:outline-none transition-colors">Input</button>
+            <button id="tabProcess"
+                class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none transition-colors">Process</button>
             <button id="tabMap"
                 class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none transition-colors">Map
                 Settings</button>
@@ -130,7 +137,9 @@
                         <span id="pointCount" class="font-bold text-gray-800">0</span> points.
                     </div>
                 </div>
-                <hr class="border-gray-200">
+            </div>
+            <!-- Tab: Process -->
+            <div id="contentProcess" class="hidden space-y-6">
                 <!-- Selection Info -->
                 <div id="selectionSection"
                     class="space-y-4 opacity-50 pointer-events-none transition-opacity duration-300">
