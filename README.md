@@ -1,6 +1,6 @@
 # Lat-Long Lab
 
-![Lat-Long Lab](src/icons/logo_192.png)
+![Lat-Long Lab](src/public/icons/logo_192.png)
 
 **A super light, privacy focused web app for a quick latitude-longitude visualization and data filtering.**
 
@@ -22,7 +22,7 @@ Researchers and analysts often deal with supplementary materials from publicatio
 - **Runs entirely on the client-side**, ensuring data privacy and ease of use.
 
 ## Features
-![Screenshot](src/icons/screenshot_v1.3.0.png)
+![Screenshot](src/public/icons/screenshot_v1.3.0.png)
 - **Versatile Data Loading**:
     - Upload **CSV, Excel (.xlsx, .xls), or TXT** files.
     - **Paste** data directly from your clipboard.
