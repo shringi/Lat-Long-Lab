@@ -22,7 +22,7 @@ Researchers and analysts often deal with supplementary materials from publicatio
 - **Runs entirely on the client-side**, ensuring data privacy and ease of use.
 
 ## Features
-![Screenshot](icons/screenshot_v1.0.2.png)
+![Screenshot](icons/screenshot_v1.2.0.png)
 - **Versatile Data Loading**:
     - Upload **CSV, Excel (.xlsx, .xls), or TXT** files.
     - **Paste** data directly from your clipboard.
@@ -47,7 +47,11 @@ Researchers and analysts often deal with supplementary materials from publicatio
 You have three options to get your data into the lab:
 - **Upload File**: Click the upload box to select a `.csv`, `.xlsx`, or `.txt` file from your computer.
 - **Paste Data**: Copy your raw data (CSV format) and paste it into the text area, then click "Load Pasted Data".
-- **Fetch from URL**: Enter a direct link to a CSV or JSON file and click "Fetch".
+- **Fetch from URL**: Enter a direct link to a CSV or JSON file and click "Fetch". 
+  - For example use the following url to import worldbank data. 
+  ```text
+  https://raw.githubusercontent.com/prasertcbs/basic-dataset/refs/heads/master/worldbank_countries.csv
+  ```
 
 *Note: The application will attempt to automatically detect `Latitude` and `Longitude` columns. If it can't, you will be prompted to map them manually.*
 
