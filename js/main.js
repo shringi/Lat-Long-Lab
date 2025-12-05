@@ -1,6 +1,4 @@
 
-console.log("MAIN.JS LOADED");
-
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOMContentLoaded FIRED');
     console.log('App Initializing...');

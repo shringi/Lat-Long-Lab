@@ -1,6 +1,4 @@
 
-console.log("DATA.JS LOADED");
-
 (() => {
     App.handleDataLoad = function (file, text) {
         console.log('App.handleDataLoad called');

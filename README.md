@@ -43,43 +43,44 @@ Researchers and analysts often deal with supplementary materials from publicatio
 
 ## Usage Instructions
 
-### 1. Load Your Data
-You have three options to get your data into the lab:
-- **Upload File**: Click the upload box to select a `.csv`, `.xlsx`, or `.txt` file from your computer.
-- **Paste Data**: Copy your raw data (CSV format) and paste it into the text area, then click "Load Pasted Data".
-- **Fetch from URL**: Enter a direct link to a CSV or JSON file and click "Fetch". 
-  - For example use the following url to import worldbank data. 
-  ```text
-  https://raw.githubusercontent.com/prasertcbs/basic-dataset/refs/heads/master/worldbank_countries.csv
-  ```
+### 1. Getting Started
+You can test the application immediately without providing external files:
+- **Sample Data:** Click **"Load Sample Data (Cities)"** to load a representative dataset found in `js/modules/data.js`.
+- **File Upload:** Upload **CSV, Excel (.xlsx), or TXT** files via the file input interface.
+- **Direct Input:** Paste raw CSV data directly into the provided text area.
 
-*Note: The application will attempt to automatically detect `Latitude` and `Longitude` columns. If it can't, you will be prompted to map them manually.*
+*Note: The application automatically detects "Latitude" and "Longitude" columns. Manual overriding is available if detection fails.*
 
-### 2. Explore the Map
-- Once loaded, your points will appear as markers on the map.
-- Use the **Layer Control** (top-right) to change the base map style.
-- Click on individual clusters to zoom in and see individual points.
+### 2. Exploration & Filtering
+- **Visualization:** Points are rendered as clustered markers on the map. Zooming in reveals individual data points.
+- **Spatial Filtering:** Activate the **Rectangle Tool** from the map toolbar to define a region of interest. Toggle **"Filter by Map Selection"** to restrict the dataset to points within the bounded area.
 
-### 3. Filter by Area
-1.  Use the **Draw Tools** on the map (toolbar on the left).
-2.  Select the **Rectangle** tool.
-3.  Draw a box around the area of interest.
-4.  In the sidebar, toggle **"Filter by Map Selection"**.
-5.  The "Selected Points" count will update to show how many points are inside your box.
+### 3. Data Enrichment
+This feature allows for local spatial joins:
+1.  Filter your data to a specific region (optional).
+2.  Navigate to the **"Process"** tab.
+3.  Select **"Add Country Column"**.
+4.  The application performs a point-in-polygon operation against an onboard GeoJSON dataset to append a `country` attribute to each record.
 
-### 4. View and Export
-- Click **"Show Data Table"** (or use the view controls at the top) to inspect the raw data.
-- If you have filtered the data, the table will reflect the selection.
-- Click **"Download CSV"** in the sidebar or the table view to save your processed dataset.
+### 4. Data Export
+- Navigate to the **"Export"** tab or the Data Table view.
+- Select **"Download CSV"** to export the processed dataset, including any applied filters and enriched attributes.
+
+## Troubleshooting & Debugging
+
+If you encounter unexpected behavior, a **Debug Console** is available:
+1.  Click the **Debug Icon (🐞)** located in the bottom-left corner of the screen.
+2.  This console displays real-time execution logs and error messages.
+3.  When reporting issues on GitHub, please look for "Error" messages in this console and include them in your report.
 
 ## Reporting Bugs & Feature Requests
 
 We welcome feedback! If you encounter any issues or have ideas for new features:
 
-1.  Navigate to the **[Issues](https://github.com/YOUR_USERNAME/Lat-Long-Lab/issues)** tab of this repository.
+1.  Navigate to the **[Issues](https://github.com/shringi/Lat-Long-Lab/issues)** tab.
 2.  Click **"New Issue"**.
 3.  Choose **"Bug Report"** or **"Feature Request"**.
-4.  Provide as much detail as possible (browser version, steps to reproduce, screenshots).
+4.  Provide detailed steps to reproduce the issue and any relevant logs from the Debug Console.
 
 ## Credits
 Built with open-source power:
