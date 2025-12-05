@@ -106,6 +106,13 @@ function setupEventListeners() {
     showTableBtn.addEventListener('click', () => App.toggleTableVisibility(true));
     closeTableBtn.addEventListener('click', () => App.toggleTableVisibility(false));
 
+    const sampleBtn = document.getElementById('sampleBtn');
+    if (sampleBtn) {
+        sampleBtn.addEventListener('click', () => {
+            App.loadSampleData();
+        });
+    }
+
     confirmMappingBtn.addEventListener('click', () => App.applyColumnMapping(latColSelect.value, lngColSelect.value));
     cancelMappingBtn.addEventListener('click', App.hideColumnMappingModal);
 }

@@ -232,6 +232,21 @@ console.log("DATA.JS LOADED");
         return { lat: latCol, lng: lngCol };
     }
 
+    App.loadSampleData = function () {
+        const sampleData = [
+            { id: 1, name: "New York", lat: 40.7128, lng: -74.0060, category: "City" },
+            { id: 2, name: "London", lat: 51.5074, lng: -0.1278, category: "City" },
+            { id: 3, name: "Tokyo", lat: 35.6762, lng: 139.6503, category: "City" },
+            { id: 4, name: "Sydney", lat: -33.8688, lng: 151.2093, category: "City" },
+            { id: 5, name: "Rio de Janeiro", lat: -22.9068, lng: -43.1729, category: "City" },
+            { id: 6, name: "Cape Town", lat: -33.9249, lng: 18.4241, category: "City" },
+            { id: 7, name: "Mumbai", lat: 19.0760, lng: 72.8777, category: "City" },
+            { id: 8, name: "Paris", lat: 48.8566, lng: 2.3522, category: "City" }
+        ];
+        processParsedData(sampleData);
+        App.showToast("Loaded sample data.", "success");
+    };
+
     // Expose for testing/usage
     App.guessColumns = guessColumns;
 })();

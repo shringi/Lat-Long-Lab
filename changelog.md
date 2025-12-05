@@ -6,5 +6,6 @@
 - [x] 1.1.1: Renamed the button "Enrich data" to "Add Country Column"
 - [x] 1.2.0 (2025-12-05): Major restructuring of the codebase
 - [x] 1.2.1 (2025-12-05): Added Smart Column Detection for auto-mapping lat/long columns
+- [x] 1.2.2 (2025-12-05): UX Polish - Floating Debug Icon & Sample Data
 - [ ] Readme: Update the details about debug logs.
 - [ ] Make debug icon smaller and floatable or tucked in the corner.
