@@ -64,7 +64,7 @@
             <div>
                 <h1 class="text-2xl font-bold tracking-tight leading-none">Lat-Long Lab</h1>
                 <p class="text-xs mt-1 opacity-70">A Lat-Long Explorer Tool</p>
-                <p class="text-xs mt-1 opacity-70">Version 1.1.0</p>
+                <p class="text-xs mt-1 opacity-70">Version 1.2.0</p>
                 <p class="text-xs mt-1 opacity-70">Source Code: <a href="https://github.com/shringi/Lat-Long-Lab"
                         target="_blank">github.com/shringi/Lat-Long-Lab</a></p>
             </div>
@@ -154,8 +154,8 @@
                             </div>
                         </label>
                     </div>
-                    <p id="filterHelpText" class="text-xs text-gray-500">Only points inside the rectangle will be
-                        enriched.</p>
+                    <p id="filterHelpText" class="text-xs text-gray-500">Only points inside the rectangle will reflect
+                        the country name.</p>
                     <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r shadow-sm">
                         <div class="flex">
                             <div class="flex-shrink-0">
@@ -172,8 +172,8 @@
                         </div>
                     </div>
                     <button id="enrichBtn" disabled
-                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Enrich
-                        Data (Local)</button>
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Add
+                        Country Column </button>
                 </div>
                 <!-- Export Section -->
                 <div id="exportSection" class="space-y-4 hidden">
@@ -181,7 +181,7 @@
                     <button id="exportBtn"
                         class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">Download
                         CSV</button>
-                    <p id="loadingText" class="text-sm text-gray-600 mt-2">Enriching data locally...</p>
+                    <p id="loadingText" class="text-sm text-gray-600 mt-2">Adding Country Column...</p>
                 </div>
             </div>
             <!-- Tab: Map Settings -->
@@ -245,10 +245,6 @@
                     class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                </svg></button>
-            <button data-mode="modal" class="p-1.5 rounded hover:bg-gray-100 text-gray-600" title="Modal View"><svg
-                    class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
                 </svg></button>
         </div>
     </main>
@@ -319,7 +315,19 @@
     <script src="https://cdn.datatables.net/columncontrol/1.1.1/js/dataTables.columnControl.js"></script>
 
     <script src="js/world_data.js"></script>
-    <script src="js/script.js"></script>
+
+    <!-- Core Modules -->
+    <script src="js/core/state.js"></script>
+    <script src="js/core/debug.js"></script>
+
+    <!-- Feature Modules -->
+    <script src="js/modules/ui.js"></script>
+    <script src="js/modules/map.js"></script>
+    <script src="js/modules/table.js"></script>
+    <script src="js/modules/data.js"></script>
+
+    <!-- Main Entry Point -->
+    <script src="js/main.js"></script>
 </body>
 
 </html>

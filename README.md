@@ -6,11 +6,9 @@
 
 https://shringi.github.io/Lat-Long-Lab/
 
-Current Version: 1.1.0
+Current Version: 1.2.0
 
 Last Updated on: 2025-Dec-05
-
-
 
 ## Motivation
 

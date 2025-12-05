@@ -2,14 +2,12 @@
 - [x] 1.0.1:  Rename folder name
 - [x] 1.0.2: Adding Icons
 - [x] 1.0.3: Adding README and screenshot
-- [ ] 1.0.4: Rename the button Enrich data to Add Country Column
-- [ ] 1.0.5: Add date and version in the site footer
-- [ ] 1.0.6: Readme: Update the details about debug logs.
-- [ ] 1.0.7: Readme: Update the details about screenshot loads points from chave et al 2014
-- [ ] 1.1.0: Create additional tab for data processing
-    - [ ] 1.1.1: Add country name in the column functionality
-    - [ ] 1.1.2: Filter data by rectangular area
-- [ ] 1.2.0:  Add option to sample data
-- [ ] 1.3.0: Add wdpa data 
-- [ ] 1.4.0: Add guess feature for potential latitude and longitude column name
-- [ ] 1.5.0: Make debug icon floatable or tucked in the corner.
+- [x] 1:1.0: Create additional tab for data processing
+- [x] 1.1.1: Renamed the button "Enrich data" to "Add Country Column"
+- [x] 1.2.0 (2025-12-05): Major restructuring of the codebase
+- [ ] Readme: Update the details about debug logs.
+- [ ] Readme: Update the details about screenshot loads points from chave et al 2014
+- [ ] Add option to sample data
+- [ ] Add wdpa data 
+- [ ] Add guess feature for potential latitude and longitude column name
+- [ ] Make debug icon floatable or tucked in the corner.
