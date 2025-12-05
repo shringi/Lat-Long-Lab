@@ -1,12 +1,12 @@
 # Lat-Long Lab
 
-![Lat-Long Lab](icons/logo_192.png)
+![Lat-Long Lab](src/icons/logo_192.png)
 
 **A super light, privacy focused web app for a quick latitude-longitude visualization and data filtering.**
 
 https://shringi.github.io/Lat-Long-Lab/
 
-Current Version: 1.2.2
+Current Version: 1.3.0
 
 Last Updated on: 2025-Dec-05
 
@@ -22,7 +22,7 @@ Researchers and analysts often deal with supplementary materials from publicatio
 - **Runs entirely on the client-side**, ensuring data privacy and ease of use.
 
 ## Features
-![Screenshot](icons/screenshot_v1.2.0.png)
+![Screenshot](src/icons/screenshot_v1.3.0.png)
 - **Versatile Data Loading**:
     - Upload **CSV, Excel (.xlsx, .xls), or TXT** files.
     - **Paste** data directly from your clipboard.
@@ -48,6 +48,11 @@ You can test the application immediately without providing external files:
 - **Sample Data:** Click **"Load Sample Data (Cities)"** to load a representative dataset found in `js/modules/data.js`.
 - **File Upload:** Upload **CSV, Excel (.xlsx), or TXT** files via the file input interface.
 - **Direct Input:** Paste raw CSV data directly into the provided text area.
+- **Fetch from URL**: Enter a direct link to a CSV or JSON file and click "Fetch". 
+  - For example use the following url to import worldbank data. 
+  ```text
+  https://raw.githubusercontent.com/prasertcbs/basic-dataset/refs/heads/master/worldbank_countries.csv
+  ```
 
 *Note: The application automatically detects "Latitude" and "Longitude" columns. Manual overriding is available if detection fails.*
 

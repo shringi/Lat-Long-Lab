@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lat-Long Lab</title>
     <link rel="icon" href="icons/favicon.ico">
-    <!-- Global Error Handler -->
+
+    <!-- =========================================================================
+         Global Error Handler (Catch-all for early startup errors)
+         ========================================================================= -->
     <script>
         window.onerror = function (msg, url, line, col, error) {
             var extra = !col ? '' : '\ncolumn: ' + col;
@@ -14,62 +18,71 @@
             console.error("Error: " + msg + "\nurl: " + url + "\nline: " + line + extra);
 
             var errorDiv = document.createElement("div");
-            errorDiv.style.position = "fixed";
-            errorDiv.style.top = "0";
-            errorDiv.style.left = "0";
-            errorDiv.style.width = "100%";
-            errorDiv.style.backgroundColor = "red";
-            errorDiv.style.color = "white";
-            errorDiv.style.zIndex = "999999";
-            errorDiv.style.padding = "10px";
-            errorDiv.style.fontFamily = "monospace";
-            errorDiv.innerText = "CRITICAL ERROR: " + msg + " at " + url + ":" + line;
+            Object.assign(errorDiv.style, {
+                position: "fixed", top: "0", left: "0", width: "100%",
+                backgroundColor: "#ef4444", color: "white", zIndex: "999999",
+                padding: "1rem", fontFamily: "monospace", fontSize: "0.875rem",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+            });
+            errorDiv.innerText = "CRITICAL ERROR: " + msg + " at " + line;
             document.body.appendChild(errorDiv);
             return false;
         };
         console.log("Global error handler registered");
     </script>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-    <!-- Leaflet Draw CSS -->
+    <!-- =========================================================================
+         Stylesheets & CDN Resources
+         ========================================================================= -->
+
+    <!-- Core UI Framework (Tailwind CSS) - Replaced by local build -->
+
+    <!-- Mapping Library (Leaflet) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
 
-    <!-- jQuery 3.7.1 -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-    <!-- DataTables 2.3.5 CSS -->
+    <!-- DataTables & Plugins -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.5/css/dataTables.dataTables.css">
-    <!-- ColumnControl 1.1.1 CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/columncontrol/1.1.1/css/columnControl.dataTables.css">
-    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Application Styles -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Core Dependencies (Pre-load) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 
-<body class="h-full flex flex-col sm:flex-row overflow-hidden relative">
-    <!-- Loading Overlay -->
+<body class="h-full flex flex-col sm:flex-row overflow-hidden relative font-sans text-gray-900">
+
+    <!-- =========================================================================
+         1. Loading Overlay
+         ========================================================================= -->
     <div id="loadingOverlay"
         class="fixed inset-0 bg-white z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
         <img src="icons/loading_icon.png" alt="Loading..." class="w-16 h-16 animate-pulse mb-4">
         <p class="text-gray-500 text-sm font-medium">Initializing Lat-Long Lab...</p>
     </div>
 
-    <!-- Sidebar / Controls -->
+    <!-- =========================================================================
+         2. Sidebar / Controls Panel
+         ========================================================================= -->
     <aside
         class="w-full sm:w-96 bg-white shadow-xl z-20 flex flex-col h-1/2 sm:h-full border-r border-gray-200 sm:flex-none">
+
+        <!-- App Header -->
         <div
             class="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex items-center space-x-3">
             <img src="icons/logo_192.png" alt="Logo" class="w-10 h-10 bg-white rounded-lg p-1 shadow-sm">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight leading-none">Lat-Long Lab</h1>
                 <p class="text-xs mt-1 opacity-70">A Lat-Long Explorer Tool</p>
-                <p class="text-xs mt-1 opacity-70">Version 1.2.2</p>
+                <p class="text-xs mt-1 opacity-70">Version 1.3.0</p>
                 <p class="text-xs mt-1 opacity-70">Source Code: <a href="https://github.com/shringi/Lat-Long-Lab"
-                        target="_blank">github.com/shringi/Lat-Long-Lab</a></p>
+                        target="_blank" class="underline hover:text-blue-100">GitHub</a></p>
             </div>
         </div>
-        <!-- Tabs Navigation -->
+
+        <!-- Navigation Tabs -->
         <div class="flex border-b border-gray-200">
             <button id="tabInput"
                 class="flex-1 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 focus:outline-none transition-colors">Input</button>
@@ -79,13 +92,17 @@
                 class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none transition-colors">Map
                 Settings</button>
         </div>
+
+        <!-- Tab Content Container -->
         <div class="flex-1 flex flex-col overflow-y-auto p-6 space-y-6 relative">
-            <!-- Tab: Input -->
+
+            <!-- CONTENT: INPUT TAB -->
             <div id="contentInput" class="space-y-6">
-                <!-- Input Section -->
+                <!-- Section: Data Loading -->
                 <div class="space-y-4">
                     <h2 class="text-sm uppercase tracking-wider text-gray-500 font-semibold">1. Load Data</h2>
-                    <!-- File Input -->
+
+                    <!-- File Upload Zone -->
                     <div class="relative group">
                         <label for="csvFile"
                             class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-blue-50 hover:border-blue-400 transition-all duration-200">
@@ -97,12 +114,13 @@
                                     </path>
                                 </svg>
                                 <p class="text-sm text-gray-500 group-hover:text-blue-600"><span
-                                        class="font-semibold">Click
-                                        to upload</span> (CSV, Excel, TXT)</p>
+                                        class="font-semibold">Click to upload</span> (CSV, Excel, TXT)</p>
                             </div>
                             <input id="csvFile" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls" class="hidden" />
                         </label>
                     </div>
+
+                    <!-- Divider -->
                     <div class="relative">
                         <div class="absolute inset-0 flex items-center">
                             <div class="w-full border-t border-gray-200"></div>
@@ -110,6 +128,7 @@
                         <div class="relative flex justify-center text-sm"><span
                                 class="px-2 bg-white text-gray-500">OR</span></div>
                     </div>
+
                     <!-- URL Input -->
                     <div class="flex space-x-2">
                         <input type="text" id="urlInput" placeholder="Paste URL (CSV/JSON)..."
@@ -117,6 +136,8 @@
                         <button id="urlBtn"
                             class="px-3 py-2 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-gray-600 hover:bg-gray-700 focus:outline-none transition-colors">Fetch</button>
                     </div>
+
+                    <!-- Divider -->
                     <div class="relative">
                         <div class="absolute inset-0 flex items-center">
                             <div class="w-full border-t border-gray-200"></div>
@@ -124,16 +145,20 @@
                         <div class="relative flex justify-center text-sm"><span
                                 class="px-2 bg-white text-gray-500">OR</span></div>
                     </div>
-                    <!-- Text Area -->
+
+                    <!-- Paste Area -->
                     <div>
                         <textarea id="csvInput" rows="3"
                             class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 border bg-gray-50 font-mono text-xs"
                             placeholder="Paste data here..."></textarea>
                     </div>
-                    <button id="loadBtn"
-                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Load
-                        Pasted Data</button>
 
+                    <button id="loadBtn"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Load Pasted Data
+                    </button>
+
+                    <!-- Divider -->
                     <div class="relative">
                         <div class="absolute inset-0 flex items-center">
                             <div class="w-full border-t border-gray-200"></div>
@@ -142,22 +167,27 @@
                                 class="px-2 bg-white text-gray-500">OR</span></div>
                     </div>
 
+                    <!-- Sample Data Button -->
                     <button id="sampleBtn"
                         class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
                         Load Sample Data (Cities)
                     </button>
-                    <div id="dataStats" class="hidden text-xs text-gray-500 text-center bg-gray-100 p-2 rounded">Loaded
-                        <span id="pointCount" class="font-bold text-gray-800">0</span> points.
+
+                    <!-- Status Indicator -->
+                    <div id="dataStats" class="hidden text-xs text-gray-500 text-center bg-gray-100 p-2 rounded">
+                        Loaded <span id="pointCount" class="font-bold text-gray-800">0</span> points.
                     </div>
                 </div>
             </div>
-            <!-- Tab: Process -->
+
+            <!-- CONTENT: PROCESS TAB -->
             <div id="contentProcess" class="hidden space-y-6">
-                <!-- Selection Info -->
+                <!-- Data Processing & Enrichment -->
                 <div id="selectionSection"
                     class="space-y-4 opacity-50 pointer-events-none transition-opacity duration-300">
                     <h2 class="text-sm uppercase tracking-wider text-gray-500 font-semibold">2. Process</h2>
-                    <!-- Filter Toggle -->
+
+                    <!-- Filter Control -->
                     <div class="flex items-center justify-between bg-gray-100 p-3 rounded-md">
                         <span class="text-sm text-gray-700 font-medium">Filter by Map Selection</span>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -167,8 +197,10 @@
                             </div>
                         </label>
                     </div>
-                    <p id="filterHelpText" class="text-xs text-gray-500">Only points inside the rectangle will reflect
-                        the country name.</p>
+                    <p id="filterHelpText" class="text-xs text-gray-500">Only points inside the rectangle will be
+                        processed.</p>
+
+                    <!-- Selection Feedback -->
                     <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r shadow-sm">
                         <div class="flex">
                             <div class="flex-shrink-0">
@@ -184,20 +216,26 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Enrichment Action -->
                     <button id="enrichBtn" disabled
-                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Add
-                        Country Column </button>
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Add Country Column
+                    </button>
                 </div>
+
                 <!-- Export Section -->
                 <div id="exportSection" class="space-y-4 hidden">
                     <h2 class="text-sm uppercase tracking-wider text-gray-500 font-semibold">3. Export</h2>
                     <button id="exportBtn"
-                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">Download
-                        CSV</button>
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                        Download CSV
+                    </button>
                     <p id="loadingText" class="text-sm text-gray-600 mt-2">Adding Country Column...</p>
                 </div>
             </div>
-            <!-- Tab: Map Settings -->
+
+            <!-- CONTENT: MAP SETTINGS TAB -->
             <div id="contentMap" class="hidden flex-1 flex flex-col h-full space-y-6">
                 <div class="space-y-4">
                     <h2 class="text-sm uppercase tracking-wider text-gray-500 font-semibold">Map Layers</h2>
@@ -206,6 +244,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Footer -->
         <div class="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between text-xs text-gray-500">
             <span>&copy; 2024 Lat-Long Lab</span>
@@ -213,16 +252,40 @@
         </div>
     </aside>
 
-    <!-- Main Content Area (Map) -->
+    <!-- =========================================================================
+         3. Main Content (Map & Table)
+         ========================================================================= -->
     <main id="mainContent" class="flex-1 relative h-full flex flex-col">
-        <!-- Map Container -->
+
+        <!-- View Mode Controller -->
+        <div id="viewModeControls"
+            class="absolute top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-white rounded-md shadow-md p-1 flex space-x-1 border border-gray-300">
+            <button data-mode="toggle" class="p-1.5 rounded hover:bg-gray-100 text-gray-600 active-mode"
+                title="Toggle View">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                    </path>
+                </svg>
+            </button>
+            <button data-mode="split" class="p-1.5 rounded hover:bg-gray-100 text-gray-600" title="Split View">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Map View -->
         <div id="mapContainer" class="flex-1 relative w-full h-full transition-all duration-300">
             <div id="map" class="absolute inset-0 z-0"></div>
+            <!-- Mobile Toggle -->
             <button id="showTableBtn"
-                class="absolute bottom-6 right-4 z-[1000] bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors font-medium text-sm hidden">Show
-                Data Table</button>
+                class="absolute bottom-6 right-4 z-[1000] bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors font-medium text-sm hidden">
+                Show Data Table
+            </button>
         </div>
-        <!-- Table Container -->
+
+        <!-- Table View -->
         <div id="tableContainer"
             class="hidden bg-white flex flex-col transition-all duration-300 border-t border-gray-200 relative">
             <div class="flex justify-between items-center p-2 bg-gray-50 border-b border-gray-200">
@@ -231,11 +294,12 @@
                     <button id="downloadTableBtn"
                         class="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-gray-700">Export
                         CSV</button>
-                    <button id="closeTableBtn" class="text-gray-500 hover:text-gray-700 hidden"><svg class="w-5 h-5"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button id="closeTableBtn" class="text-gray-500 hover:text-gray-700 hidden">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
-                        </svg></button>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div id="dataTableContainer" class="flex-1 w-full text-xs overflow-auto p-2">
@@ -245,26 +309,14 @@
                 </table>
             </div>
         </div>
-
-        <!-- View Mode Controls (Moved to center top) -->
-        <div id="viewModeControls"
-            class="absolute top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-white rounded-md shadow-md p-1 flex space-x-1 border border-gray-300">
-            <button data-mode="toggle" class="p-1.5 rounded hover:bg-gray-100 text-gray-600 active-mode"
-                title="Toggle View"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
-                    </path>
-                </svg></button>
-            <button data-mode="split" class="p-1.5 rounded hover:bg-gray-100 text-gray-600" title="Split View"><svg
-                    class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                </svg></button>
-        </div>
     </main>
 
+    <!-- =========================================================================
+         4. Modals & Overlays
+         ========================================================================= -->
+
     <!-- Column Mapping Modal -->
-    <div id="columnMappingModal"
-        class="absolute inset-0 bg-black bg-opacity-50 z-[10000] hidden flex items-center justify-center">
+    <div id="columnMappingModal" class="absolute inset-0 bg-black/50 z-[10000] hidden flex items-center justify-center">
         <div class="bg-white rounded-lg shadow-xl p-6 w-96 max-w-full m-4">
             <h3 class="text-lg font-bold text-gray-900 mb-4">Map Columns</h3>
             <p class="text-sm text-gray-600 mb-4">Please select the columns that contain the coordinates.</p>
@@ -290,7 +342,7 @@
         </div>
     </div>
 
-    <!-- Toast Container -->
+    <!-- Toast Notifications -->
     <div id="toast-container"></div>
 
     <!-- Debug Console -->
@@ -307,39 +359,41 @@
         <div id="debugOutput" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
     </div>
 
-    <!-- Debug Toggle Button (Visible when console is hidden) -->
+    <!-- Floating Debug Button -->
     <button id="showDebugBtn"
         class="fixed bottom-4 left-4 z-[99999] bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-50 hover:opacity-100 hover:scale-110"
         title="Show Debug Console">
         🐞
     </button>
 
-    <!-- Scripts -->
+    <!-- =========================================================================
+         5. Scripts (Load Order: Libs -> Data -> Core -> Feature -> Main)
+         ========================================================================= -->
+
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <script src="https://unpkg.com/leaflet-providers@1.13.0/leaflet-providers.js"></script>
     <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
-
-    <!-- DataTables 2.3.5 JS -->
     <script src="https://cdn.datatables.net/2.3.5/js/dataTables.js"></script>
-    <!-- ColumnControl 1.1.1 JS -->
     <script src="https://cdn.datatables.net/columncontrol/1.1.1/js/dataTables.columnControl.js"></script>
 
+    <!-- Data Assets -->
     <script src="js/world_data.js"></script>
 
-    <!-- Core Modules -->
+    <!-- App Core -->
     <script src="js/core/state.js"></script>
     <script src="js/core/debug.js"></script>
 
-    <!-- Feature Modules -->
+    <!-- App Modules -->
     <script src="js/modules/ui.js"></script>
     <script src="js/modules/map.js"></script>
     <script src="js/modules/table.js"></script>
     <script src="js/modules/data.js"></script>
 
-    <!-- Main Entry Point -->
+    <!-- Entry Point -->
     <script src="js/main.js"></script>
 </body>
 

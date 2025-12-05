@@ -100,10 +100,10 @@ console.log("UI.JS LOADED");
 
         if (App.state.isFilteringEnabled) {
             filterHelpText.textContent = "Only points inside the rectangle will be enriched.";
-            enrichBtn.textContent = "Enrich Selection (Local)";
+            enrichBtn.textContent = "Add country column";
         } else {
             filterHelpText.textContent = "All loaded points will be enriched.";
-            enrichBtn.textContent = "Enrich All (Local)";
+            enrichBtn.textContent = "Add country column";
         }
         if (filterToggle) filterToggle.checked = App.state.isFilteringEnabled;
     };
