@@ -88,7 +88,14 @@ console.log("DATA.JS LOADED");
         }
         App.state.rawData = data;
         const headers = Object.keys(data[0]);
-        App.showColumnMappingModal(headers);
+
+        // Phase 1: Smart Column Detection
+        const defaults = App.guessColumns(headers);
+        if (defaults.lat && defaults.lng) {
+            App.showToast('Auto-detected coordinate columns!', 'success');
+        }
+
+        App.showColumnMappingModal(headers, defaults);
     }
 
     App.applyColumnMapping = function (latCol, lngCol) {
@@ -187,4 +194,44 @@ console.log("DATA.JS LOADED");
         document.body.removeChild(link);
         App.showToast('Download started!', 'success');
     };
+    function guessColumns(headers) {
+        // Safe keywords: Can be part of a larger word (e.g. "MyLatitude", "longitude_val")
+        // We look for "latitude" or "longitude" anywhere, case-insensitive.
+        const safeLat = /latitude/i;
+        const safeLng = /longitude/i;
+
+        // Risky keywords: Must be delimited (e.g. "lat", "y"). 
+        // We don't want to match "Plate" or "Year".
+        // Use regex that requires start/end of string OR non-letter characters around it.
+        const riskyLat = /(^|[^a-z])(lat|y)($|[^a-z])/i;
+        const riskyLng = /(^|[^a-z])(lng|lon|long|x)($|[^a-z])/i;
+
+        let latCol = null;
+        let lngCol = null;
+
+        // Strategy: 
+        // 1. Prioritize "Safe" matches (explicit "latitude").
+        // 2. Fallback to "Risky" matches (short "lat", "y") only if no safe match found.
+
+        // Find Lat
+        const safeLatMatch = headers.find(h => safeLat.test(h));
+        if (safeLatMatch) {
+            latCol = safeLatMatch;
+        } else {
+            latCol = headers.find(h => riskyLat.test(h)) || null;
+        }
+
+        // Find Lng
+        const safeLngMatch = headers.find(h => safeLng.test(h));
+        if (safeLngMatch) {
+            lngCol = safeLngMatch;
+        } else {
+            lngCol = headers.find(h => riskyLng.test(h)) || null;
+        }
+
+        return { lat: latCol, lng: lngCol };
+    }
+
+    // Expose for testing/usage
+    App.guessColumns = guessColumns;
 })();

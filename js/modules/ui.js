@@ -108,7 +108,7 @@ console.log("UI.JS LOADED");
         if (filterToggle) filterToggle.checked = App.state.isFilteringEnabled;
     };
 
-    App.showColumnMappingModal = function (headers) {
+    App.showColumnMappingModal = function (headers, defaults = {}) {
         const columnMappingModal = getEl('columnMappingModal');
         const latColSelect = getEl('latColSelect');
         const lngColSelect = getEl('lngColSelect');
@@ -128,14 +128,21 @@ console.log("UI.JS LOADED");
             lngColSelect.appendChild(option2);
         });
 
-        const latCandidates = ['latitude', 'lat', 'Lat', 'LATITUDE'];
-        const lngCandidates = ['longitude', 'lng', 'lon', 'long', 'Long', 'LONGITUDE'];
+        // Use defaults if provided, otherwise fallback to basic name matching (legacy)
+        if (defaults.lat) latColSelect.value = defaults.lat;
+        if (defaults.lng) lngColSelect.value = defaults.lng;
 
-        const foundLat = headers.find(h => latCandidates.includes(h));
-        const foundLng = headers.find(h => lngCandidates.includes(h));
+        // Fallback logic if no defaults provided (or if defaults failed to match)
+        if (!defaults.lat || !defaults.lng) {
+            const latCandidates = ['latitude', 'lat', 'Lat', 'LATITUDE'];
+            const lngCandidates = ['longitude', 'lng', 'lon', 'long', 'Long', 'LONGITUDE'];
 
-        if (foundLat) latColSelect.value = foundLat;
-        if (foundLng) lngColSelect.value = foundLng;
+            const foundLat = headers.find(h => latCandidates.includes(h));
+            const foundLng = headers.find(h => lngCandidates.includes(h));
+
+            if (foundLat && !defaults.lat) latColSelect.value = foundLat;
+            if (foundLng && !defaults.lng) lngColSelect.value = foundLng;
+        }
 
         columnMappingModal.classList.remove('hidden');
     };

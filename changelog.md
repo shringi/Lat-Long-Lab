@@ -5,9 +5,6 @@
 - [x] 1:1.0: Create additional tab for data processing
 - [x] 1.1.1: Renamed the button "Enrich data" to "Add Country Column"
 - [x] 1.2.0 (2025-12-05): Major restructuring of the codebase
+- [x] 1.2.1 (2025-12-05): Added Smart Column Detection for auto-mapping lat/long columns
 - [ ] Readme: Update the details about debug logs.
-- [ ] Readme: Update the details about screenshot loads points from chave et al 2014
-- [ ] Add option to sample data
-- [ ] Add wdpa data 
-- [ ] Add guess feature for potential latitude and longitude column name
-- [ ] Make debug icon floatable or tucked in the corner.
+- [ ] Make debug icon smaller and floatable or tucked in the corner.
