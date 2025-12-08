@@ -4,8 +4,8 @@ export default defineConfig(({ command }) => {
     return {
         // Root directory is strict for now (until we migrate to src/)
         root: 'src',
-        // Use root path for local dev, repo name for production build (GitHub Pages)
-        base: command === 'serve' ? '/' : '/Lat-Long-Lab/',
+        // Use relative path for maximum compatibility (works for local preview & GH Pages)
+        base: './',
         build: {
             outDir: '../dist',
             emptyOutDir: true,

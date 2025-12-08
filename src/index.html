@@ -370,6 +370,8 @@
          5. Scripts (Load Order: Libs -> Data -> Core -> Feature -> Main)
          ========================================================================= -->
 
+
+
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
@@ -381,20 +383,20 @@
     <script src="https://cdn.datatables.net/columncontrol/1.1.1/js/dataTables.columnControl.js"></script>
 
     <!-- Data Assets -->
-    <script src="js/world_data.js"></script>
+
 
     <!-- App Core -->
-    <script src="js/core/state.js"></script>
-    <script src="js/core/debug.js"></script>
+    <script type="module" src="/js/core/state.js"></script>
+    <script type="module" src="/js/core/debug.js"></script>
 
     <!-- App Modules -->
-    <script src="js/modules/ui.js"></script>
-    <script src="js/modules/map.js"></script>
-    <script src="js/modules/table.js"></script>
-    <script src="js/modules/data.js"></script>
+    <script type="module" src="/js/modules/ui.js"></script>
+    <script type="module" src="/js/modules/map.js"></script>
+    <script type="module" src="/js/modules/table.js"></script>
+    <script type="module" src="/js/modules/data.js"></script>
 
     <!-- Entry Point -->
-    <script src="js/main.js"></script>
+    <script type="module" src="/js/main.js"></script>
 </body>
 
 </html>
