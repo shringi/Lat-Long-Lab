@@ -12,40 +12,37 @@ export function setViewChangeCallback(callback) {
 }
 
 export function switchTab(tabName) {
-    // Auto-expand on tab click if collapsed
-    const body = document.body;
-    if (body.classList.contains('sidebar-collapsed')) {
-        toggleSidebar(true);
-    }
+    // 1. Reset all tabs
+    ['input', 'process', 'export'].forEach(t => {
+        const btn = getEl(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        const content = getEl(`content${t.charAt(0).toUpperCase() + t.slice(1)}`);
 
-    const tabInput = getEl('tabInput');
-    const tabProcess = getEl('tabProcess');
-    const tabMap = getEl('tabMap');
-    const contentInput = getEl('contentInput');
-    const contentProcess = getEl('contentProcess');
-    const contentMap = getEl('contentMap');
-
-    [tabInput, tabProcess, tabMap].forEach(btn => {
-        btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
-        btn.classList.add('text-gray-500');
-    });
-    [contentInput, contentProcess, contentMap].forEach(content => content.classList.add('hidden'));
-
-    if (tabName === 'input') {
-        tabInput.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
-        tabInput.classList.remove('text-gray-500');
-        contentInput.classList.remove('hidden');
-    } else if (tabName === 'process') {
-        tabProcess.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
-        tabProcess.classList.remove('text-gray-500');
-        contentProcess.classList.remove('hidden');
-    } else if (tabName === 'map') {
-        tabMap.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
-        tabMap.classList.remove('text-gray-500');
-        contentMap.classList.remove('hidden');
-        if (invalidateMapSize) {
-            setTimeout(invalidateMapSize, 100);
+        if (btn) {
+            btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600', 'active-tab');
+            btn.classList.add('text-gray-500', 'hover:text-gray-700');
+            // Reset icon color
+            const icon = btn.querySelector('svg');
+            if (icon) icon.classList.remove('text-blue-600');
         }
+        if (content) content.classList.add('hidden');
+    });
+
+    // 2. Activate selected tab
+    const activeBtn = getEl(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+    const activeContent = getEl(`content${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+
+    if (activeBtn) {
+        activeBtn.classList.remove('text-gray-500', 'hover:text-gray-700');
+        activeBtn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600', 'active-tab');
+        const icon = activeBtn.querySelector('svg');
+        if (icon) icon.classList.add('text-blue-600');
+    }
+    if (activeContent) activeContent.classList.remove('hidden');
+
+    // Auto-expand sidebar if collapsed
+    const sidebar = getEl('sidebar');
+    if (sidebar && sidebar.classList.contains('sidebar-collapsed')) {
+        toggleSidebar(true);
     }
 }
 
@@ -104,11 +101,13 @@ export function toggleTableVisibility(show) {
 export function updateSelectionUI() {
     const selectedCountSpan = getEl('selectedCount');
     const enrichBtn = getEl('enrichBtn');
+    const enrichUtmBtn = getEl('enrichUtmBtn');
 
     const section = getEl('selectionSection');
 
     selectedCountSpan.textContent = state.filteredPoints.length;
-    enrichBtn.disabled = state.filteredPoints.length === 0;
+    if (enrichBtn) enrichBtn.disabled = state.filteredPoints.length === 0;
+    if (enrichUtmBtn) enrichUtmBtn.disabled = state.filteredPoints.length === 0;
 
     if (state.allPoints.length > 0) {
         section.classList.remove('opacity-50', 'pointer-events-none');

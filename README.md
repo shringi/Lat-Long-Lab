@@ -6,7 +6,7 @@
 
 https://shringi.github.io/Lat-Long-Lab/
 
-Current Version: 1.4.0
+Current Version: 1.4.1
 
 Last Updated on: 2025-Dec-09
 
@@ -33,6 +33,9 @@ Researchers and analysts often deal with supplementary materials from publicatio
 - **Geographic Filtering**:
     - Draw a **rectangular area** on the map to select specific points.
     - Filter your dataset to include only points within the selected region.
+- **Data Enrichment**:
+    - **Country Tagging**: Automatically tag points with their country name using offline spatial join.
+    - **UTM Conversion**: Convert Lat/Long coordinates to UTM Zone/Easting/Northing.
 - **Data Inspection**:
     - View your data in a powerful, sortable, and searchable table (powered by DataTables).
     - Toggle between **Full Map**, **Split View**, and **Full Table** using the top-center controls.

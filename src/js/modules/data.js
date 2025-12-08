@@ -1,4 +1,8 @@
 
+import proj4 from 'proj4';
+import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
+import * as turf from '@turf/turf';
 import { state } from '../core/state.js';
 import { showToast, showColumnMappingModal, hideColumnMappingModal, updateSelectionUI, switchViewMode, toggleTableVisibility, switchTab, updateStats } from './ui.js';
 import { updateTable } from './table.js';
@@ -138,15 +142,6 @@ export function applyColumnMapping(latCol, lngCol) {
 
     // Auto-show table when data is loaded
     switchViewMode('split');
-    // toggleTableVisibility(true); // helper called by switchViewMode('split') implicitly via UI logic? No, split mode usually shows table. Let's check logic.
-    // switchViewMode('split') does: tableContainer.classList.remove('hidden');
-    // switchViewMode('toggle') does: toggleTableVisibility(false) -> hidden! Wait.
-
-    // Let's verify switchViewMode logic.
-    // toggle: toggles visibility. 
-    // split: shows tableContainer.
-
-    // So 'split' is correct for showing both map and table.
 
     showToast(`Loaded ${validPoints.length} points successfully!`, 'success');
 
@@ -157,16 +152,12 @@ export function applyColumnMapping(latCol, lngCol) {
 }
 
 export function enrichData() {
-    // Access worldGeoJSON from state (set in main.js) or window if still there (it shouldn't be)
-    // We expect main.js to have initialized state.worldGeoJSON
     const worldData = state.worldGeoJSON;
 
     if (!worldData) {
         showToast('World data not loaded yet. Please wait.', 'error');
         return;
     }
-
-    showToast('Enriching data...', 'info');
 
     setTimeout(() => {
         let enrichedCount = 0;
@@ -188,8 +179,7 @@ export function enrichData() {
         updateTable(state.filteredPoints);
 
         showToast(`Country names added to ${enrichedCount} points!`, 'success');
-        const exportSection = document.getElementById('exportSection');
-        if (exportSection) exportSection.classList.remove('hidden');
+        switchTab('export');
     }, 100);
 }
 
@@ -254,4 +244,47 @@ export function loadSampleData() {
     ];
     processParsedData(sampleData);
     showToast("Loaded sample data.", "success");
+}
+
+export function addUTM() {
+    if (state.filteredPoints.length === 0) {
+        showToast('No points to process', 'error');
+        return;
+    }
+
+    setTimeout(() => {
+        let count = 0;
+        const enriched = state.filteredPoints.map(p => {
+            try {
+                // Determine Zone
+                const lon = p._lng;
+                const lat = p._lat;
+                const zoneNumber = Math.floor((lon + 180) / 6) + 1;
+                const isNorth = lat >= 0;
+
+                // Construct proj4 string (WGS84 -> UTM)
+                // We use auto-zone detection string for proj4
+                const utmProj = `+proj=utm +zone=${zoneNumber} ${!isNorth ? '+south ' : ''}+datum=WGS84 +units=m +no_defs`;
+
+                const [easting, northing] = proj4('EPSG:4326', utmProj, [lon, lat]);
+
+                count++;
+                return {
+                    ...p,
+                    utm_zone: `${zoneNumber}${isNorth ? 'N' : 'S'}`,
+                    utm_easting: easting.toFixed(2),
+                    utm_northing: northing.toFixed(2)
+                };
+            } catch (e) {
+                console.error("UTM Conversion Error", e);
+                return p;
+            }
+        });
+
+        state.filteredPoints = enriched;
+        updateTable(state.filteredPoints);
+        showToast(`UTM coordinates added to ${count} points!`, 'success');
+        switchTab('export');
+
+    }, 50);
 }

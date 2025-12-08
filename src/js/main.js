@@ -2,7 +2,7 @@ import { state } from './core/state.js';
 import { initMap, setSelectionCallback, filterPointsInBounds, getDrawnItems, invalidateMapSize } from './modules/map.js';
 import { initTable } from './modules/table.js';
 import { switchViewMode, setViewChangeCallback, updateSelectionUI, showToast, switchTab, toggleTableVisibility, updateFilterUIState, hideColumnMappingModal, makeDraggable, toggleSidebar } from './modules/ui.js';
-import { handleDataLoad, handleUrlLoad, enrichData, handleExport, loadSampleData, applyColumnMapping } from './modules/data.js';
+import { handleDataLoad, handleUrlLoad, enrichData, addUTM, handleExport, loadSampleData, applyColumnMapping } from './modules/data.js';
 import { worldGeoJSON } from './world_data.js';
 
 console.log('MAIN MODULE LOADED');
@@ -92,6 +92,10 @@ function setupEventListeners() {
         });
     }
 
+    if (enrichBtn) enrichBtn.addEventListener('click', enrichData);
+    const enrichUtmBtn = getEl('enrichUtmBtn');
+    if (enrichUtmBtn) enrichUtmBtn.addEventListener('click', addUTM);
+
     if (exportBtn) exportBtn.addEventListener('click', handleExport);
     if (downloadTableBtn) downloadTableBtn.addEventListener('click', handleExport);
 
@@ -120,7 +124,7 @@ function setupEventListeners() {
 
     if (tabInput) tabInput.addEventListener('click', () => switchTab('input'));
     if (tabProcess) tabProcess.addEventListener('click', () => switchTab('process'));
-    if (tabMap) tabMap.addEventListener('click', () => switchTab('map'));
+    if (getEl('tabExport')) getEl('tabExport').addEventListener('click', () => switchTab('export'));
 
     if (viewModeControls) {
         viewModeControls.querySelectorAll('button').forEach(btn => {
@@ -129,10 +133,6 @@ function setupEventListeners() {
     }
 
     // Sidebar listeners
-    // Toggle sidebar on click (handles both collapse and expand)
-    document.getElementById('collapseSidebarBtn')?.addEventListener('click', () => toggleSidebar());
-    // Keep showSidebarBtn for legacy/mobile support if needed
-    document.getElementById('showSidebarBtn')?.addEventListener('click', () => toggleSidebar(true));
 
     if (showTableBtn) showTableBtn.addEventListener('click', () => toggleTableVisibility(true));
     // Close Table -> Switch to Full Map View
@@ -146,6 +146,9 @@ function setupEventListeners() {
 
     if (confirmMappingBtn) confirmMappingBtn.addEventListener('click', () => applyColumnMapping(latColSelect.value, lngColSelect.value));
     if (cancelMappingBtn) cancelMappingBtn.addEventListener('click', hideColumnMappingModal);
+
+    const collapseSidebarBtn = getEl('collapseSidebarBtn');
+    if (collapseSidebarBtn) collapseSidebarBtn.addEventListener('click', () => toggleSidebar());
 }
 
 // Loading Overlay Logic

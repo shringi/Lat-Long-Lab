@@ -9,5 +9,11 @@
 - [x] 1.2.2 (2025-12-05): UX Polish - Floating Debug Icon & Sample Data
 - [x] 1.3.0 (2025-12-05): Migration to Vite.
 - [x] 1.3.1 (2025-12-09): Critical fixes for production build, data loading, and UI responsiveness.
-- [ ] Readme: Update the details about debug logs.
-- [ ] Make debug icon smaller and floatable or tucked in the corner.
+- [x] 1.4.0 (2025-12-09): 
+  - Fixed misalignment of table headers when the table loads the first time. 
+  - Updated the details about debug logs. Make debug icon draggable. 
+  - Table now loads in split view, instead of toggle view. 
+  - Multiple improvements in the ui. 
+  - Sidebar can be collapsed to a rail view.
+- [x] 1.4.1 (2025-12-09): UI improvements
+  - UTM coordinates can be calculated.
