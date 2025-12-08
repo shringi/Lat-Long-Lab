@@ -1,5 +1,5 @@
 import { state } from '../core/state.js';
-import { updateTable } from './table.js';
+import { updateTable, adjustTableColumns } from './table.js';
 import { invalidateMapSize } from './map.js';
 
 console.log("UI MODULE LOADED");
@@ -72,9 +72,12 @@ export function switchViewMode(mode) {
     }
 
     if (mode === 'split') {
-        if (invalidateMapSize) {
-            setTimeout(invalidateMapSize, 300);
-        }
+        setTimeout(invalidateMapSize, 100);
+    }
+
+    // Fix table header alignment
+    if (mode === 'split' || mode === 'toggle') {
+        setTimeout(adjustTableColumns, 400); // Wait for transition (300ms) + buffer
     }
 
     if (onViewChanged) setTimeout(onViewChanged, 300);
@@ -86,6 +89,7 @@ export function toggleTableVisibility(show) {
     if (show) {
         tableContainer.classList.remove('hidden');
         closeTableBtn.classList.remove('hidden');
+        setTimeout(adjustTableColumns, 400); // Align headers after transition
     } else {
         tableContainer.classList.add('hidden');
         closeTableBtn.classList.add('hidden');
@@ -216,6 +220,78 @@ export function showToast(message, type = 'info') {
             container.removeChild(toast);
         }, 300);
     }, 3000);
+}
+
+export function makeDraggable(element) {
+    if (!element) return;
+
+    let isMouseDown = false;
+    let hasMoved = false;
+    let startX, startY, initialLeft, initialTop;
+
+    const onMouseDown = (e) => {
+        isMouseDown = true;
+        hasMoved = false; // Reset flag
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = element.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+
+        element.style.cursor = 'grabbing';
+        document.body.style.userSelect = 'none';
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+        // e.preventDefault(); // Don't prevent default here, lets click happen if no move
+    };
+
+    const onMouseMove = (e) => {
+        if (!isMouseDown) return;
+
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        // Threshold check to avoid sensitivity (3px)
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+            hasMoved = true;
+        }
+
+        if (hasMoved) {
+            // Use fixed positioning coordinates
+            element.style.left = `${initialLeft + dx}px`;
+            element.style.top = `${initialTop + dy}px`;
+            element.style.bottom = 'auto';
+            element.style.right = 'auto';
+        }
+    };
+
+    const onMouseUp = () => {
+        isMouseDown = false;
+        element.style.cursor = 'move';
+        document.body.style.userSelect = '';
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+
+        // hasMoved will act as a guard in the click listener below
+        // We reset it after a short delay so the immediate click event sees it as true
+        setTimeout(() => {
+            hasMoved = false;
+        }, 50);
+    };
+
+    // Capture click event and stop it if we dragged
+    element.addEventListener('click', (e) => {
+        if (hasMoved) {
+            console.log("Drag detected, preventing click.");
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }
+    }, { capture: true });
+
+    element.style.cursor = 'move';
+    element.addEventListener('mousedown', onMouseDown);
 }
 
 

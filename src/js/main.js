@@ -2,7 +2,7 @@
 import { state } from './core/state.js';
 import { initMap, setSelectionCallback, filterPointsInBounds, getDrawnItems, invalidateMapSize } from './modules/map.js';
 import { initTable } from './modules/table.js';
-import { switchViewMode, setViewChangeCallback, updateSelectionUI, showToast, switchTab, toggleTableVisibility, updateFilterUIState, hideColumnMappingModal } from './modules/ui.js';
+import { switchViewMode, setViewChangeCallback, updateSelectionUI, showToast, switchTab, toggleTableVisibility, updateFilterUIState, hideColumnMappingModal, makeDraggable } from './modules/ui.js';
 import { handleDataLoad, handleUrlLoad, enrichData, handleExport, loadSampleData, applyColumnMapping } from './modules/data.js';
 import { worldGeoJSON } from './world_data.js';
 
@@ -35,6 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Callbacks
         setSelectionCallback(updateSelectionUI);
         setViewChangeCallback(invalidateMapSize);
+
+        // Initialize Draggable Debug Button
+        makeDraggable(document.getElementById('showDebugBtn'));
 
         console.log('App Initialization COMPLETE');
     } catch (e) {

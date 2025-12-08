@@ -137,8 +137,16 @@ export function applyColumnMapping(latCol, lngCol) {
     hideColumnMappingModal();
 
     // Auto-show table when data is loaded
-    switchViewMode('toggle');
-    toggleTableVisibility(true);
+    switchViewMode('split');
+    // toggleTableVisibility(true); // helper called by switchViewMode('split') implicitly via UI logic? No, split mode usually shows table. Let's check logic.
+    // switchViewMode('split') does: tableContainer.classList.remove('hidden');
+    // switchViewMode('toggle') does: toggleTableVisibility(false) -> hidden! Wait.
+
+    // Let's verify switchViewMode logic.
+    // toggle: toggles visibility. 
+    // split: shows tableContainer.
+
+    // So 'split' is correct for showing both map and table.
 
     showToast(`Loaded ${validPoints.length} points successfully!`, 'success');
 

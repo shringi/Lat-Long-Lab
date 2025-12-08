@@ -67,9 +67,20 @@ This feature allows for local spatial joins:
 3.  Select **"Add Country Column"**.
 4.  The application performs a point-in-polygon operation against an onboard GeoJSON dataset to append a `country` attribute to each record.
 
+
 ### 4. Data Export
 - Navigate to the **"Export"** tab or the Data Table view.
 - Select **"Download CSV"** to export the processed dataset, including any applied filters and enriched attributes.
+
+### 5. Debug Console
+For advanced troubleshooting and development:
+- **Open:** Click the floating  🐞 icon in the bottom-left corner.
+- **Functionality:** View real-time logs, errors, and system status.
+- **Controls:**
+    - **Minimize:** Hides the console tray.
+    - **Clear:** Removes all current logs.
+    - **Copy:** Copies all logs to clipboard for sharing.
+- **Draggable:** You can drag the debug icon anywhere on the screen to view content behind it.
 
 ## Troubleshooting & Debugging
 

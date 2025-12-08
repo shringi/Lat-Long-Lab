@@ -13,6 +13,8 @@ export function initTable() {
     // Initial empty table
     const table = $('#dataTable');
     table.empty();
+    // Add styling classes for striping, hover, and borders
+    table.addClass('display cell-border stripe hover');
 
     dataTable = table.DataTable({
         data: [],
@@ -52,6 +54,7 @@ export function updateTable(data) {
         return {
             title: k,
             data: k,
+            className: 'text-left align-top', // Force left alignment
             defaultContent: "<em>(empty)</em>",
             render: function (data, type, row) {
                 return (data === null || data === undefined) ? "" : data;
@@ -70,10 +73,14 @@ export function updateTable(data) {
     }
 
     // Destroy and re-init
+    // Destroy and re-init
     if (dataTable) {
         dataTable.destroy();
         $('#dataTable').empty();
     }
+
+    // Ensure classes persist
+    $('#dataTable').addClass('display cell-border stripe hover');
 
     const table = $('#dataTable');
 
@@ -92,12 +99,8 @@ export function updateTable(data) {
         scrollX: true,
         scroller: false,
         columnControl: ['order', ['search', 'searchList']],
-        ordering: {
-            indicators: false,
-            handler: false
-        },
-        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        autoWidth: false
+        // ordering: { indicators: false } -- Removed to restore default icons
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]] // removed autoWidth: false
     });
 
     // Re-attach listener
@@ -117,6 +120,14 @@ export function updateTable(data) {
         console.log('Initial Table Load - Data Count:', filteredData.length);
         state.filteredPoints = filteredData;
         plotPoints(filteredData);
+    }
+}
+
+export function adjustTableColumns() {
+    if (dataTable) {
+        // Recalculate column widths - essential when table becomes visible
+        dataTable.columns.adjust().draw(false);
+        console.log('Table columns adjusted.');
     }
 }
 
