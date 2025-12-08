@@ -123,11 +123,18 @@ export function updateTable(data) {
     }
 }
 
+// Debounce timer
+let adjustTimeout = null;
+
 export function adjustTableColumns() {
     if (dataTable) {
-        // Recalculate column widths - essential when table becomes visible
-        dataTable.columns.adjust().draw(false);
-        console.log('Table columns adjusted.');
+        if (adjustTimeout) clearTimeout(adjustTimeout);
+        adjustTimeout = setTimeout(() => {
+            // Recalculate column widths - essential when table becomes visible
+            dataTable.columns.adjust().draw(false);
+            console.log('Table columns adjusted.');
+            adjustTimeout = null;
+        }, 200);
     }
 }
 

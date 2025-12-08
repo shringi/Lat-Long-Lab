@@ -12,6 +12,12 @@ export function setViewChangeCallback(callback) {
 }
 
 export function switchTab(tabName) {
+    // Auto-expand on tab click if collapsed
+    const body = document.body;
+    if (body.classList.contains('sidebar-collapsed')) {
+        toggleSidebar(true);
+    }
+
     const tabInput = getEl('tabInput');
     const tabProcess = getEl('tabProcess');
     const tabMap = getEl('tabMap');
@@ -37,12 +43,6 @@ export function switchTab(tabName) {
         tabMap.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
         tabMap.classList.remove('text-gray-500');
         contentMap.classList.remove('hidden');
-        // We need to access invalidateMapSize. 
-        // Ideally we import it, but to avoid circular deps if map imports UI later (less likely but possible),
-        // we can check if it's imported or on global (Strangler).
-        // Best practice: Import it from map.js since map doesn't depend on UI.
-        // I will add import at top later, but for now rely on global or add TODO.
-        // ACTUALLY, I will import it now.
         if (invalidateMapSize) {
             setTimeout(invalidateMapSize, 100);
         }
@@ -52,31 +52,36 @@ export function switchTab(tabName) {
 export function switchViewMode(mode) {
     const mainContent = getEl('mainContent');
     const viewModeControls = getEl('viewModeControls');
-    const showTableBtn = getEl('showTableBtn');
     const tableContainer = getEl('tableContainer');
 
-    mainContent.classList.remove('view-mode-toggle', 'view-mode-split', 'view-mode-modal');
+    // Reset classes
+    mainContent.classList.remove('view-mode-map', 'view-mode-split', 'view-mode-table', 'view-mode-toggle', 'view-mode-modal');
+
+    // Apply new mode
     mainContent.classList.add(`view-mode-${mode}`);
 
+    // Update active button state
     viewModeControls.querySelectorAll('button').forEach(btn => {
-        if (btn.dataset.mode === mode) btn.classList.add('active-mode');
-        else btn.classList.remove('active-mode');
+        if (btn.dataset.mode === mode) btn.classList.add('active-mode', 'bg-gray-100', 'font-bold');
+        else btn.classList.remove('active-mode', 'bg-gray-100', 'font-bold');
     });
 
-    if (mode === 'toggle') {
-        toggleTableVisibility(false);
-        showTableBtn.classList.remove('hidden');
+    // Handle visibility logic
+    const closeTableBtn = getEl('closeTableBtn');
+    if (mode === 'map') {
+        tableContainer.classList.add('hidden');
+        if (closeTableBtn) closeTableBtn.classList.add('hidden');
     } else {
         tableContainer.classList.remove('hidden');
-        showTableBtn.classList.add('hidden');
+        // Show close button in split or table mode
+        if (closeTableBtn) closeTableBtn.classList.remove('hidden');
     }
 
-    if (mode === 'split') {
-        setTimeout(invalidateMapSize, 100);
-    }
+    // Trigger map invalidation for resizing
+    setTimeout(invalidateMapSize, 100);
 
-    // Fix table header alignment
-    if (mode === 'split' || mode === 'toggle') {
+    // Fix table header alignment if table is visible
+    if (mode === 'split' || mode === 'table') {
         setTimeout(adjustTableColumns, 400); // Wait for transition (300ms) + buffer
     }
 
@@ -85,14 +90,13 @@ export function switchViewMode(mode) {
 
 export function toggleTableVisibility(show) {
     const tableContainer = getEl('tableContainer');
-    const closeTableBtn = getEl('closeTableBtn');
+    // We allow switchViewMode('map') to handle closing, so this might be redundant, 
+    // but kept for compatibility.
     if (show) {
         tableContainer.classList.remove('hidden');
-        closeTableBtn.classList.remove('hidden');
-        setTimeout(adjustTableColumns, 400); // Align headers after transition
+        setTimeout(adjustTableColumns, 400);
     } else {
         tableContainer.classList.add('hidden');
-        closeTableBtn.classList.add('hidden');
     }
     if (onViewChanged) setTimeout(onViewChanged, 300);
 }
@@ -294,4 +298,28 @@ export function makeDraggable(element) {
     element.addEventListener('mousedown', onMouseDown);
 }
 
+// --- Phase 6: Sidebar & View Mode Redesign ---
 
+export function toggleSidebar(show) {
+    const body = document.body;
+    const btn = document.getElementById('collapseSidebarBtn');
+
+    // If show is undefined, toggle
+    if (show === undefined) {
+        body.classList.toggle('sidebar-collapsed');
+    } else if (show) {
+        body.classList.remove('sidebar-collapsed');
+    } else {
+        body.classList.add('sidebar-collapsed');
+    }
+
+    // Update Tooltip
+    if (body.classList.contains('sidebar-collapsed')) {
+        if (btn) btn.setAttribute('title', 'Expand Sidebar');
+    } else {
+        if (btn) btn.setAttribute('title', 'Collapse Sidebar');
+    }
+
+    // Map needs resize after transition
+    setTimeout(invalidateMapSize, 305);
+}

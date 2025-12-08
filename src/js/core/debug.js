@@ -138,6 +138,12 @@ export class Logger {
         };
 
         console.error = function (...args) {
+            // Ignore benign ResizeObserver loop errors
+            if (args.length > 0) {
+                const firstArg = args[0];
+                if (typeof firstArg === 'string' && firstArg.includes('ResizeObserver loop')) return;
+                if (firstArg instanceof Error && firstArg.message && firstArg.message.includes('ResizeObserver loop')) return;
+            }
             originalError.apply(console, args);
             Logger.addLog('error', args);
         };

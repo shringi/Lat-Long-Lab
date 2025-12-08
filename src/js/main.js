@@ -1,14 +1,9 @@
-
 import { state } from './core/state.js';
 import { initMap, setSelectionCallback, filterPointsInBounds, getDrawnItems, invalidateMapSize } from './modules/map.js';
 import { initTable } from './modules/table.js';
-import { switchViewMode, setViewChangeCallback, updateSelectionUI, showToast, switchTab, toggleTableVisibility, updateFilterUIState, hideColumnMappingModal, makeDraggable } from './modules/ui.js';
+import { switchViewMode, setViewChangeCallback, updateSelectionUI, showToast, switchTab, toggleTableVisibility, updateFilterUIState, hideColumnMappingModal, makeDraggable, toggleSidebar } from './modules/ui.js';
 import { handleDataLoad, handleUrlLoad, enrichData, handleExport, loadSampleData, applyColumnMapping } from './modules/data.js';
 import { worldGeoJSON } from './world_data.js';
-
-// Import Internal Dependencies that were global
-// world_data is imported by being on window from world_data.js (which is a module now but bridges)
-// We can also import it if we want, but sticking to existing pattern for now.
 
 console.log('MAIN MODULE LOADED');
 
@@ -20,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize Components
         initMap();
         initTable();
-        switchViewMode('toggle');
+        switchViewMode('map');
 
         // Load World Data
         // Directly imported now
@@ -30,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setupEventListeners();
 
         // Default View
-        switchViewMode('toggle');
+        switchViewMode('map');
 
         // Callbacks
         setSelectionCallback(updateSelectionUI);
@@ -67,24 +62,36 @@ function setupEventListeners() {
     const confirmMappingBtn = getEl('confirmMappingBtn');
     const cancelMappingBtn = getEl('cancelMappingBtn');
     const latColSelect = getEl('latColSelect');
-    const lngColSelect = getEl('lngColSelect');
-    const sampleBtn = getEl('sampleBtn');
 
-    if (loadBtn) loadBtn.addEventListener('click', () => handleDataLoad(csvFileInput.files[0], csvTextInput.value.trim()));
-    if (urlBtn) urlBtn.addEventListener('click', () => handleUrlLoad(urlInput.value.trim()));
-
+    // Data Loading Listeners
     if (csvFileInput) {
-        csvFileInput.addEventListener('click', () => {
-            csvFileInput.value = '';
-        });
-        csvFileInput.addEventListener('change', () => {
-            if (csvFileInput.files.length > 0) {
-                handleDataLoad(csvFileInput.files[0], null);
+        csvFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleDataLoad(e.target.files[0], null);
             }
         });
     }
 
-    if (enrichBtn) enrichBtn.addEventListener('click', enrichData);
+    if (loadBtn) {
+        loadBtn.addEventListener('click', () => {
+            const text = csvTextInput ? csvTextInput.value : '';
+            if (text.trim()) {
+                handleDataLoad(null, text);
+            } else {
+                showToast('Please paste some data first.', 'error');
+            }
+        });
+    }
+
+    if (urlBtn && urlInput) {
+        urlBtn.addEventListener('click', () => {
+            const url = urlInput.value.trim();
+            if (url) {
+                handleUrlLoad(url);
+            }
+        });
+    }
+
     if (exportBtn) exportBtn.addEventListener('click', handleExport);
     if (downloadTableBtn) downloadTableBtn.addEventListener('click', handleExport);
 
@@ -121,8 +128,15 @@ function setupEventListeners() {
         });
     }
 
+    // Sidebar listeners
+    // Toggle sidebar on click (handles both collapse and expand)
+    document.getElementById('collapseSidebarBtn')?.addEventListener('click', () => toggleSidebar());
+    // Keep showSidebarBtn for legacy/mobile support if needed
+    document.getElementById('showSidebarBtn')?.addEventListener('click', () => toggleSidebar(true));
+
     if (showTableBtn) showTableBtn.addEventListener('click', () => toggleTableVisibility(true));
-    if (closeTableBtn) closeTableBtn.addEventListener('click', () => toggleTableVisibility(false));
+    // Close Table -> Switch to Full Map View
+    if (closeTableBtn) closeTableBtn.addEventListener('click', () => switchViewMode('map'));
 
     if (sampleBtn) {
         sampleBtn.addEventListener('click', () => {

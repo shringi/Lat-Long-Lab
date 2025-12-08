@@ -6,7 +6,7 @@
 
 https://shringi.github.io/Lat-Long-Lab/
 
-Current Version: 1.3.1
+Current Version: 1.4.0
 
 Last Updated on: 2025-Dec-09
 
@@ -22,7 +22,7 @@ Researchers and analysts often deal with supplementary materials from publicatio
 - **Runs entirely on the client-side**, ensuring data privacy and ease of use.
 
 ## Features
-![Screenshot](src/public/icons/screenshot_v1.3.1.png)
+![Screenshot](src/public/icons/screenshot_v1.4.0.png)
 - **Versatile Data Loading**:
     - Upload **CSV, Excel (.xlsx, .xls), or TXT** files.
     - **Paste** data directly from your clipboard.
@@ -35,11 +35,14 @@ Researchers and analysts often deal with supplementary materials from publicatio
     - Filter your dataset to include only points within the selected region.
 - **Data Inspection**:
     - View your data in a powerful, sortable, and searchable table (powered by DataTables).
-    - Toggle between Map View, Split View, and Table View.
+    - Toggle between **Full Map**, **Split View**, and **Full Table** using the top-center controls.
 - **Export**:
     - Download your filtered or enriched dataset as a CSV file.
 - **Privacy-First**:
     - 100% Client-side processing. Your data never leaves your browser.
+- **Modern UI**:
+    - **Collapsible Sidebar**: Maximize screen real estate with the new Rail Mode.
+    - **Unified View Control**: Seamlessly switch between Full Map, Split View, and Full Table layouts.
 
 ## Usage Instructions
 
@@ -74,7 +77,7 @@ This feature allows for local spatial joins:
 
 ### 5. Debug Console
 For advanced troubleshooting and development:
-- **Open:** Click the floating  🐞 icon in the bottom-left corner.
+- **Open:** Click the floating  🐞 icon in the bottom-right corner.
 - **Functionality:** View real-time logs, errors, and system status.
 - **Controls:**
     - **Minimize:** Hides the console tray.
@@ -85,7 +88,7 @@ For advanced troubleshooting and development:
 ## Troubleshooting & Debugging
 
 If you encounter unexpected behavior, a **Debug Console** is available:
-1.  Click the **Debug Icon (🐞)** located in the bottom-left corner of the screen.
+1.  Click the **Debug Icon (🐞)** located in the bottom-right corner of the screen.
 2.  This console displays real-time execution logs and error messages.
 3.  When reporting issues on GitHub, please look for "Error" messages in this console and include them in your report.
 

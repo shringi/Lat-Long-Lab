@@ -43,20 +43,130 @@ aside ::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
 }
 
+/* --- Sidebar Collapsibility (Rail Mode) --- */
+/* --- Sidebar Collapsibility (Rail Mode) --- */
+.sidebar-collapsed #sidebar {
+    width: 3rem !important;
+    /* w-12 */
+    border-right: 1px solid #e5e7eb;
+}
+
+/* Rail Mode Header Adjustment */
+/* Override the p-6 (1.5rem) with small padding to fit 3rem width */
+.sidebar-collapsed #sidebar>div:first-child {
+    padding: 0.5rem !important;
+    /* p-2 */
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Hide Content: Logo & Text */
+/* Hide Content: Logo & Text */
+.sidebar-collapsed #sidebar img[alt="Logo"],
+.sidebar-collapsed #sidebar h1,
+.sidebar-collapsed #sidebar p,
+.sidebar-collapsed .tab-text {
+    display: none !important;
+}
+
+/* Collapsed Footer Styling (Show GitHub Icon) */
+.sidebar-collapsed #sidebarFooter {
+    padding: 1rem 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    display: flex !important;
+}
+
+/* Hide Version in collapsed mode */
+.sidebar-collapsed .footer-version {
+    display: none !important;
+}
+
+/* Style GitHub Link in collapsed mode */
+.sidebar-collapsed .footer-link {
+    justify-content: center;
+    padding: 0.5rem;
+}
+
+/* Hide "View on GitHub" text */
+.sidebar-collapsed .footer-link .footer-text {
+    display: none !important;
+}
+
+/* Ensure SVG is visible and sized */
+.sidebar-collapsed .footer-link svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Ensure Logo container doesn't take space */
+.sidebar-collapsed #sidebar>div:first-child>div:first-child {
+    display: none !important;
+}
+
+/* Rotate and Center collapse button */
+.sidebar-collapsed #collapseSidebarBtn {
+    margin: 0 !important;
+}
+
+.sidebar-collapsed #collapseSidebarBtn svg {
+    transform: rotate(180deg);
+}
+
+/* Vertical Tabs in Rail Mode */
+.sidebar-collapsed #tabContainer {
+    flex-direction: column;
+    border-bottom: none;
+}
+
+.sidebar-collapsed #tabContainer button {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    /* Side indicator instead of bottom */
+    padding: 1rem 0;
+}
+
+/* Update active state styling for Rail Mode */
+.sidebar-collapsed #tabContainer button.text-blue-600 {
+    border-bottom: none !important;
+    border-left-color: #2563eb !important;
+    /* blue-600 */
+    background-color: #eff6ff;
+    /* blue-50 */
+}
+
+/* Hide Tab Content */
+.sidebar-collapsed .flex-col>.space-y-6,
+/* Content Container Children */
+.sidebar-collapsed #contentInput,
+.sidebar-collapsed #contentProcess,
+.sidebar-collapsed #contentMap {
+    display: none !important;
+}
+
+/* Hide Footer */
+.sidebar-collapsed .text-xs.text-gray-500 {
+    display: none;
+}
+
+/* Remove Floating Button logic (using Rail now) */
+.sidebar-collapsed #showSidebarBtn {
+    display: none !important;
+}
+
 /* --- Flexible View Modes --- */
 
-/* Toggle Mode (Default) */
-.view-mode-toggle #mapContainer {
+/* 1. Full Map Mode (Default) */
+.view-mode-map #mapContainer {
     height: 100%;
 }
 
-.view-mode-toggle #tableContainer:not(.hidden) {
-    position: absolute !important;
-    inset: 0;
-    z-index: 1500;
+.view-mode-map #tableContainer {
+    display: none !important;
 }
 
-/* Split Mode */
+/* 2. Split Mode */
 .view-mode-split #mapContainer {
     height: 60%;
     flex: none;
@@ -66,19 +176,25 @@ aside ::-webkit-scrollbar-thumb:hover {
     height: 40% !important;
     flex: none;
     display: flex !important;
-    /* Override hidden */
     position: relative !important;
-    /* Not absolute */
     inset: auto !important;
     border-top: 4px solid #e5e7eb;
 }
 
-.view-mode-split #showTableBtn,
-.view-mode-split #closeTableBtn {
-    display: none !important;
+/* 3. Full Table Mode */
+.view-mode-table #mapContainer {
+    height: 0;
+    overflow: hidden;
+    flex: none;
 }
 
-/* Modal Mode */
+.view-mode-table #tableContainer {
+    height: 100% !important;
+    flex: 1;
+    display: flex !important;
+}
+
+/* Modals (Legacy support if needed) */
 .view-mode-modal #mapContainer {
     height: 100%;
 }
@@ -198,6 +314,7 @@ table.dataTable tbody td {
     background-color: #3B82F6;
     /* Blue */
 }
+
 /* Floating Debug Icon Pulse Effect */
 #showDebugBtn.has-new-logs {
     animation: pulse-debug 2s infinite;
@@ -205,7 +322,15 @@ table.dataTable tbody td {
 }
 
 @keyframes pulse-debug {
-    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
 }

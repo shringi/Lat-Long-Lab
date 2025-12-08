@@ -13,6 +13,11 @@
          ========================================================================= -->
     <script>
         window.onerror = function (msg, url, line, col, error) {
+            // Ignore benign ResizeObserver loop errors
+            if (msg && msg.toString().includes('ResizeObserver')) {
+                return true; // Suppress error
+            }
+
             var extra = !col ? '' : '\ncolumn: ' + col;
             extra += !error ? '' : '\nerror: ' + error;
             console.error("Error: " + msg + "\nurl: " + url + "\nline: " + line + extra);
@@ -66,31 +71,63 @@
     <!-- =========================================================================
          2. Sidebar / Controls Panel
          ========================================================================= -->
-    <aside
-        class="w-full sm:w-96 bg-white shadow-xl z-20 flex flex-col h-1/2 sm:h-full border-r border-gray-200 sm:flex-none">
+    <aside id="sidebar"
+        class="w-full sm:w-96 bg-white shadow-xl z-20 flex flex-col h-1/2 sm:h-full border-r border-gray-200 sm:flex-none transition-all duration-300 transform">
 
         <!-- App Header -->
         <div
-            class="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex items-center space-x-3">
-            <img src="icons/logo_192.png" alt="Logo" class="w-10 h-10 bg-white rounded-lg p-1 shadow-sm">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight leading-none">Lat-Long Lab</h1>
-                <p class="text-xs mt-1 opacity-70">A Lat-Long Explorer Tool</p>
-                <p class="text-xs mt-1 opacity-70">Version 1.3.1</p>
-                <p class="text-xs mt-1 opacity-70">Source Code: <a href="https://github.com/shringi/Lat-Long-Lab"
-                        target="_blank" class="underline hover:text-blue-100">GitHub</a></p>
+            class="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="icons/logo_192.png" alt="Logo"
+                    class="w-10 h-10 bg-white rounded-lg p-1 shadow-sm flex-shrink-0">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight leading-none">Lat-Long Lab</h1>
+                    <p class="text-xs mt-1 opacity-70">A Lat-Long Explorer Tool</p>
+                </div>
             </div>
+            <!-- Collapse Button -->
+            <button id="collapseSidebarBtn"
+                class="text-white hover:text-gray-200 focus:outline-none p-1 rounded hover:bg-white/10 transition-colors"
+                title="Collapse Sidebar">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
         </div>
 
         <!-- Navigation Tabs -->
-        <div class="flex border-b border-gray-200">
+        <div id="tabContainer" class="flex border-b border-gray-200 transition-all duration-300">
             <button id="tabInput"
-                class="flex-1 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 focus:outline-none transition-colors">Input</button>
+                class="flex-1 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 focus:outline-none transition-colors flex items-center justify-center space-x-2 group"
+                title="Input">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                </svg>
+                <span class="tab-text">Input</span>
+            </button>
             <button id="tabProcess"
-                class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none transition-colors">Process</button>
+                class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none transition-colors flex items-center justify-center space-x-2 group"
+                title="Process">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                    </path>
+                </svg>
+                <span class="tab-text">Process</span>
+            </button>
             <button id="tabMap"
-                class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none transition-colors">Map
-                Settings</button>
+                class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none transition-colors flex items-center justify-center space-x-2 group"
+                title="Map Settings">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span class="tab-text">Map Config</span>
+            </button>
         </div>
 
         <!-- Tab Content Container -->
@@ -246,9 +283,18 @@
         </div>
 
         <!-- Footer -->
-        <div class="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between text-xs text-gray-500">
-            <span>&copy; 2024 Lat-Long Lab</span>
-            <img src="icons/copyright_icon.png" alt="Copyright" class="w-4 h-4 opacity-50">
+        <div id="sidebarFooter"
+            class="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between text-xs text-gray-500">
+            <a href="https://github.com/shringi/Lat-Long-Lab" target="_blank"
+                class="footer-link flex items-center space-x-1 hover:text-blue-600 transition-colors"
+                title="View on GitHub">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+                <span class="footer-text">View on GitHub</span>
+            </a>
+            <span class="footer-version bg-gray-200 px-1.5 py-0.5 rounded text-[10px] font-mono">v1.4.0</span>
         </div>
     </aside>
 
@@ -257,20 +303,35 @@
          ========================================================================= -->
     <main id="mainContent" class="flex-1 relative h-full flex flex-col">
 
-        <!-- View Mode Controller -->
+        <!-- Sidebar Toggle (Visible when collapsed) -->
+
+
+        <!-- Unified View Mode Controller -->
         <div id="viewModeControls"
             class="absolute top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-white rounded-md shadow-md p-1 flex space-x-1 border border-gray-300">
-            <button data-mode="toggle" class="p-1.5 rounded hover:bg-gray-100 text-gray-600 active-mode"
-                title="Toggle View">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+            <!-- Full Map -->
+            <button data-mode="map" class="p-2 rounded hover:bg-gray-100 text-gray-600 active-mode"
+                title="Full Map View">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
                     </path>
                 </svg>
             </button>
-            <button data-mode="split" class="p-1.5 rounded hover:bg-gray-100 text-gray-600" title="Split View">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <!-- Split View -->
+            <button data-mode="split" class="p-2 rounded hover:bg-gray-100 text-gray-600" title="Split View">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"> <!-- Half filled rect -->
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7">
+                    </path>
+                    <rect x="4" y="14" width="8" height="6" stroke="currentColor" stroke-width="2" fill="none"></rect>
+                </svg>
+            </button>
+            <!-- Full Table -->
+            <button data-mode="table" class="p-2 rounded hover:bg-gray-100 text-gray-600" title="Full Table View">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                        d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                    </path>
                 </svg>
             </button>
         </div>
@@ -361,7 +422,7 @@
 
     <!-- Floating Debug Button -->
     <button id="showDebugBtn"
-        class="fixed bottom-4 left-4 z-[99999] bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-50 hover:opacity-100 hover:scale-110"
+        class="fixed bottom-4 right-4 z-[99999] bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-50 hover:opacity-100 hover:scale-110"
         title="Show Debug Console">
         🐞
     </button>
