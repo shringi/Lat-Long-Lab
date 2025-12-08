@@ -8,5 +8,6 @@
 - [x] 1.2.1 (2025-12-05): Added Smart Column Detection for auto-mapping lat/long columns
 - [x] 1.2.2 (2025-12-05): UX Polish - Floating Debug Icon & Sample Data
 - [x] 1.3.0 (2025-12-05): Migration to Vite.
+- [x] 1.3.1 (2025-12-09): Critical fixes for production build, data loading, and UI responsiveness.
 - [ ] Readme: Update the details about debug logs.
 - [ ] Make debug icon smaller and floatable or tucked in the corner.

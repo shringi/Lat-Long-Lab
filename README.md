@@ -6,9 +6,9 @@
 
 https://shringi.github.io/Lat-Long-Lab/
 
-Current Version: 1.3.0
+Current Version: 1.3.1
 
-Last Updated on: 2025-Dec-05
+Last Updated on: 2025-Dec-09
 
 ## Motivation
 
@@ -22,7 +22,7 @@ Researchers and analysts often deal with supplementary materials from publicatio
 - **Runs entirely on the client-side**, ensuring data privacy and ease of use.
 
 ## Features
-![Screenshot](src/public/icons/screenshot_v1.3.0.png)
+![Screenshot](src/public/icons/screenshot_v1.3.1.png)
 - **Versatile Data Loading**:
     - Upload **CSV, Excel (.xlsx, .xls), or TXT** files.
     - **Paste** data directly from your clipboard.

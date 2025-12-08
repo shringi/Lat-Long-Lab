@@ -1,6 +1,6 @@
-
 import { state } from '../core/state.js';
 import { updateTable } from './table.js';
+import { invalidateMapSize } from './map.js';
 
 console.log("UI MODULE LOADED");
 
@@ -43,8 +43,8 @@ export function switchTab(tabName) {
         // Best practice: Import it from map.js since map doesn't depend on UI.
         // I will add import at top later, but for now rely on global or add TODO.
         // ACTUALLY, I will import it now.
-        if (window.App && window.App.invalidateMapSize) {
-            setTimeout(window.App.invalidateMapSize, 100);
+        if (invalidateMapSize) {
+            setTimeout(invalidateMapSize, 100);
         }
     }
 }
@@ -72,8 +72,8 @@ export function switchViewMode(mode) {
     }
 
     if (mode === 'split') {
-        if (window.App && window.App.invalidateMapSize) {
-            setTimeout(window.App.invalidateMapSize, 300);
+        if (invalidateMapSize) {
+            setTimeout(invalidateMapSize, 300);
         }
     }
 

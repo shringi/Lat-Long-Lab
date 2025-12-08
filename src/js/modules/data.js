@@ -1,6 +1,6 @@
 
 import { state } from '../core/state.js';
-import { showToast, showColumnMappingModal, hideColumnMappingModal, updateSelectionUI, switchViewMode, toggleTableVisibility, switchTab } from './ui.js';
+import { showToast, showColumnMappingModal, hideColumnMappingModal, updateSelectionUI, switchViewMode, toggleTableVisibility, switchTab, updateStats } from './ui.js';
 import { updateTable } from './table.js';
 import { plotPoints } from './map.js';
 
@@ -127,6 +127,8 @@ export function applyColumnMapping(latCol, lngCol) {
     state.allPoints = validPoints;
 
     plotPoints();
+
+    updateStats(state.allPoints.length);
 
     state.isFilteringEnabled = false;
     state.filteredPoints = [...state.allPoints];

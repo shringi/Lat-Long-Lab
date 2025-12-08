@@ -1,4 +1,3 @@
-
 console.log("STATE MODULE LOADED");
 
 // 1. Exportable State
@@ -11,8 +10,7 @@ export const state = {
 };
 
 // 2. Exportable Event Hub
-// We reuse the one created by bootstrap.js if it exists, to prevent losing early listeners
-export const events = window.App?.events || new EventTarget();
+export const events = new EventTarget();
 
 export function emit(eventName, detail) {
     events.dispatchEvent(new CustomEvent(eventName, { detail }));
