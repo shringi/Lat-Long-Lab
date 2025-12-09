@@ -442,69 +442,78 @@
                     <select id="lngColSelect"
                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"></select>
                 </div>
-                <div id="toast-container"></div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="cancelMappingBtn"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">Cancel</button>
+                <button id="confirmMappingBtn"
+                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">Map
+                    Columns</button>
+            </div>
+        </div>
+    </div>
+    </div>
 
-                <!-- Debug Console -->
-                <div id="debugConsole"
-                    class="fixed bottom-0 left-0 w-full h-48 bg-gray-900 text-green-400 font-mono text-xs z-[20000] hidden flex flex-col border-t-2 border-gray-700 transition-all duration-300">
-                    <div
-                        class="flex justify-between items-center bg-gray-800 px-4 py-1 border-b border-gray-700 select-none">
-                        <span class="font-bold text-gray-300">Debug Console</span>
-                        <div class="flex space-x-2">
-                            <button id="copyLogsBtn" class="hover:text-white text-gray-400"
-                                title="Copy Logs">📋</button>
-                            <button id="clearLogsBtn" class="hover:text-white text-gray-400"
-                                title="Clear Logs">🚫</button>
-                            <button id="closeDebugBtn" class="hover:text-white text-gray-400"
-                                title="Minimize">⬇️</button>
-                        </div>
-                    </div>
-                    <div id="debugOutput" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
-                </div>
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
 
-                <!-- Floating Debug Button -->
-                <button id="showDebugBtn"
-                    class="fixed bottom-4 right-4 z-[99999] bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-50 hover:opacity-100 hover:scale-110"
-                    title="Show Debug Console">
-                    🐞
-                </button>
+    <!-- Debug Console -->
+    <div id="debugConsole"
+        class="fixed bottom-0 left-0 w-full h-48 bg-gray-900 text-green-400 font-mono text-xs z-[20000] hidden flex flex-col border-t-2 border-gray-700 transition-all duration-300">
+        <div class="flex justify-between items-center bg-gray-800 px-4 py-1 border-b border-gray-700 select-none">
+            <span class="font-bold text-gray-300">Debug Console</span>
+            <div class="flex space-x-2">
+                <button id="copyLogsBtn" class="hover:text-white text-gray-400" title="Copy Logs">📋</button>
+                <button id="clearLogsBtn" class="hover:text-white text-gray-400" title="Clear Logs">🚫</button>
+                <button id="closeDebugBtn" class="hover:text-white text-gray-400" title="Minimize">⬇️</button>
+            </div>
+        </div>
+        <div id="debugOutput" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
+    </div>
 
-                <!-- =========================================================================
+    <!-- Floating Debug Button -->
+    <button id="showDebugBtn"
+        class="fixed bottom-4 right-4 z-[99999] bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-50 hover:opacity-100 hover:scale-110"
+        title="Show Debug Console">
+        🐞
+    </button>
+
+    <!-- =========================================================================
          5. Scripts (Load Order: Libs -> Data -> Core -> Feature -> Main)
          ========================================================================= -->
 
 
 
-                <!-- Libraries -->
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
-                <script src="https://unpkg.com/leaflet-providers@1.13.0/leaflet-providers.js"></script>
-                <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
-                <script src="https://cdn.datatables.net/2.3.5/js/dataTables.js"></script>
-                <script src="https://cdn.datatables.net/columncontrol/1.1.1/js/dataTables.columnControl.js"></script>
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <script src="https://unpkg.com/leaflet-providers@1.13.0/leaflet-providers.js"></script>
+    <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.5/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/columncontrol/1.1.1/js/dataTables.columnControl.js"></script>
 
-                <!-- GIS Export Libraries -->
-                <script src="https://unpkg.com/tokml@0.4.0/tokml.js"></script>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-                <script src="https://unpkg.com/@mapbox/shp-write@latest/shpwrite.js"></script>
+    <!-- GIS Export Libraries -->
+    <script src="https://unpkg.com/tokml@0.4.0/tokml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/@mapbox/shp-write@latest/shpwrite.js"></script>
 
-                <!-- Data Assets -->
+    <!-- Data Assets -->
 
 
-                <!-- App Core -->
-                <script type="module" src="/js/core/state.js"></script>
-                <script type="module" src="/js/core/debug.js"></script>
+    <!-- App Core -->
+    <script type="module" src="/js/core/state.js"></script>
+    <script type="module" src="/js/core/debug.js"></script>
 
-                <!-- App Modules -->
-                <script type="module" src="/js/modules/ui.js"></script>
-                <script type="module" src="/js/modules/map.js"></script>
-                <script type="module" src="/js/modules/table.js"></script>
-                <script type="module" src="/js/modules/data.js"></script>
+    <!-- App Modules -->
+    <script type="module" src="/js/modules/ui.js"></script>
+    <script type="module" src="/js/modules/map.js"></script>
+    <script type="module" src="/js/modules/table.js"></script>
+    <script type="module" src="/js/modules/data.js"></script>
 
-                <!-- Entry Point -->
-                <script type="module" src="/js/main.js"></script>
+    <!-- Entry Point -->
+    <script type="module" src="/js/main.js"></script>
 </body>
 
 </html>
