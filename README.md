@@ -1,12 +1,12 @@
 # Lat-Long Lab
 
-![Lat-Long Lab](src/public/icons/logo_192.png)
+![Lat-Long Lab](src/public/icons/logo_192_v1.png)
 
 **A super light, privacy focused web app for a quick latitude-longitude visualization and data filtering.**
 
 https://shringi.github.io/Lat-Long-Lab/
 
-Current Version: 1.4.1
+Current Version: 1.4.2
 
 Last Updated on: 2025-Dec-09
 
@@ -22,7 +22,7 @@ Researchers and analysts often deal with supplementary materials from publicatio
 - **Runs entirely on the client-side**, ensuring data privacy and ease of use.
 
 ## Features
-![Screenshot](src/public/icons/screenshot_v1.4.0.png)
+![Screenshot](src/public/icons/screenshot_v1.4.2.png)
 - **Versatile Data Loading**:
     - Upload **CSV, Excel (.xlsx, .xls), or TXT** files.
     - **Paste** data directly from your clipboard.
@@ -40,7 +40,11 @@ Researchers and analysts often deal with supplementary materials from publicatio
     - View your data in a powerful, sortable, and searchable table (powered by DataTables).
     - Toggle between **Full Map**, **Split View**, and **Full Table** using the top-center controls.
 - **Export**:
-    - Download your filtered or enriched dataset as a CSV file.
+    - Download your filtered or enriched dataset as:
+        - **CSV** (Spreadsheet)
+        - **GeoJSON** (Web GIS)
+        - **KML / KMZ** (Google Earth)
+        - **Shapefile** (ESRI/QGIS) - *Note: field names truncated to 10 chars.*
 - **Privacy-First**:
     - 100% Client-side processing. Your data never leaves your browser.
 - **Modern UI**:
@@ -112,3 +116,6 @@ Built with open-source power:
 - [PapaParse](https://www.papaparse.com/)
 - [SheetJS](https://sheetjs.com/)
 - [Turf.js](https://turfjs.org/)
+- [shp-write](https://github.com/mapbox/shp-write)
+- [tokml](https://github.com/mapbox/tokml)
+- [JSZip](https://stuk.github.io/jszip/)

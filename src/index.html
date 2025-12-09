@@ -300,16 +300,34 @@
                     <span>Export Data</span>
                 </h2>
                 <div class="space-y-4">
-                    <p class="text-sm text-gray-600">Download the enriched dataset as a CSV file. The file will include
+                    <p class="text-sm text-gray-600">Download the enriched dataset as a GIS file. The file will include
                         all original columns plus any new columns added during processing (e.g., Country, UTM Zone).</p>
+
+                    <!-- Format Selection -->
+                    <div>
+                        <label for="exportFormat" class="block text-xs font-medium text-gray-700 mb-1">Export
+                            Format</label>
+                        <select id="exportFormat"
+                            class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border text-sm">
+                            <option value="csv">CSV (Spreadsheet)</option>
+                            <option value="geojson">GeoJSON (Web GIS)</option>
+                            <option value="kml">KML (Google Earth)</option>
+                            <option value="kmz">KMZ (Zipped KML)</option>
+                            <option value="shapefile">ESRI Shapefile (.zip)</option>
+                        </select>
+                    </div>
+
                     <button id="exportBtn"
                         class="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
-                        Download Result CSV
+                        <span id="exportBtnText">Download Data</span>
                     </button>
+
+                    <p class="text-[10px] text-gray-400 text-center">Shapefile exports will truncate column names to 10
+                        chars.</p>
                 </div>
             </div>
         </div>
@@ -424,72 +442,69 @@
                     <select id="lngColSelect"
                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"></select>
                 </div>
-            </div>
-            <div class="mt-6 flex justify-end space-x-3">
-                <button id="cancelMappingBtn"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">Cancel</button>
-                <button id="confirmMappingBtn"
-                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">Map
-                    Columns</button>
-            </div>
-        </div>
-    </div>
+                <div id="toast-container"></div>
 
-    <!-- Toast Notifications -->
-    <div id="toast-container"></div>
+                <!-- Debug Console -->
+                <div id="debugConsole"
+                    class="fixed bottom-0 left-0 w-full h-48 bg-gray-900 text-green-400 font-mono text-xs z-[20000] hidden flex flex-col border-t-2 border-gray-700 transition-all duration-300">
+                    <div
+                        class="flex justify-between items-center bg-gray-800 px-4 py-1 border-b border-gray-700 select-none">
+                        <span class="font-bold text-gray-300">Debug Console</span>
+                        <div class="flex space-x-2">
+                            <button id="copyLogsBtn" class="hover:text-white text-gray-400"
+                                title="Copy Logs">📋</button>
+                            <button id="clearLogsBtn" class="hover:text-white text-gray-400"
+                                title="Clear Logs">🚫</button>
+                            <button id="closeDebugBtn" class="hover:text-white text-gray-400"
+                                title="Minimize">⬇️</button>
+                        </div>
+                    </div>
+                    <div id="debugOutput" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
+                </div>
 
-    <!-- Debug Console -->
-    <div id="debugConsole"
-        class="fixed bottom-0 left-0 w-full h-48 bg-gray-900 text-green-400 font-mono text-xs z-[20000] hidden flex flex-col border-t-2 border-gray-700 transition-all duration-300">
-        <div class="flex justify-between items-center bg-gray-800 px-4 py-1 border-b border-gray-700 select-none">
-            <span class="font-bold text-gray-300">Debug Console</span>
-            <div class="flex space-x-2">
-                <button id="copyLogsBtn" class="hover:text-white text-gray-400" title="Copy Logs">📋</button>
-                <button id="clearLogsBtn" class="hover:text-white text-gray-400" title="Clear Logs">🚫</button>
-                <button id="closeDebugBtn" class="hover:text-white text-gray-400" title="Minimize">⬇️</button>
-            </div>
-        </div>
-        <div id="debugOutput" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
-    </div>
+                <!-- Floating Debug Button -->
+                <button id="showDebugBtn"
+                    class="fixed bottom-4 right-4 z-[99999] bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-50 hover:opacity-100 hover:scale-110"
+                    title="Show Debug Console">
+                    🐞
+                </button>
 
-    <!-- Floating Debug Button -->
-    <button id="showDebugBtn"
-        class="fixed bottom-4 right-4 z-[99999] bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-50 hover:opacity-100 hover:scale-110"
-        title="Show Debug Console">
-        🐞
-    </button>
-
-    <!-- =========================================================================
+                <!-- =========================================================================
          5. Scripts (Load Order: Libs -> Data -> Core -> Feature -> Main)
          ========================================================================= -->
 
 
 
-    <!-- Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
-    <script src="https://unpkg.com/leaflet-providers@1.13.0/leaflet-providers.js"></script>
-    <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
-    <script src="https://cdn.datatables.net/2.3.5/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/columncontrol/1.1.1/js/dataTables.columnControl.js"></script>
+                <!-- Libraries -->
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+                <script src="https://unpkg.com/leaflet-providers@1.13.0/leaflet-providers.js"></script>
+                <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+                <script src="https://cdn.datatables.net/2.3.5/js/dataTables.js"></script>
+                <script src="https://cdn.datatables.net/columncontrol/1.1.1/js/dataTables.columnControl.js"></script>
 
-    <!-- Data Assets -->
+                <!-- GIS Export Libraries -->
+                <script src="https://unpkg.com/tokml@0.4.0/tokml.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+                <script src="https://unpkg.com/@mapbox/shp-write@latest/shpwrite.js"></script>
+
+                <!-- Data Assets -->
 
 
-    <!-- App Core -->
-    <script type="module" src="/js/core/state.js"></script>
-    <script type="module" src="/js/core/debug.js"></script>
+                <!-- App Core -->
+                <script type="module" src="/js/core/state.js"></script>
+                <script type="module" src="/js/core/debug.js"></script>
 
-    <!-- App Modules -->
-    <script type="module" src="/js/modules/ui.js"></script>
-    <script type="module" src="/js/modules/map.js"></script>
-    <script type="module" src="/js/modules/table.js"></script>
-    <script type="module" src="/js/modules/data.js"></script>
+                <!-- App Modules -->
+                <script type="module" src="/js/modules/ui.js"></script>
+                <script type="module" src="/js/modules/map.js"></script>
+                <script type="module" src="/js/modules/table.js"></script>
+                <script type="module" src="/js/modules/data.js"></script>
 
-    <!-- Entry Point -->
-    <script type="module" src="/js/main.js"></script>
+                <!-- Entry Point -->
+                <script type="module" src="/js/main.js"></script>
 </body>
 
 </html>

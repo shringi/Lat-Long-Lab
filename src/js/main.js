@@ -149,6 +149,23 @@ function setupEventListeners() {
 
     const collapseSidebarBtn = getEl('collapseSidebarBtn');
     if (collapseSidebarBtn) collapseSidebarBtn.addEventListener('click', () => toggleSidebar());
+
+    // Export Format Change Listener
+    const exportFormat = getEl('exportFormat');
+    const exportBtnText = getEl('exportBtnText');
+    if (exportFormat && exportBtnText) {
+        exportFormat.addEventListener('change', (e) => {
+            const format = e.target.value;
+            const labels = {
+                'csv': 'Download Result CSV',
+                'geojson': 'Download Result GeoJSON',
+                'kml': 'Download Result KML',
+                'kmz': 'Download Result KMZ',
+                'shapefile': 'Download Result Shapefile'
+            };
+            exportBtnText.textContent = labels[format] || 'Download Data';
+        });
+    }
 }
 
 // Loading Overlay Logic

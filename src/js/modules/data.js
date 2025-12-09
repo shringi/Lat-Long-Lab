@@ -183,26 +183,101 @@ export function enrichData() {
     }, 100);
 }
 
-export function handleExport() {
+import { generateGeoJSON, generateKML, generateKMZ, generateShapefile, downloadBlob } from './export_utils.js';
+
+// ... (imports remain)
+
+// ...
+
+export async function handleExport() {
     if (state.filteredPoints.length === 0) return;
-    const cleanData = state.filteredPoints.map(p => {
+
+    const formatSelect = document.getElementById('exportFormat');
+    const format = formatSelect ? formatSelect.value : 'csv';
+
+    // CSV Handling (Legacy)
+    if (format === 'csv') {
+        const cleanData = state.filteredPoints.map(p => {
+            const newObj = {};
+            for (const key in p) {
+                if (!key.startsWith('_')) newObj[key] = p[key];
+            }
+            return newObj;
+        });
+        const csv = Papa.unparse(cleanData);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        downloadBlob(blob, "enriched_data.csv");
+        showToast('CSV Download started!', 'success');
+        return;
+    }
+
+    // GIS Formats
+    showToast(`Generating ${format.toUpperCase()}...`, 'info');
+
+    // Prepare Data for GIS (clean internal keys)
+    const cleanPoints = state.filteredPoints.map(p => {
         const newObj = {};
         for (const key in p) {
+            // Remove internal keys starting with underscore
             if (!key.startsWith('_')) newObj[key] = p[key];
         }
-        return newObj;
+        // Add back standard lat/lng if needed or rely on geometry
+        // We'll keep them as attributes for reference
+        return {
+            ...newObj,
+            lat: p._lat, // Explicitly ensure lat/lng are present as numbers if they were strings
+            lng: p._lng
+        };
     });
-    const csv = Papa.unparse(cleanData);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "enriched_data.csv");
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    showToast('Download started!', 'success');
+
+    try {
+        const geoJSON = generateGeoJSON(cleanPoints);
+
+        if (format === 'geojson') {
+            const blob = new Blob([JSON.stringify(geoJSON, null, 2)], { type: "application/geo+json" });
+            downloadBlob(blob, "data.geojson");
+            showToast('GeoJSON Download started!', 'success');
+        }
+        else if (format === 'kml') {
+            const kml = generateKML(geoJSON);
+            const blob = new Blob([kml], { type: "application/vnd.google-earth.kml+xml" });
+            downloadBlob(blob, "data.kml");
+            showToast('KML Download started!', 'success');
+        }
+        else if (format === 'kmz') {
+            const blob = await generateKMZ(generateKML(geoJSON));
+            downloadBlob(blob, "data.kmz");
+            showToast('KMZ Download started!', 'success');
+        }
+        else if (format === 'shapefile') {
+            // Check for truncation warning
+            if (cleanPoints.length > 0) {
+                const keys = Object.keys(cleanPoints[0]);
+                const longKeys = keys.filter(k => k.length > 10);
+                if (longKeys.length > 0) {
+                    const confirmTruncation = confirm(
+                        `Shapefile field names limit is 10 characters.\n\nThe following columns will be truncated:\n${longKeys.join(', ')}\n\nDo you want to proceed?`
+                    );
+                    if (!confirmTruncation) {
+                        showToast('Export cancelled.', 'info');
+                        return;
+                    }
+                }
+            }
+
+            const result = await generateShapefile(geoJSON);
+            if (result === 'HANDLED_INTERNALLY') {
+                showToast('Shapefile generation started!', 'success');
+            } else {
+                // Fallback if we change implementation to return blob
+                downloadBlob(result, "data.zip");
+                showToast('Shapefile Download started!', 'success');
+            }
+        }
+    } catch (e) {
+        console.error("Export Error:", e);
+        showToast(`Export Failed: ${e.message}`, 'error');
+    }
 }
 
 export function guessColumns(headers) {

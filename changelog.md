@@ -17,3 +17,7 @@
   - Sidebar can be collapsed to a rail view.
 - [x] 1.4.1 (2025-12-09): UI improvements
   - UTM coordinates can be calculated.
+- [x] 1.4.2 (2025-12-09): Multi-Format GIS Export
+  - Added support for exporting data as **GeoJSON**, **KML**, **KMZ**, and **ESRI Shapefile**.
+  - Implemented client-side Shapefile generation with automatic truncation handling for legacy field limits.
+
