@@ -19,7 +19,7 @@ import {
     generateShapefile,
     downloadBlob,
 } from "./export_utils.js";
-import { worldGeoJSON } from "../world_data.js";
+// worldGeoJSON removed (dynamic import)
 
 console.log("DATA MODULE LOADED");
 
@@ -532,10 +532,9 @@ export function applyColumnMapping(latCol, lngCol, providedData = null) {
 }
 
 export async function enrichData() {
-    if (!state.worldGeoJSON) {
-        // console.warn("Global worldGeoJSON not moved to state?"); // It is imported from world_data.js
-    }
-    const worldData = worldGeoJSON; // Use imported constant
+    // Load World Data dynamically
+    const { worldGeoJSON } = await import("../world_data.js");
+    const worldData = worldGeoJSON;
 
     if (!worldData) {
         showToast("World data not loaded yet. Please wait.", "error");

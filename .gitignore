@@ -26,3 +26,7 @@ coverage/
 .vite/
 .agent/
 .vscode/
+
+# Monorepo
+apps/*/package-lock.json
+apps/*/node_modules/
