@@ -1,0 +1,338 @@
+/* Custom Styles */
+
+/* Ensure map takes full height minus any layout constraints if needed */
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+/* Main Content Layout Fix */
+#mainContent {
+  overflow: hidden;
+  /* Prevent split view from expanding horizontally */
+  width: 100%;
+}
+
+/* Customizing Leaflet Draw Toolbar */
+.leaflet-draw-toolbar a {
+  background-color: white;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+
+.leaflet-draw-toolbar a:hover {
+  background-color: #f9fafb;
+  color: #4f46e5;
+}
+
+/* Scrollbar styling for sidebar */
+aside ::-webkit-scrollbar {
+  width: 6px;
+}
+
+aside ::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+aside ::-webkit-scrollbar-thumb {
+  background: #c7c7c7;
+  border-radius: 3px;
+}
+
+aside ::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* --- Sidebar Collapsibility (Rail Mode) --- */
+/* --- Sidebar Collapsibility (Rail Mode) --- */
+.sidebar-collapsed #sidebar {
+  width: 3rem !important;
+  /* w-12 */
+  border-right: 1px solid #e5e7eb;
+}
+
+/* Rail Mode Header Adjustment */
+/* Override the p-6 (1.5rem) with small padding to fit 3rem width */
+.sidebar-collapsed #sidebar > div:first-child {
+  padding: 0.5rem !important;
+  /* p-2 */
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Hide Content: Logo & Text */
+/* Hide Content: Logo & Text */
+.sidebar-collapsed #sidebar img[alt="Logo"],
+.sidebar-collapsed #sidebar h1,
+.sidebar-collapsed #sidebar p,
+.sidebar-collapsed .tab-text {
+  display: none !important;
+}
+
+/* Collapsed Footer Styling (Show GitHub Icon) */
+.sidebar-collapsed #sidebarFooter {
+  padding: 1rem 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  display: flex !important;
+}
+
+/* Hide Version in collapsed mode */
+.sidebar-collapsed .footer-version {
+  display: none !important;
+}
+
+/* Style GitHub Link in collapsed mode */
+.sidebar-collapsed .footer-link {
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+/* Hide "View on GitHub" text */
+.sidebar-collapsed .footer-link .footer-text {
+  display: none !important;
+}
+
+/* Ensure SVG is visible and sized */
+.sidebar-collapsed .footer-link svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Ensure Logo container doesn't take space */
+.sidebar-collapsed #sidebar > div:first-child > div:first-child {
+  display: none !important;
+}
+
+/* Rotate and Center collapse button */
+.sidebar-collapsed #collapseSidebarBtn {
+  margin: 0 !important;
+}
+
+.sidebar-collapsed #collapseSidebarBtn svg {
+  transform: rotate(180deg);
+}
+
+/* Vertical Tabs in Rail Mode */
+.sidebar-collapsed #tabContainer {
+  flex-direction: column;
+  border-bottom: none;
+}
+
+.sidebar-collapsed #tabContainer button {
+  border-bottom: none;
+  border-left: 3px solid transparent;
+  /* Side indicator instead of bottom */
+  padding: 1rem 0;
+}
+
+/* Update active state styling for Rail Mode */
+.sidebar-collapsed #tabContainer button.text-blue-600 {
+  border-bottom: none !important;
+  border-left-color: #2563eb !important;
+  /* blue-600 */
+  background-color: #eff6ff;
+  /* blue-50 */
+}
+
+/* Hide Tab Content */
+.sidebar-collapsed .flex-col>.space-y-6,
+/* Content Container Children */
+.sidebar-collapsed #contentInput,
+.sidebar-collapsed #contentProcess,
+.sidebar-collapsed #contentMap {
+  display: none !important;
+}
+
+/* Hide Footer */
+.sidebar-collapsed .text-xs.text-gray-500 {
+  display: none;
+}
+
+/* Remove Floating Button logic (using Rail now) */
+.sidebar-collapsed #showSidebarBtn {
+  display: none !important;
+}
+
+/* --- Flexible View Modes --- */
+
+/* 1. Full Map Mode (Default) */
+.view-mode-map #mapContainer {
+  height: 100%;
+}
+
+.view-mode-map #tableContainer {
+  display: none !important;
+}
+
+/* 2. Split Mode */
+.view-mode-split #mapContainer {
+  height: 60%;
+  flex: none;
+}
+
+.view-mode-split #tableContainer {
+  height: 40% !important;
+  flex: none;
+  display: flex !important;
+  position: relative !important;
+  inset: auto !important;
+  border-top: 4px solid #e5e7eb;
+}
+
+/* 3. Full Table Mode */
+.view-mode-table #mapContainer {
+  height: 0;
+  overflow: hidden;
+  flex: none;
+}
+
+.view-mode-table #tableContainer {
+  height: 100% !important;
+  flex: 1;
+  display: flex !important;
+}
+
+/* Modals (Legacy support if needed) */
+.view-mode-modal #mapContainer {
+  height: 100%;
+}
+
+.view-mode-modal #tableContainer:not(.hidden) {
+  display: flex !important;
+  /* Override hidden */
+  position: absolute !important;
+  inset: 4rem 4rem !important;
+  /* Margins */
+  z-index: 2000;
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid #e5e7eb;
+}
+
+.view-mode-modal #showTableBtn {
+  display: none !important;
+}
+
+.view-mode-modal #closeTableBtn {
+  display: block !important;
+}
+
+/* Active Control Button */
+.active-mode {
+  background-color: #e5e7eb;
+  color: #111827;
+  font-weight: 600;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Ensure View Mode Controls are always on top */
+#viewModeControls {
+  z-index: 10000 !important;
+}
+
+/* DataTables Customization */
+#dataTableContainer {
+  /* Ensure container handles overflow */
+  overflow-x: auto;
+}
+
+table.dataTable {
+  font-size: 12px;
+}
+
+table.dataTable thead th {
+  background-color: #f3f4f6;
+  color: #374151;
+  font-weight: 600;
+  padding: 10px !important;
+}
+
+table.dataTable tbody td {
+  padding: 8px 10px !important;
+  color: #374151;
+  /* Ensure text is visible (gray-700) */
+}
+
+/* Hide DataTables length menu and filter if needed, or style them */
+.dataTables_wrapper .dataTables_length select {
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+  background-color: #fff;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  margin-left: 0.5rem;
+}
+
+/* Toast Notification */
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 20002;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  background-color: #333;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-success {
+  background-color: #10b981;
+  /* Green */
+}
+
+.toast-error {
+  background-color: #ef4444;
+  /* Red */
+}
+
+.toast-info {
+  background-color: #3b82f6;
+  /* Blue */
+}
+
+/* Floating Debug Icon Pulse Effect */
+#showDebugBtn.has-new-logs {
+  animation: pulse-debug 2s infinite;
+  opacity: 1;
+}
+
+@keyframes pulse-debug {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "lat-long-lab",
+  "version": "1.5.0",
+  "description": "![Lat-Long Lab](icons/logo_192.png)",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm test && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "format": "prettier --write src/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shringi/Lat-Long-Lab"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shringi/Lat-Long-Lab/issues"
+  },
+  "homepage": "https://github.com/shringi/Lat-Long-Lab#readme",
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
+    "autoprefixer": "^10.4.22",
+    "jsdom": "^27.3.0",
+    "postcss": "^8.5.6",
+    "prettier": "^3.7.4",
+    "tailwindcss": "^4.1.17",
+    "vite": "^7.2.6",
+    "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^4.0.15"
+  },
+  "dependencies": {
+    "@mapbox/shp-write": "^0.4.3",
+    "@turf/turf": "^7.3.1",
+    "datatables.net": "^2.3.5",
+    "datatables.net-columncontrol": "^1.2.0",
+    "datatables.net-dt": "^2.3.5",
+    "jquery": "^3.7.1",
+    "jszip": "^3.10.1",
+    "leaflet": "^1.9.4",
+    "leaflet-draw": "^1.0.4",
+    "leaflet-providers": "^3.0.0",
+    "papaparse": "^5.5.3",
+    "proj4": "^2.20.2",
+    "tokml": "^0.4.0",
+    "xlsx": "^0.18.5"
+  }
+}

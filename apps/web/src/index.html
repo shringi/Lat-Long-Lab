@@ -7,6 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lat-Long Lab</title>
     <link rel="icon" href="icons/favicon.ico">
+    <link rel="apple-touch-icon" href="icons/logo_192.png">
+    <meta name="theme-color" content="#2563eb">
 
     <!-- =========================================================================
          Global Error Handler (Catch-all for early startup errors)
@@ -37,24 +39,11 @@
     </script>
 
     <!-- =========================================================================
-         Stylesheets & CDN Resources
+         Stylesheets & Scripts
          ========================================================================= -->
-
-    <!-- Core UI Framework (Tailwind CSS) - Replaced by local build -->
-
-    <!-- Mapping Library (Leaflet) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
-
-    <!-- DataTables & Plugins -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.5/css/dataTables.dataTables.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/columncontrol/1.1.1/css/columnControl.dataTables.css">
 
     <!-- Application Styles -->
     <link rel="stylesheet" href="style.css">
-
-    <!-- Core Dependencies (Pre-load) -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 
 <body class="h-full flex flex-col sm:flex-row overflow-hidden relative font-sans text-gray-900">
@@ -129,10 +118,12 @@
 
         <!-- Input Content -->
         <div id="contentInput" class="flex-1 overflow-y-auto p-4 space-y-4">
+
+
             <!-- File Upload Area -->
             <div
                 class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer group relative">
-                <input id="csvFile" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls"
+                <input id="csvFile" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.geojson,.json,.kml,.kmz"
                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                 <div class="space-y-2 pointer-events-none">
                     <svg class="mx-auto h-10 w-10 text-gray-400 group-hover:text-blue-500 transition-colors" fill="none"
@@ -143,7 +134,7 @@
                     </svg>
                     <p class="text-sm text-gray-500 group-hover:text-blue-600"><span class="font-semibold">Click to
                             upload</span> or drag and drop</p>
-                    <p class="text-xs text-gray-400">(CSV, Excel, TXT)</p>
+                    <p class="text-xs text-gray-400">(CSV, Excel, TXT, KML, GeoJSON)</p>
                 </div>
             </div>
 
@@ -235,8 +226,8 @@
 
                 <!-- Stats -->
                 <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r text-xs">
-                    <p class="text-blue-700">Selected: <span id="selectedCount" class="font-bold">0</span> points
-                    </p>
+                    <p class="text-blue-700">Selected: <span id="selectedCount" class="font-bold">0</span> points</p>
+                    <p id="filterHelpText" class="text-blue-600 mt-1 italic">All loaded points will be enriched.</p>
                 </div>
             </div>
 
@@ -344,7 +335,7 @@
                 </svg>
                 <span class="footer-text">View on GitHub</span>
             </a>
-            <span class="footer-version bg-gray-200 px-1.5 py-0.5 rounded text-[10px] font-mono">v1.4.2</span>
+            <span class="footer-version bg-gray-200 px-1.5 py-0.5 rounded text-[10px] font-mono">v1.5.0</span>
         </div>
     </aside>
 
@@ -426,7 +417,248 @@
          4. Modals & Overlays
          ========================================================================= -->
 
-    <!-- Column Mapping Modal -->
+    <!-- Import Wizard Modal -->
+    <div id="importWizardModal"
+        class="fixed inset-0 bg-black/50 z-[10000] hidden flex items-center justify-center font-sans">
+        <div class="bg-white rounded-lg shadow-2xl w-[600px] max-w-[90%] max-h-[90vh] flex flex-col overflow-hidden">
+            <!-- Wizard Header -->
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-gray-800" id="wizardTitle">Import Data</h3>
+                <button id="wizardCloseBtn" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Wizard Content (Scrollable) -->
+            <div class="p-6 overflow-y-auto flex-1 space-y-6" id="wizardContent">
+
+                <!-- 1. Format Options -->
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Delimiter (CSV Only) -->
+                    <div id="wizardDelimiterGroup">
+                        <label
+                            class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Delimiter</label>
+                        <select id="wizardDelimiter"
+                            class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Auto-Detect</option>
+                            <option value=",">Comma (,)</option>
+                            <option value=";">Semicolon (;)</option>
+                            <option value="|">Pipe (|)</option>
+                            <option value="	">Tab (\t)</option>
+                        </select>
+                    </div>
+
+                    <!-- Encoding -->
+                    <div id="wizardEncodingGroup">
+                        <label
+                            class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Encoding</label>
+                        <select id="wizardEncoding"
+                            class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="UTF-8">UTF-8 (Standard)</option>
+                            <option value="ISO-8859-1">Latin-1 (Western)</option>
+                            <option value="windows-1252">Windows-1252 (Legacy)</option>
+                        </select>
+                    </div>
+
+                    <!-- Excel Sheets (Hidden by default) -->
+                    <div id="wizardSheetGroup" class="hidden col-span-2">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Select
+                            Sheet</label>
+                        <select id="wizardSheet"
+                            class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GIS Summary (Hidden by default) -->
+            <div id="wizardGisGroup" class="hidden bg-blue-50 border border-blue-100 rounded p-4 space-y-3">
+                <h4 class="text-sm font-bold text-gray-700 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7">
+                        </path>
+                    </svg>
+                    GIS Geometry Analysis
+                </h4>
+
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-white p-2 rounded border border-green-200">
+                        <div class="text-xl font-bold text-green-600" id="gisValidCount">0</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">Points</div>
+                    </div>
+                    <div class="bg-white p-2 rounded border border-blue-200">
+                        <div class="text-xl font-bold text-blue-600" id="gisFlattenedCount">0</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">MultiPoints</div>
+                    </div>
+                    <div class="bg-white p-2 rounded border border-red-200">
+                        <div class="text-xl font-bold text-red-600" id="gisIgnoredCount">0</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wide">Ignored</div>
+                    </div>
+                </div>
+
+                <div id="gisIgnoredWarning"
+                    class="text-xs text-amber-700 bg-amber-50 p-2 rounded border border-amber-200 flex items-start">
+                    <svg class="w-4 h-4 mr-1.5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                        </path>
+                    </svg>
+                    <span>Only Point geometries are supported. Lines and Polygons will be skipped. MultiPoints are split
+                        into individual points.</span>
+                </div>
+            </div>
+
+            <!-- 2. UTM Configuration & Geometry Source -->
+            <div id="wizardCoordConfigGroup" class="bg-blue-50 border border-blue-100 rounded p-4">
+                <div id="wizardWarning" class="mb-2 text-xs text-amber-600 hidden flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                        </path>
+                    </svg>
+                    <span id="wizardWarningText"></span>
+                </div>
+                <!-- UTM Toggle -->
+                <div class="flex items-center space-x-2 mb-4">
+                    <input type="checkbox" id="wizardHasUtm" class="rounded text-blue-600 focus:ring-blue-500">
+                    <label for="wizardHasUtm" class="text-sm font-medium text-blue-900">My data has UTM
+                        coordinates</label>
+                </div>
+
+                <!-- Lat/Lon Mapping (Default) -->
+                <div id="wizardLatLonGroup" class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Latitude
+                            Column</label>
+                        <select id="wizardLatCol"
+                            class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Longitude
+                            Column</label>
+                        <select id="wizardLngCol"
+                            class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"></select>
+                    </div>
+                </div>
+
+                <!-- UTM Mapping (Hidden) -->
+                <div id="wizardUtmGroup" class="hidden space-y-4">
+                    <p class="text-xs text-blue-700">Configure UTM Zone and Columns.</p>
+
+                    <!-- Zone Config -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-xs font-semibold text-blue-500 uppercase tracking-wide mb-1">Zone</label>
+                            <input type="text" id="wizardUtmZone" placeholder="e.g. 18N"
+                                class="block w-full rounded border-blue-200 text-sm focus:border-blue-500 focus:ring-blue-500" />
+                        </div>
+                        <div class="flex items-end">
+                            <button id="wizardMapPickerBtn"
+                                class="bg-white border border-blue-300 text-blue-600 hover:bg-blue-50 text-xs font-medium py-2 px-3 rounded shadow-sm flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                    </path>
+                                </svg>
+                                Pick on Map
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- UTM Columns -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-xs font-semibold text-blue-500 uppercase tracking-wide mb-1">Easting
+                                (X) Column</label>
+                            <select id="wizardEastingCol"
+                                class="block w-full rounded border-blue-200 text-sm focus:border-blue-500 focus:ring-blue-500"></select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-semibold text-blue-500 uppercase tracking-wide mb-1">Northing
+                                (Y) Column</label>
+                            <select id="wizardNorthingCol"
+                                class="block w-full rounded border-blue-200 text-sm focus:border-blue-500 focus:ring-blue-500"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Data Preview Table -->
+            <div>
+                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Data Preview (First 5
+                    Rows)</h4>
+                <div class="border border-gray-200 rounded overflow-x-auto bg-gray-50 min-h-[100px]">
+                    <table id="wizardPreviewTable" class="min-w-full text-xs text-left">
+                        <thead class="bg-gray-100 text-gray-600 font-medium border-b border-gray-200">
+                            <!-- Headers injected here -->
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 bg-white">
+                            <!-- Rows injected here -->
+                        </tbody>
+                    </table>
+                    <div id="wizardPreviewEmpty" class="hidden p-4 text-center text-gray-400 italic">No valid data
+                        detected.</div>
+                </div>
+
+            </div>
+
+            <!-- Wizard Footer -->
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="wizardCancelBtn"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 shadow-sm transition-colors">Cancel</button>
+                <button id="wizardConfirmBtn"
+                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 shadow-sm transition-colors flex items-center">
+                    <span>Import Data</span>
+                    <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UTM Picker Modal -->
+    <div id="utmPickerModal"
+        class="fixed inset-0 bg-black/60 z-[10010] hidden flex items-center justify-center font-sans">
+        <div
+            class="bg- white bg-gray-900 rounded-lg shadow-2xl w-[800px] max-w-[95%] h-[600px] max-h-[90vh] flex flex-col overflow-hidden relative">
+            <div id="utmPickerMap" class="absolute inset-0 z-0 bg-gray-900"></div>
+
+            <div class="absolute top-4 left-4 right-4 z-10 flex justify-between items-start pointer-events-none">
+                <div class="bg-white/90 backdrop-blur px-4 py-2 rounded shadow text-xs font-medium pointer-events-auto">
+                    <p class="text-gray-700">Click on the map to select a UTM Zone.</p>
+                    <p class="text-blue-600 font-bold mt-1" id="utmPickerSelectedZone">None Selected</p>
+                </div>
+                <button id="utmPickerCloseBtn"
+                    class="bg-white/90 backdrop-blur p-2 rounded shadow text-gray-700 hover:text-red-600 pointer-events-auto transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="absolute bottom-4 left-0 right-0 z-10 flex justify-center pointer-events-none">
+                <button id="utmPickerConfirmBtn"
+                    class="bg-blue-600 text-white px-6 py-2 rounded shadow-lg font-bold text-sm tracking-wide hover:bg-blue-700 pointer-events-auto transform transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled>
+                    Use Zone <span id="utmPickerConfirmText">...</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Column Mapping Modal (Keep Existing) -->
     <div id="columnMappingModal" class="absolute inset-0 bg-black/50 z-[10000] hidden flex items-center justify-center">
         <div class="bg-white rounded-lg shadow-xl p-6 w-96 max-w-full m-4">
             <h3 class="text-lg font-bold text-gray-900 mb-4">Map Columns</h3>
@@ -482,22 +714,7 @@
          5. Scripts (Load Order: Libs -> Data -> Core -> Feature -> Main)
          ========================================================================= -->
 
-
-
-    <!-- Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
-    <script src="https://unpkg.com/leaflet-providers@1.13.0/leaflet-providers.js"></script>
-    <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
-    <script src="https://cdn.datatables.net/2.3.5/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/columncontrol/1.1.1/js/dataTables.columnControl.js"></script>
-
-    <!-- GIS Export Libraries -->
-    <script src="https://unpkg.com/tokml@0.4.0/tokml.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://unpkg.com/@mapbox/shp-write@latest/shpwrite.js"></script>
+    <!-- App Scripts -->
 
     <!-- Data Assets -->
 

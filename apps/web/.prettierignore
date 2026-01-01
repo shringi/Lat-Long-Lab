@@ -1,0 +1,11 @@
+icons/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+dist/
+coverage/
+Experiment/
+Tests/
+experimental/

@@ -20,4 +20,7 @@
 - [x] 1.4.2 (2025-12-09): Multi-Format GIS Export
   - Added support for exporting data as **GeoJSON**, **KML**, **KMZ**, and **ESRI Shapefile**.
   - Implemented client-side Shapefile generation with automatic truncation handling for legacy field limits.
-
+- [x] 1.5.0 (2026-01-01): Robust Import & Automation
+  - **Import Wizard**: Intermediate dialog for parsing Excel/CSV with preview.
+  - **UTM Support**: Offline UTM Zone Picker and auto-conversion.
+  - **Single Sheet Optimization**: Smartly handles multi-sheet Excel files.

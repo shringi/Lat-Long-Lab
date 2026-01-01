@@ -1,39 +1,17 @@
 {
-  "name": "lat-long-lab",
-  "version": "1.4.2",
-  "description": "![Lat-Long Lab](icons/logo_192.png)",
-  "main": "index.js",
+  "name": "lat-long-lab-root",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:web": "npm run dev -w apps/web",
+    "build:web": "npm run build -w apps/web",
+    "test:web": "npm run test -w apps/web",
+    "format": "prettier --write ."
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/shringi/Lat-Long-Lab"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/shringi/Lat-Long-Lab/issues"
-  },
-  "homepage": "https://github.com/shringi/Lat-Long-Lab#readme",
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.17",
-    "autoprefixer": "^10.4.22",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.17",
-    "vite": "^7.2.6"
-  },
-  "dependencies": {
-    "@turf/turf": "^7.3.1",
-    "datatables.net": "^2.3.5",
-    "jquery": "^3.7.1",
-    "leaflet": "^1.9.4",
-    "papaparse": "^5.5.3",
-    "proj4": "^2.20.2",
-    "xlsx": "^0.18.5"
+    "prettier": "^3.0.0"
   }
 }

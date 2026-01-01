@@ -17,3 +17,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+
+# Validations & Tests
+Tests/
+coverage/
+
+# Tooling & Caches
+.vite/
+.agent/
+.vscode/
