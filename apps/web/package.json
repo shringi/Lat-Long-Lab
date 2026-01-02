@@ -22,22 +22,22 @@
   },
   "homepage": "https://github.com/shringi/Lat-Long-Lab#readme",
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.17",
-    "autoprefixer": "^10.4.22",
-    "jsdom": "^27.3.0",
+    "@tailwindcss/postcss": "^4.1.18",
+    "autoprefixer": "^10.4.23",
+    "jsdom": "^27.4.0",
     "postcss": "^8.5.6",
     "prettier": "^3.7.4",
-    "tailwindcss": "^4.1.17",
-    "vite": "^7.2.6",
+    "tailwindcss": "^4.1.18",
+    "vite": "^7.3.0",
     "vite-plugin-pwa": "^1.2.0",
-    "vitest": "^4.0.15"
+    "vitest": "^4.0.16"
   },
   "dependencies": {
     "@mapbox/shp-write": "^0.4.3",
     "@turf/turf": "^7.3.1",
-    "datatables.net": "^2.3.5",
+    "datatables.net": "^2.3.6",
     "datatables.net-columncontrol": "^1.2.0",
-    "datatables.net-dt": "^2.3.5",
+    "datatables.net-dt": "^2.3.6",
     "jquery": "^3.7.1",
     "jszip": "^3.10.1",
     "leaflet": "^1.9.4",
@@ -46,6 +46,6 @@
     "papaparse": "^5.5.3",
     "proj4": "^2.20.2",
     "tokml": "^0.4.0",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-latest/xlsx-latest.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }

@@ -6,21 +6,29 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:web": "npm run dev -w apps/web",
-    "build:web": "npm run build -w apps/web",
-    "test:web": "npm run test -w apps/web",
-    "format": "prettier --write ."
+    "dev:web": "pnpm --filter lat-long-lab dev",
+    "build:web": "pnpm --filter lat-long-lab build",
+    "test:web": "pnpm --filter lat-long-lab test",
+    "format": "prettier --write .",
+    "lint": "eslint ."
   },
   "devDependencies": {
-    "prettier": "^3.0.0"
+    "@eslint/js": "^9.39.2",
+    "@tailwindcss/node": "^4.1.18",
+    "eslint": "^9.39.2",
+    "globals": "^17.0.0",
+    "lightningcss-win32-x64-msvc": "^1.30.2",
+    "prettier": "^3.7.4"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.28.1"
+    "@rollup/rollup-linux-x64-gnu": "4.54.0",
+    "@rollup/rollup-win32-x64-msvc": "4.54.0"
   },
   "overrides": {
     "minimist": "^1.2.8",
     "minimatch": "^3.1.2",
     "glob": "^7.2.3",
     "uglify-js": "^3.17.4"
-  }
+  },
+  "packageManager": "pnpm@10.27.0+sha512.72d699da16b1179c14ba9e64dc71c9a40988cbdc65c264cb0e489db7de917f20dcf4d64d8723625f2969ba52d4b7e2a1170682d9ac2a5dcaeaab732b7e16f04a"
 }

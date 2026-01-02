@@ -56,9 +56,7 @@ export function updateTable(data) {
       data: k,
       className: "text-left align-top", // Force left alignment
       defaultContent: "<em>(empty)</em>",
-      render: function (data, type, row) {
-        return data === null || data === undefined ? "" : data;
-      },
+      render: $.fn.dataTable.render.text(),
     };
   });
 
