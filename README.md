@@ -26,7 +26,7 @@ We often encounter datasets containing latitude and longitude points along with 
 
 - **Versatile Data Loading**:
     - Upload **CSV, Excel (.xlsx, .xls), TXT, KML, KMZ, GeoJSON** files.
-    - **Import Wizard**: Intelligent, automatic detection of Latitude/Longitude or UTM coordinates (Zone/Easting/Northing). Features robust delimiter support including Comma, Semicolon,Space, Tab, and Custom delimiters, with an option to merge consecutive whitespaces for fixed-width data.
+    - **Import Wizard**: Intelligent, automatic detection of Latitude/Longitude or UTM coordinates (Zone/Easting/Northing). Features robust delimiter support including Comma, Semicolon, Space, Tab, and Custom delimiters, with an option to merge consecutive whitespaces for fixed-width data.
     - **Paste** data directly from your clipboard.
     - **Fetch** data from a URL (CSV/JSON).
 - **Interactive Mapping**:
