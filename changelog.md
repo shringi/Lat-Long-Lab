@@ -24,3 +24,6 @@
   - **Import Wizard**: Intermediate dialog for parsing Excel/CSV with preview.
   - **UTM Support**: Offline UTM Zone Picker and auto-conversion.
   - **Single Sheet Optimization**: Smartly handles multi-sheet Excel files.
+
+- [x] 1.5.1 (2026-03-19): Delimiter detection enhancements 
+  - Added support for Space/Tab/ and optional Custom delimeter.

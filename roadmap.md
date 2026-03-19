@@ -1,6 +1,6 @@
 # Product Roadmap: Lat-Long-Lab
 
-**Current Version:** v1.5.0 (Offline-First PWA)
+**Current Version:** v1.5.1 (Offline-First PWA)
 
 This document outlines the development trajectory of Lat-Long-Lab. It serves as a guide for users and developers to understand the current capabilities and keeping track of upcoming features.
 
