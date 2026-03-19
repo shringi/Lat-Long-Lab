@@ -14,6 +14,7 @@ let wizardState = {
     encoding: "UTF-8",
     hasUtm: false,
     utmZone: "",
+    mergeSpaces: false,
     onConfirm: null,
     pickerMap: null,
     pickerLayer: null,
@@ -29,8 +30,40 @@ export function initImportWizard() {
     getEl("wizardCancelBtn").addEventListener("click", closeWizard);
     getEl("wizardConfirmBtn").addEventListener("click", handleConfirm);
 
+    const wizardCustomDelimiter = getEl("wizardCustomDelimiter");
+    const customContainer = getEl("wizardCustomDelimiterContainer");
+    const mergeContainer = getEl("wizardMergeSpacesContainer");
+
+    let debounceTimer;
+
     getEl("wizardDelimiter").addEventListener("change", (e) => {
-        wizardState.delimiter = e.target.value;
+        const val = e.target.value;
+        if (val === "custom") {
+            customContainer.classList.remove("hidden");
+            wizardState.delimiter = wizardCustomDelimiter.value;
+        } else {
+            customContainer.classList.add("hidden");
+            wizardState.delimiter = val;
+        }
+
+        if (val === " " || val === "\t" || val === "custom") {
+            mergeContainer.classList.remove("hidden");
+        } else {
+            mergeContainer.classList.add("hidden");
+        }
+        updatePreview();
+    });
+
+    wizardCustomDelimiter.addEventListener("input", (e) => {
+        if (getEl("wizardDelimiter").value === "custom") {
+            wizardState.delimiter = e.target.value;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => updatePreview(), 300);
+        }
+    });
+
+    getEl("wizardMergeSpaces").addEventListener("change", (e) => {
+        wizardState.mergeSpaces = e.target.checked;
         updatePreview();
     });
 
@@ -107,6 +140,7 @@ export function openImportWizard(
         encoding: "UTF-8",
         hasUtm: false,
         utmZone: "",
+        mergeSpaces: false,
         onConfirm: onConfirmCallback,
         pickerMap: wizardState.pickerMap, // Keep map instance if exists
         pickerLayer: wizardState.pickerLayer,
@@ -118,9 +152,14 @@ export function openImportWizard(
     document.getElementById("wizardSheetGroup").classList.add("hidden");
     document.getElementById("wizardGisGroup").classList.add("hidden");
     document.getElementById("wizardWarning").classList.add("hidden");
+    document.getElementById("wizardCustomDelimiterContainer").classList.add("hidden");
+    document.getElementById("wizardMergeSpacesContainer").classList.add("hidden");
+    document.getElementById("wizardDelimiterWarning").classList.add("hidden");
 
     // Reset inputs
     document.getElementById("wizardDelimiter").value = "";
+    document.getElementById("wizardCustomDelimiter").value = "";
+    document.getElementById("wizardMergeSpaces").checked = false;
     document.getElementById("wizardEncoding").value = "UTF-8";
     document.getElementById("wizardHasUtm").checked = false;
     document.getElementById("wizardUtmZone").value = "";
@@ -215,6 +254,7 @@ function handleConfirm() {
         sheetName: document.getElementById("wizardSheet").value,
         hasUtm: document.getElementById("wizardHasUtm").checked,
         utmZone: document.getElementById("wizardUtmZone").value.trim(),
+        mergeSpaces: wizardState.mergeSpaces,
         // Column Mapping
         latCol: document.getElementById("wizardLatCol").value,
         lngCol: document.getElementById("wizardLngCol").value,
@@ -230,73 +270,100 @@ function handleConfirm() {
 
 // --- Preview Logic ---
 
+export function preprocessText(text, delimiter) {
+    if (!text || !delimiter) return text;
+    const escaped = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escaped + "+", "g");
+    return text.replace(regex, delimiter);
+}
+
 function handleCSVPreload(file) {
     // Hide Excel UI, Show CSV UI
     document.getElementById("wizardDelimiterGroup").classList.remove("hidden");
     document.getElementById("wizardSheetGroup").classList.add("hidden");
 
-    // Read first chunk
-    Papa.parse(file, {
-        preview: 5,
-        encoding: wizardState.encoding,
-        delimiter: wizardState.delimiter || "", // Use empty string to trigger auto-detect if not set
-        complete: (results) => {
-            // Auto-detect delimiter update UI
-            if (results.meta.delimiter) {
-                const delimSelect = document.getElementById("wizardDelimiter");
-                // Only update if we are in auto-detect mode (value is empty) or if we want to reflect detection
-                // Better UX: Always show what was detected if the user hasn't explicitly chosen one (and state is empty)
-                if (wizardState.delimiter === "") {
-                    delimSelect.value = results.meta.delimiter;
-                    // If the detected delimiter isn't in our list (e.g. pipe), we might want to add it or just set value
-                    // Check if value stuck
-                    if (delimSelect.value !== results.meta.delimiter) {
-                        // Option doesn't exist, maybe add custom? Or just let standard ones work.
-                        // For now, assume standard.
-                    }
-                    wizardState.delimiter = results.meta.delimiter;
+    if (wizardState.mergeSpaces && wizardState.delimiter) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const preprocessed = preprocessText(e.target.result, wizardState.delimiter);
+            Papa.parse(preprocessed, {
+                preview: 5,
+                delimiter: wizardState.delimiter,
+                complete: onCsvPreviewComplete,
+                error: onCsvPreviewError
+            });
+        };
+        reader.readAsText(file.slice(0, 1024 * 100), wizardState.encoding);
+    } else {
+        Papa.parse(file, {
+            preview: 5,
+            encoding: wizardState.encoding,
+            delimiter: wizardState.delimiter || "",
+            delimitersToGuess: [',', '\t', '|', ';', ' '],
+            complete: onCsvPreviewComplete,
+            error: onCsvPreviewError
+        });
+    }
+}
+
+function onCsvPreviewComplete(results) {
+    const delimWarning = document.getElementById("wizardDelimiterWarning");
+    if (delimWarning) delimWarning.classList.add("hidden");
+
+    // Auto-detect delimiter update UI
+    if (results.meta.delimiter) {
+        const delimSelect = document.getElementById("wizardDelimiter");
+        // Only override the UI if the dropdown is currently set to "Auto-Detect" (value is "").
+        if (delimSelect.value === "") {
+            // Check if auto-detect failed to find multiple columns
+            if (results.data && results.data.length > 0) {
+                const row = results.data[0];
+                const numCols = Array.isArray(row) ? row.length : Object.keys(row).length;
+                if (numCols <= 1 && delimWarning) {
+                    delimWarning.classList.remove("hidden");
                 }
             }
 
-            wizardState.previewData = results.data;
-            // Render with isArrayMode=true to use first row as headers
-            renderPreviewTable(results.data, true);
-
-            // Populate Columns & Guess using the first row as headers
-            const headers = results.data.length > 0 ? results.data[0] : [];
-            populateColumnSelectors(headers);
-
-            // Heuristic Nudge for UTM
-            checkForUtmNudge(headers);
-        },
-        error: (err) => {
-            showToast("Preview Error: " + err.message, "error");
-        },
-    });
-}
-
-function handleTextPreload(text) {
-    const results = Papa.parse(text, {
-        preview: 5,
-        delimiter: wizardState.delimiter || "",
-    });
-
-    // Auto-detect delimiter update UI for text too
-    if (results.meta.delimiter && wizardState.delimiter === "") {
-        const delimSelect = document.getElementById("wizardDelimiter");
-        delimSelect.value = results.meta.delimiter;
-        wizardState.delimiter = results.meta.delimiter;
+            const validOptions = Array.from(delimSelect.options).map(o => o.value);
+            if (validOptions.includes(results.meta.delimiter)) {
+                delimSelect.value = results.meta.delimiter;
+            } else {
+                delimSelect.value = "custom";
+                document.getElementById("wizardCustomDelimiter").value = results.meta.delimiter;
+                document.getElementById("wizardCustomDelimiterContainer").classList.remove("hidden");
+                document.getElementById("wizardMergeSpacesContainer").classList.remove("hidden");
+            }
+            wizardState.delimiter = results.meta.delimiter;
+        }
     }
 
     wizardState.previewData = results.data;
     renderPreviewTable(results.data, true);
 
-    // Populate Columns
     const headers = results.data.length > 0 ? results.data[0] : [];
     populateColumnSelectors(headers);
-
     checkForUtmNudge(headers);
 }
+
+function onCsvPreviewError(err) {
+    showToast("Preview Error: " + err.message, "error");
+}
+
+function handleTextPreload(text) {
+    let processText = text;
+    if (wizardState.mergeSpaces && wizardState.delimiter) {
+        processText = preprocessText(text, wizardState.delimiter);
+    }
+
+    const results = Papa.parse(processText, {
+        preview: 5,
+        delimiter: wizardState.delimiter || "",
+        delimitersToGuess: [',', '\t', '|', ';', ' '],
+    });
+
+    onCsvPreviewComplete(results);
+}
+// Code inside handleTextPreload was replaced by common callback above.
 
 function handleExcelPreload(file) {
     // Show Excel UI, Hide Delimiter
@@ -349,15 +416,12 @@ function updateExcelPreview(sheetName) {
 
 function updatePreview() {
     // If CSV, re-parse with new delimiter/encoding
-    if (wizardState.format === "csv" && wizardState.file) {
-        Papa.parse(wizardState.file, {
-            preview: 5,
-            delimiter: wizardState.delimiter,
-            encoding: wizardState.encoding,
-            complete: (results) => {
-                renderPreviewTable(results.data);
-            },
-        });
+    if (wizardState.format === "csv") {
+        if (wizardState.file) {
+            handleCSVPreload(wizardState.file);
+        } else if (wizardState.text) {
+            handleTextPreload(wizardState.text);
+        }
     }
 }
 

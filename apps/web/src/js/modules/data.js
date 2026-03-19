@@ -1,5 +1,5 @@
 import { state } from "../core/state.js";
-import { openImportWizard } from "./import_wizard.js";
+import { openImportWizard, preprocessText } from "./import_wizard.js";
 import {
     showToast,
     showColumnMappingModal,
@@ -341,21 +341,45 @@ async function finishImport(file, text, options) {
             );
         } else {
             const Papa = (await import("papaparse")).default;
-            Papa.parse(file, {
-                header: true,
-                skipEmptyLines: true,
-                delimiter: options.delimiter,
-                encoding: options.encoding,
-                complete: (results) => postParse(results.data, options),
-                error: (err) => showToast("Parse Error: " + err.message, "error"),
-            });
+            
+            if (options.mergeSpaces && options.delimiter) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const preprocessed = preprocessText(e.target.result, options.delimiter);
+                    Papa.parse(preprocessed, {
+                        header: true,
+                        skipEmptyLines: true,
+                        delimiter: options.delimiter,
+                        complete: (results) => postParse(results.data, options),
+                        error: (err) => showToast("Parse Error: " + err.message, "error"),
+                    });
+                };
+                reader.readAsText(file, options.encoding);
+            } else {
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    delimiter: options.delimiter || "",
+                    delimitersToGuess: [',', '\t', '|', ';', ' '],
+                    encoding: options.encoding,
+                    complete: (results) => postParse(results.data, options),
+                    error: (err) => showToast("Parse Error: " + err.message, "error"),
+                });
+            }
         }
     } else if (text) {
         const Papa = (await import("papaparse")).default;
-        const results = Papa.parse(text, {
+        
+        let processText = text;
+        if (options.mergeSpaces && options.delimiter) {
+            processText = preprocessText(text, options.delimiter);
+        }
+
+        const results = Papa.parse(processText, {
             header: true,
             skipEmptyLines: true,
-            delimiter: options.delimiter,
+            delimiter: options.delimiter || "",
+            delimitersToGuess: [',', '\t', '|', ';', ' '],
         });
         postParse(results.data, options);
     }

@@ -6,9 +6,9 @@
 
 https://shringi.github.io/Lat-Long-Lab/
 
-Current Version: 1.5.0
+Current Version: 1.5.1
 
-Last Updated on: 2026-Jan-01
+Last Updated on: 2026-Mar-19
 
 ## Motivation
 
@@ -26,7 +26,7 @@ We often encounter datasets containing latitude and longitude points along with 
 
 - **Versatile Data Loading**:
     - Upload **CSV, Excel (.xlsx, .xls), TXT, KML, KMZ, GeoJSON** files.
-    - **Import Wizard**: Intelligent, automatic detection of Latitude/Longitude or UTM coordinates (Zone/Easting/Northing).
+    - **Import Wizard**: Intelligent, automatic detection of Latitude/Longitude or UTM coordinates (Zone/Easting/Northing). Features robust delimiter support including Comma, Semicolon,Space, Tab, and Custom delimiters, with an option to merge consecutive whitespaces for fixed-width data.
     - **Paste** data directly from your clipboard.
     - **Fetch** data from a URL (CSV/JSON).
 - **Interactive Mapping**:
@@ -127,6 +127,6 @@ This repository is structured as a Monorepo.
 ```bash
 git clone https://github.com/shringi/Lat-Long-Lab.git
 cd Lat-Long-Lab
-npm install
-npm run dev:web
+pnpm install
+pnpm dev:web
 ```
