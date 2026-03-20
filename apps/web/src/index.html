@@ -51,14 +51,30 @@
                     <p class="text-xs mt-1 opacity-70">A Lat-Long Explorer Tool</p>
                 </div>
             </div>
-            <!-- Collapse Button -->
-            <button id="collapseSidebarBtn"
-                class="text-white hover:text-gray-200 focus:outline-none p-1 rounded hover:bg-white/10 transition-colors"
-                title="Collapse Sidebar">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                </svg>
-            </button>
+            <!-- Header Actions -->
+            <div class="flex items-center space-x-1">
+                <!-- Settings Button (Future-Proofing for Theme/Language) -->
+                <button id="settingsBtn"
+                    class="text-white hover:text-gray-200 focus:outline-none p-1.5 rounded hover:bg-white/10 transition-colors"
+                    title="Settings (Coming Soon)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                        </path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </button>
+                <!-- Collapse Button -->
+                <button id="collapseSidebarBtn"
+                    class="text-white hover:text-gray-200 focus:outline-none p-1.5 rounded hover:bg-white/10 transition-colors"
+                    title="Collapse Sidebar">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                        </path>
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <!-- Navigation Tabs -->
@@ -97,76 +113,71 @@
         <div id="contentInput" class="flex-1 overflow-y-auto p-4 space-y-4">
 
 
-            <!-- File Upload Area -->
-            <div
-                class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer group relative">
-                <input id="csvFile" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.geojson,.json,.kml,.kmz"
-                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                <div class="space-y-2 pointer-events-none">
-                    <svg class="mx-auto h-10 w-10 text-gray-400 group-hover:text-blue-500 transition-colors" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
-                        </path>
-                    </svg>
-                    <p class="text-sm text-gray-500 group-hover:text-blue-600"><span class="font-semibold">Click to
-                            upload</span> or drag and drop</p>
-                    <p class="text-xs text-gray-400">(CSV, Excel, TXT, KML, GeoJSON)</p>
+            <!-- Segmented Control for Input Type -->
+            <div class="flex bg-gray-100 p-1 rounded-lg">
+                <button id="inputTypeFile"
+                    class="flex-1 text-xs font-semibold py-1.5 rounded-md bg-white shadow-sm text-gray-800 transition-all">File</button>
+                <button id="inputTypeUrl"
+                    class="flex-1 text-xs font-semibold py-1.5 rounded-md text-gray-500 hover:text-gray-700 transition-all">URL</button>
+                <button id="inputTypePaste"
+                    class="flex-1 text-xs font-semibold py-1.5 rounded-md text-gray-500 hover:text-gray-700 transition-all">Paste</button>
+                <button id="inputTypeSample"
+                    class="flex-1 text-xs font-semibold py-1.5 rounded-md text-gray-500 hover:text-gray-700 transition-all">Sample</button>
+            </div>
+
+            <!-- Panel: File Upload -->
+            <div id="panelInputFile" class="space-y-4">
+                <div
+                    class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer group relative">
+                    <input id="csvFile" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.geojson,.json,.kml,.kmz"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                    <div class="space-y-2 pointer-events-none">
+                        <svg class="mx-auto h-10 w-10 text-gray-400 group-hover:text-blue-500 transition-colors"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                            </path>
+                        </svg>
+                        <p class="text-sm text-gray-500 group-hover:text-blue-600"><span class="font-semibold">Click to
+                                upload</span> or drag and drop</p>
+                        <p class="text-xs text-gray-400">(CSV, Excel, TXT, KML, GeoJSON)</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Divider -->
-            <div class="relative">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-gray-200"></div>
-                </div>
-                <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-500">OR</span>
-                </div>
-            </div>
-
-            <!-- URL Input -->
-            <div class="flex space-x-2">
-                <input type="text" id="urlInput" placeholder="Paste URL (CSV/JSON)..."
-                    class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border bg-gray-50 text-xs">
-                <button id="urlBtn"
-                    class="px-3 py-2 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-gray-600 hover:bg-gray-700 focus:outline-none transition-colors">Fetch</button>
-            </div>
-
-            <!-- Divider -->
-            <div class="relative">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-gray-200"></div>
-                </div>
-                <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-500">OR</span>
+            <!-- Panel: URL Input -->
+            <div id="panelInputUrl" class="hidden space-y-4 pt-2">
+                <p class="text-xs text-gray-500">Fetch data directly from a public URL.</p>
+                <div class="flex space-x-2">
+                    <input type="text" id="urlInput" placeholder="Paste URL (CSV/JSON)..."
+                        class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border bg-gray-50 text-xs">
+                    <button id="urlBtn"
+                        class="px-3 py-2 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-gray-600 hover:bg-gray-700 focus:outline-none transition-colors">Fetch</button>
                 </div>
             </div>
 
-            <!-- Paste Area -->
-            <div>
-                <textarea id="csvInput" rows="3"
-                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 border bg-gray-50 font-mono text-xs"
-                    placeholder="Paste data here..."></textarea>
+            <!-- Panel: Paste Area -->
+            <div id="panelInputPaste" class="hidden space-y-4 pt-2">
+                <p class="text-xs text-gray-500">Paste raw text or coordinate strings.</p>
+                <div>
+                    <textarea id="csvInput" rows="5"
+                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 border bg-gray-50 font-mono text-xs"
+                        placeholder="Paste data here..."></textarea>
+                </div>
+                <button id="loadBtn"
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Load Pasted Data
+                </button>
             </div>
 
-            <button id="loadBtn"
-                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                Load Pasted Data
-            </button>
-
-            <!-- Divider -->
-            <div class="relative">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-gray-200"></div>
-                </div>
-                <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-500">OR</span>
-                </div>
+            <!-- Panel: Sample Data -->
+            <div id="panelInputSample" class="hidden space-y-4 pt-2">
+                <p class="text-xs text-gray-500">Test the application with a pre-configured sample dataset.</p>
+                <button id="sampleBtn"
+                    class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                    Load Sample Data (Cities)
+                </button>
             </div>
-
-            <!-- Sample Data Button -->
-            <button id="sampleBtn"
-                class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                Load Sample Data (Cities)
-            </button>
 
             <!-- Status Indicator -->
             <div id="dataStats" class="hidden text-xs text-gray-500 text-center bg-gray-100 p-2 rounded">
@@ -177,7 +188,24 @@
         </div>
 
         <!-- Process Content -->
-        <div id="contentProcess" class="hidden flex-1 overflow-y-auto p-4 space-y-6">
+        <div id="contentProcess" class="hidden flex-1 overflow-y-auto p-4 space-y-6 relative">
+
+            <!-- Empty State Overlay (Process) -->
+            <div id="processEmptyState"
+                class="absolute inset-4 bg-white/95 z-10 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-200 rounded-lg">
+                <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                    </path>
+                </svg>
+                <p class="text-sm font-medium text-gray-600">No Data Loaded</p>
+                <p class="text-xs text-gray-400 mt-1 max-w-[200px]">Please load your structured data in the Input tab
+                    before processing.</p>
+                <button id="processGoToInputBtn"
+                    class="mt-4 px-4 py-2 bg-blue-50 text-blue-600 hover:text-white text-xs font-semibold rounded hover:bg-blue-600 transition-colors select-input-tab">Go
+                    to Input</button>
+            </div>
+
             <!-- 1. FILTER CARD -->
             <div id="selectionSection"
                 class="bg-white border boundary-gray-200 rounded-lg p-4 shadow-sm space-y-4 transition-opacity duration-300 opacity-50 pointer-events-none">
@@ -258,7 +286,23 @@
         </div>
 
         <!-- Export Content -->
-        <div id="contentExport" class="hidden flex-1 overflow-y-auto p-4 space-y-6">
+        <div id="contentExport" class="hidden flex-1 overflow-y-auto p-4 space-y-6 relative">
+
+            <!-- Empty State Overlay (Export) -->
+            <div id="exportEmptyState"
+                class="absolute inset-4 bg-white/95 z-10 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-200 rounded-lg">
+                <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                <p class="text-sm font-medium text-gray-600">No Data Available</p>
+                <p class="text-xs text-gray-400 mt-1 max-w-[200px]">There is nothing to export yet. Please load Data in
+                    the Input tab.</p>
+                <button id="exportGoToInputBtn"
+                    class="mt-4 px-4 py-2 bg-blue-50 text-blue-600 hover:text-white text-xs font-semibold rounded hover:bg-blue-600 transition-colors select-input-tab">Go
+                    to Input</button>
+            </div>
+
             <div id="exportSection" class="bg-white border boundary-gray-200 rounded-lg p-4 shadow-sm space-y-4">
                 <h2 class="text-sm uppercase tracking-wider text-gray-500 font-semibold flex items-center space-x-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -312,7 +356,7 @@
                 </svg>
                 <span class="footer-text">View on GitHub</span>
             </a>
-            <span class="footer-version bg-gray-200 px-1.5 py-0.5 rounded text-[10px] font-mono">v1.5.1</span>
+            <span class="footer-version bg-gray-200 px-1.5 py-0.5 rounded text-[10px] font-mono">v1.6.0</span>
         </div>
     </aside>
 
@@ -410,224 +454,278 @@
             </div>
 
             <!-- Wizard Content (Scrollable) -->
-            <div class="p-6 overflow-y-auto flex-1 space-y-6" id="wizardContent">
+            <div class="p-4 overflow-y-auto flex-1 min-h-0 relative" id="wizardContent">
 
-                <!-- 1. Format Options -->
-                <div class="grid grid-cols-2 gap-4">
-                    <!-- Delimiter (CSV Only) -->
-                    <div id="wizardDelimiterGroup">
-                        <label
-                            class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Delimiter</label>
-                        <select id="wizardDelimiter"
-                            class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
-                            <option value="">Auto-Detect</option>
-                            <option value=",">Comma (,)</option>
-                            <option value=";">Semicolon (;)</option>
-                            <option value="|">Pipe (|)</option>
-                            <option value="	">Tab (\t)</option>
-                            <option value=" ">Space ( )</option>
-                            <option value="custom">Custom...</option>
-                        </select>
-                        <div id="wizardCustomDelimiterContainer" class="hidden mt-2">
-                            <input type="text" id="wizardCustomDelimiter" placeholder="Type custom delimiter..."
-                                class="block w-full rounded border border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 px-2 py-1">
+                <!-- STEP 1: PARSING & LAT/LNG -->
+                <div id="wizardStep1" class="space-y-3">
+                    <!-- 1. Format Options -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Delimiter (CSV Only) -->
+                        <div id="wizardDelimiterGroup">
+                            <label
+                                class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Delimiter</label>
+                            <select id="wizardDelimiter"
+                                class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 py-1.5">
+                                <option value="">Auto-Detect</option>
+                                <option value=",">Comma (,)</option>
+                                <option value=";">Semicolon (;)</option>
+                                <option value="|">Pipe (|)</option>
+                                <option value="	">Tab (\t)</option>
+                                <option value=" ">Space ( )</option>
+                                <option value="whitespace">Whitespace (Space/Tab)</option>
+                                <option value="custom">Custom...</option>
+                            </select>
+                            <div id="wizardCustomDelimiterContainer" class="hidden mt-2">
+                                <input type="text" id="wizardCustomDelimiter" placeholder="Type custom delimiter..."
+                                    class="block w-full rounded border border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 px-2 py-1">
+                            </div>
+                            <div id="wizardDelimiterWarning"
+                                class="hidden mt-2 p-2 bg-amber-50 border border-amber-200 rounded">
+                                <p class="text-[10px] text-amber-700 leading-tight flex items-start">
+                                    <svg class="w-3 h-3 mr-1 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                        </path>
+                                    </svg>
+                                    <span>Auto-detect couldn't split your data into multiple columns. Please select or
+                                        type the exact delimiter above.</span>
+                                </p>
+                            </div>
                         </div>
-                        <div id="wizardMergeSpacesContainer" class="hidden mt-2">
-                            <label class="flex items-center space-x-2">
+
+                        <!-- Encoding -->
+                        <div id="wizardEncodingGroup">
+                            <label
+                                class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Encoding</label>
+                            <select id="wizardEncoding"
+                                class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 py-1.5">
+                                <option value="UTF-8">UTF-8 (Standard)</option>
+                                <option value="ISO-8859-1">Latin-1 (Western)</option>
+                                <option value="windows-1252">Windows-1252 (Legacy)</option>
+                            </select>
+                        </div>
+
+                        <!-- Excel Sheets (Hidden by default) -->
+                        <div id="wizardSheetGroup" class="hidden col-span-2">
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Select
+                                Sheet</label>
+                            <select id="wizardSheet"
+                                class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 py-1.5"></select>
+                        </div>
+                    </div> <!-- closes grid -->
+
+                    <!-- Format Toggles (Header & Whitespace Merge) -->
+                    <div id="wizardFormatToggles"
+                        class="bg-gray-50 rounded border border-gray-200 p-3 space-y-2 hidden">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="wizardHasHeaders" checked
+                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="text-sm font-medium text-gray-800">My data has a header row</span>
+                        </label>
+                        <div id="wizardMergeSpacesContainer" class="hidden">
+                            <label class="flex items-center space-x-2 cursor-pointer">
                                 <input type="checkbox" id="wizardMergeSpaces"
-                                    class="rounded text-blue-600 focus:ring-blue-500">
-                                <span class="text-xs text-gray-700 font-medium">Merge consecutive delimiters</span>
+                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm font-medium text-gray-800">Merge consecutive target
+                                    delimiters</span>
                             </label>
-                            <p class="text-[10px] text-amber-600 mt-1 leading-tight flex items-start">
-                                <svg class="w-3 h-3 mr-1 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                                    </path>
-                                </svg>
-                                Unquoted strings containing this character (e.g. 'New york') will be split.
-                            </p>
+                            <p class="text-[10px] text-amber-600 mt-1 ml-6 leading-tight">⚠️ Unquoted strings containing
+                                target characters (e.g. 'New york') will be split.</p>
                         </div>
-                        <div id="wizardDelimiterWarning" class="hidden mt-2 p-2 bg-amber-50 border border-amber-200 rounded">
-                            <p class="text-[10px] text-amber-700 leading-tight flex items-start">
-                                <svg class="w-3 h-3 mr-1 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                <span>Auto-detect couldn't split your data into multiple columns. Please select or type the exact delimiter above.</span>
-                            </p>
+                    </div> <!-- closes wizardFormatToggles -->
+
+                    <!-- GIS Summary (Hidden by default) -->
+                    <div id="wizardGisGroup" class="hidden bg-blue-50 border border-blue-100 rounded p-4 space-y-3">
+                        <h4 class="text-sm font-bold text-gray-700 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7">
+                                </path>
+                            </svg>
+                            GIS Geometry Analysis
+                        </h4>
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div class="bg-white p-2 rounded border border-green-200">
+                                <div class="text-xl font-bold text-green-600" id="gisValidCount">0</div>
+                                <div class="text-xs text-gray-500 uppercase tracking-wide">Points</div>
+                            </div>
+                            <div class="bg-white p-2 rounded border border-blue-200">
+                                <div class="text-xl font-bold text-blue-600" id="gisFlattenedCount">0</div>
+                                <div class="text-xs text-gray-500 uppercase tracking-wide">MultiPoints</div>
+                            </div>
+                            <div class="bg-white p-2 rounded border border-red-200">
+                                <div class="text-xl font-bold text-red-600" id="gisIgnoredCount">0</div>
+                                <div class="text-xs text-gray-500 uppercase tracking-wide">Ignored</div>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Encoding -->
-                    <div id="wizardEncodingGroup">
-                        <label
-                            class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Encoding</label>
-                        <select id="wizardEncoding"
-                            class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
-                            <option value="UTF-8">UTF-8 (Standard)</option>
-                            <option value="ISO-8859-1">Latin-1 (Western)</option>
-                            <option value="windows-1252">Windows-1252 (Legacy)</option>
-                        </select>
-                    </div>
-
-                    <!-- Excel Sheets (Hidden by default) -->
-                    <div id="wizardSheetGroup" class="hidden col-span-2">
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Select
-                            Sheet</label>
-                        <select id="wizardSheet"
-                            class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- GIS Summary (Hidden by default) -->
-            <div id="wizardGisGroup" class="hidden bg-blue-50 border border-blue-100 rounded p-4 space-y-3">
-                <h4 class="text-sm font-bold text-gray-700 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7">
-                        </path>
-                    </svg>
-                    GIS Geometry Analysis
-                </h4>
-
-                <div class="grid grid-cols-3 gap-2 text-center">
-                    <div class="bg-white p-2 rounded border border-green-200">
-                        <div class="text-xl font-bold text-green-600" id="gisValidCount">0</div>
-                        <div class="text-xs text-gray-500 uppercase tracking-wide">Points</div>
-                    </div>
-                    <div class="bg-white p-2 rounded border border-blue-200">
-                        <div class="text-xl font-bold text-blue-600" id="gisFlattenedCount">0</div>
-                        <div class="text-xs text-gray-500 uppercase tracking-wide">MultiPoints</div>
-                    </div>
-                    <div class="bg-white p-2 rounded border border-red-200">
-                        <div class="text-xl font-bold text-red-600" id="gisIgnoredCount">0</div>
-                        <div class="text-xs text-gray-500 uppercase tracking-wide">Ignored</div>
-                    </div>
-                </div>
-
-                <div id="gisIgnoredWarning"
-                    class="text-xs text-amber-700 bg-amber-50 p-2 rounded border border-amber-200 flex items-start">
-                    <svg class="w-4 h-4 mr-1.5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                        </path>
-                    </svg>
-                    <span>Only Point geometries are supported. Lines and Polygons will be skipped. MultiPoints are split
-                        into individual points.</span>
-                </div>
-            </div>
-
-            <!-- 2. UTM Configuration & Geometry Source -->
-            <div id="wizardCoordConfigGroup" class="bg-blue-50 border border-blue-100 rounded p-4">
-                <div id="wizardWarning" class="mb-2 text-xs text-amber-600 hidden flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                        </path>
-                    </svg>
-                    <span id="wizardWarningText"></span>
-                </div>
-                <!-- UTM Toggle -->
-                <div class="flex items-center space-x-2 mb-4">
-                    <input type="checkbox" id="wizardHasUtm" class="rounded text-blue-600 focus:ring-blue-500">
-                    <label for="wizardHasUtm" class="text-sm font-medium text-blue-900">My data has UTM
-                        coordinates</label>
-                </div>
-
-                <!-- Lat/Lon Mapping (Default) -->
-                <div id="wizardLatLonGroup" class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Latitude
-                            Column</label>
-                        <select id="wizardLatCol"
-                            class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"></select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Longitude
-                            Column</label>
-                        <select id="wizardLngCol"
-                            class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"></select>
-                    </div>
-                </div>
-
-                <!-- UTM Mapping (Hidden) -->
-                <div id="wizardUtmGroup" class="hidden space-y-4">
-                    <p class="text-xs text-blue-700">Configure UTM Zone and Columns.</p>
-
-                    <!-- Zone Config -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-blue-500 uppercase tracking-wide mb-1">Zone</label>
-                            <input type="text" id="wizardUtmZone" placeholder="e.g. 18N"
-                                class="block w-full rounded border-blue-200 text-sm focus:border-blue-500 focus:ring-blue-500" />
+                        <div id="gisIgnoredWarning"
+                            class="text-xs text-amber-700 bg-amber-50 p-2 rounded border border-amber-200 flex items-start">
+                            <svg class="w-4 h-4 mr-1.5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                </path>
+                            </svg>
+                            <span>Only Point geometries are supported. Lines and Polygons will be skipped. MultiPoints
+                                are split into individual points.</span>
                         </div>
-                        <div class="flex items-end">
-                            <button id="wizardMapPickerBtn"
-                                class="bg-white border border-blue-300 text-blue-600 hover:bg-blue-50 text-xs font-medium py-2 px-3 rounded shadow-sm flex items-center">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                    </path>
-                                </svg>
-                                Pick on Map
-                            </button>
+                    </div> <!-- closes wizardGisGroup -->
+                    <!-- 2. Lat/Lon Column Mapping -->
+                    <div id="wizardCoordConfigGroup">
+                        <!-- Lat/Lon Mapping (Default) -->
+                        <div id="wizardLatLonGroup" class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label
+                                    class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Latitude
+                                    Column</label>
+                                <select id="wizardLatCol"
+                                    class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 py-1.5 shadow-sm"></select>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Longitude
+                                    Column</label>
+                                <select id="wizardLngCol"
+                                    class="block w-full rounded border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 py-1.5 shadow-sm"></select>
+                            </div>
+                        </div>
+                    </div> <!-- closes wizardCoordConfigGroup -->
+
+                </div> <!-- /wizardStep1 -->
+
+                <!-- STEP 2: DEDICATED UTM PROCESSOR -->
+                <div id="wizardStepUtm" class="hidden space-y-3">
+                    <div class="bg-blue-50/50 rounded-lg border border-blue-100 p-4">
+                        <h4 class="text-sm font-bold text-blue-900 mb-1 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                </path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            UTM Coordinate Configuration
+                        </h4>
+                        <p class="text-[11px] text-blue-700 mb-4">Map your parsed Easting and Northing columns, and verify
+                            your UTM zone to translate into Lat/Long.</p>
+
+                        <div class="space-y-4">
+                            <!-- UTM Columns -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">Easting
+                                        (X) Column</label>
+                                    <select id="wizardEastingCol"
+                                        class="block w-full rounded border-blue-200 text-sm focus:border-blue-500 focus:ring-blue-500 py-1.5"></select>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">Northing
+                                        (Y) Column</label>
+                                    <select id="wizardNorthingCol"
+                                        class="block w-full rounded border-blue-200 text-sm focus:border-blue-500 focus:ring-blue-500 py-1.5"></select>
+                                </div>
+                            </div>
+
+                            <!-- Zone Config -->
+                            <div class="pt-3 border-t border-blue-100">
+                                <div class="grid grid-cols-[1fr_auto_1fr] gap-3 items-end">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">Global UTM Zone</label>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="relative w-28">
+                                                <input type="text" id="wizardUtmZone" placeholder="e.g. 18N" autocomplete="off" class="block w-full rounded border-blue-200 text-sm focus:border-blue-500 focus:ring-blue-500 uppercase py-1.5" />
+                                                <ul id="wizardUtmAutocomplete" class="absolute left-0 mt-1 z-50 w-full bg-white border border-gray-200 rounded shadow-lg max-h-48 overflow-y-auto hidden text-sm font-medium"></ul>
+                                            </div>
+                                            <button id="wizardMapPickerBtn" class="bg-white border border-blue-300 text-blue-600 hover:bg-blue-50 text-xs font-medium py-1.5 px-2 rounded shadow-sm flex items-center transition-colors shrink-0" title="Pick on Map">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-[10px] font-bold text-gray-400 mb-2.5 px-1 tracking-wider">OR</div>
+                                                                       <div>
+                                        <label class="block text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">Zone Column (Optional)</label>
+                                        <select id="wizardZoneCol" class="block w-full rounded border-blue-200 text-sm focus:border-blue-500 focus:ring-blue-500 py-1.5">
+                                            <option value="">-- Use Global --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </div> <!-- /wizardStepUtm -->
 
-                    <!-- UTM Columns -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-blue-500 uppercase tracking-wide mb-1">Easting
-                                (X) Column</label>
-                            <select id="wizardEastingCol"
-                                class="block w-full rounded border-blue-200 text-sm focus:border-blue-500 focus:ring-blue-500"></select>
-                        </div>
-                        <div>
-                            <label
-                                class="block text-xs font-semibold text-blue-500 uppercase tracking-wide mb-1">Northing
-                                (Y) Column</label>
-                            <select id="wizardNorthingCol"
-                                class="block w-full rounded border-blue-200 text-sm focus:border-blue-500 focus:ring-blue-500"></select>
-                        </div>
+                <!-- Divider -->
+                <div class="w-full border-t border-gray-100 my-4" id="wizardPreviewDivider"></div>
+
+                <!-- 3. Data Preview Table (Shared Bottom Anchor) -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Data Preview (First 5
+                        Rows)</h4>
+                    <div class="border border-gray-200 rounded overflow-x-auto bg-gray-50 min-h-[100px]">
+                        <table id="wizardPreviewTable" class="min-w-full text-xs text-left">
+                            <thead class="bg-gray-100 text-gray-600 font-medium border-b border-gray-200">
+                                <!-- Headers injected here -->
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                <!-- Rows injected here -->
+                            </tbody>
+                        </table>
+                        <div id="wizardPreviewEmpty" class="hidden p-4 text-center text-gray-400 italic">No valid data
+                            detected.</div>
                     </div>
-                </div>
-            </div>
+                </div> <!-- /Data Preview Table -->
 
-            <!-- 3. Data Preview Table -->
-            <div>
-                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Data Preview (First 5
-                    Rows)</h4>
-                <div class="border border-gray-200 rounded overflow-x-auto bg-gray-50 min-h-[100px]">
-                    <table id="wizardPreviewTable" class="min-w-full text-xs text-left">
-                        <thead class="bg-gray-100 text-gray-600 font-medium border-b border-gray-200">
-                            <!-- Headers injected here -->
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 bg-white">
-                            <!-- Rows injected here -->
-                        </tbody>
-                    </table>
-                    <div id="wizardPreviewEmpty" class="hidden p-4 text-center text-gray-400 italic">No valid data
-                        detected.</div>
-                </div>
-
-            </div>
+            </div> <!-- /wizardContent -->
 
             <!-- Wizard Footer -->
-            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-                <button id="wizardCancelBtn"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 shadow-sm transition-colors">Cancel</button>
-                <button id="wizardConfirmBtn"
-                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 shadow-sm transition-colors flex items-center">
-                    <span>Import Data</span>
-                    <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M14 5l7 7m0 0l-7 7m7-7H3">
-                        </path>
-                    </svg>
-                </button>
+            <div class="bg-gray-50 px-5 py-3 border-t border-gray-200 w-full relative rounded-b-lg shrink-0 flex flex-col space-y-3">
+                
+                <!-- Shared Global Warning (Curved) -->
+                <div id="wizardWarning" class="hidden bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start w-full shadow-sm break-words">
+                    <svg class="w-4 h-4 text-amber-600 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <div id="wizardWarningText" class="text-[13px] font-medium text-amber-800 leading-tight"></div>
+                </div>
+
+                <!-- Footer Actions Row -->
+                <div class="flex justify-between items-center w-full relative">
+                    <!-- Left Side: UTM Toggle -->
+                    <div id="wizardFooterUtmToggleGroup" class="flex items-center space-x-2">
+                        <input type="checkbox" id="wizardHasUtm"
+                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer relative z-50">
+                        <label for="wizardHasUtm" class="text-sm font-medium text-gray-700 cursor-pointer select-none">Data
+                            has UTM coordinates</label>
+                    </div>
+
+                    <!-- Right Side: Actions -->
+                    <div class="flex items-center space-x-3 relative z-50">
+                        <button id="wizardBackBtn"
+                            class="hidden px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors flex items-center pr-5">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Back
+                        </button>
+                        <button id="wizardCancelBtn"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 shadow-sm transition-colors">Cancel</button>
+
+                        <button id="wizardConfirmBtn"
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 shadow-sm transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="wizardConfirmBtnText">Import Data</span>
+                            <svg id="wizardConfirmBtnIcon" class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

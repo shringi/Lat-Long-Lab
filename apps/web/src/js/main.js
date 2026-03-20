@@ -18,6 +18,7 @@ import {
   hideColumnMappingModal,
   makeDraggable,
   toggleSidebar,
+  switchInputTab,
 } from "./modules/ui.js";
 import {
   handleDataLoad,
@@ -143,6 +144,17 @@ function setupEventListeners() {
   if (exportBtn) exportBtn.addEventListener("click", handleExport);
   if (downloadTableBtn)
     downloadTableBtn.addEventListener("click", handleExport);
+
+  // Segmented Control Listeners
+  ["File", "Url", "Paste", "Sample"].forEach((t) => {
+    const btn = getEl(`inputType${t}`);
+    if (btn) btn.addEventListener("click", () => switchInputTab(t));
+  });
+
+  // Empty State Fallback Listeners
+  document.querySelectorAll(".select-input-tab").forEach((btn) => {
+    btn.addEventListener("click", () => switchTab("input"));
+  });
 
   if (filterToggle) {
     filterToggle.addEventListener("change", (e) => {

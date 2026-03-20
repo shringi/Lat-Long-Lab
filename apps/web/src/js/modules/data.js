@@ -338,31 +338,46 @@ async function finishImport(file, text, options) {
             const XLSX = await import("xlsx");
             readExcelFile(file, options.sheetName, XLSX, (data) =>
                 postParse(data, options),
+                options.hasHeaders
             );
         } else {
             const Papa = (await import("papaparse")).default;
             
-            if (options.mergeSpaces && options.delimiter) {
+            const performPreprocessing = options.delimiter === "whitespace" || (options.mergeSpaces && options.delimiter);
+
+            if (performPreprocessing) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    const preprocessed = preprocessText(e.target.result, options.delimiter);
+                    const delimToPreprocess = options.delimiter === "whitespace" ? "whitespace" : options.delimiter;
+                    const preprocessed = preprocessText(e.target.result, delimToPreprocess);
+                    
+                    const actualDelim = options.delimiter === "whitespace" ? " " : options.delimiter;
+
                     Papa.parse(preprocessed, {
-                        header: true,
+                        header: options.hasHeaders,
                         skipEmptyLines: true,
-                        delimiter: options.delimiter,
-                        complete: (results) => postParse(results.data, options),
+                        delimiter: actualDelim,
+                        complete: (results) => {
+                            let parsedData = results.data;
+                            if (!options.hasHeaders) parsedData = applySyntheticHeaders(parsedData);
+                            postParse(parsedData, options);
+                        },
                         error: (err) => showToast("Parse Error: " + err.message, "error"),
                     });
                 };
                 reader.readAsText(file, options.encoding);
             } else {
                 Papa.parse(file, {
-                    header: true,
+                    header: options.hasHeaders,
                     skipEmptyLines: true,
                     delimiter: options.delimiter || "",
                     delimitersToGuess: [',', '\t', '|', ';', ' '],
                     encoding: options.encoding,
-                    complete: (results) => postParse(results.data, options),
+                    complete: (results) => {
+                        let parsedData = results.data;
+                        if (!options.hasHeaders) parsedData = applySyntheticHeaders(parsedData);
+                        postParse(parsedData, options);
+                    },
                     error: (err) => showToast("Parse Error: " + err.message, "error"),
                 });
             }
@@ -371,17 +386,25 @@ async function finishImport(file, text, options) {
         const Papa = (await import("papaparse")).default;
         
         let processText = text;
-        if (options.mergeSpaces && options.delimiter) {
-            processText = preprocessText(text, options.delimiter);
+        const performPreprocessing = options.delimiter === "whitespace" || (options.mergeSpaces && options.delimiter);
+
+        if (performPreprocessing) {
+            const delimToPreprocess = options.delimiter === "whitespace" ? "whitespace" : options.delimiter;
+            processText = preprocessText(text, delimToPreprocess);
         }
 
+        const actualDelim = options.delimiter === "whitespace" ? " " : (options.delimiter || "");
+
         const results = Papa.parse(processText, {
-            header: true,
+            header: options.hasHeaders,
             skipEmptyLines: true,
-            delimiter: options.delimiter || "",
+            delimiter: actualDelim,
             delimitersToGuess: [',', '\t', '|', ';', ' '],
         });
-        postParse(results.data, options);
+        
+        let parsedData = results.data;
+        if (!options.hasHeaders) parsedData = applySyntheticHeaders(parsedData);
+        postParse(parsedData, options);
     }
 }
 
@@ -405,6 +428,7 @@ async function postParse(data, options) {
             options.utmZone,
             options.eastingCol,
             options.northingCol,
+            options.zoneCol
         );
     }
 
@@ -423,12 +447,12 @@ async function postParse(data, options) {
     applyColumnMapping(latCol, lngCol, data);
 }
 
-async function convertUtmToLatLng(data, defaultZone, eastCol, northCol) {
+async function convertUtmToLatLng(data, defaultZone, eastCol, northCol, zoneColInput) {
     if (!data || data.length === 0) return data;
 
     const proj4 = (await import("proj4")).default;
     const headers = Object.keys(data[0]);
-    const zoneCol = headers.find((h) => /zone/i.test(h));
+    const zoneCol = zoneColInput || headers.find((h) => /zone/i.test(h));
 
     if (!eastCol || !northCol) {
         showToast(
@@ -450,6 +474,9 @@ async function convertUtmToLatLng(data, defaultZone, eastCol, northCol) {
             if (zoneCol && row[zoneCol]) {
                 zoneStr = row[zoneCol];
             }
+
+            // Ensure zoneStr exists before parsing
+            if (!zoneStr) return row;
 
             const match = zoneStr.toString().match(/(\d+)([NS]?)/i);
             if (!match) return row; // Cannot parse zone
@@ -481,11 +508,22 @@ async function convertUtmToLatLng(data, defaultZone, eastCol, northCol) {
     return newData;
 }
 
-function readExcelFile(file, sheetName = null, XLSX, callback) {
+function applySyntheticHeaders(data) {
+    if (!data || data.length === 0) return data;
+    return data.map(row => {
+        let obj = {};
+        const len = Array.isArray(row) ? row.length : Object.keys(row).length;
+        for (let i = 0; i < len; i++) {
+            obj[`Column ${i + 1}`] = Array.isArray(row) ? row[i] : row[Object.keys(row)[i]];
+        }
+        return obj;
+    });
+}
+
+function readExcelFile(file, sheetName = null, XLSX, callback, hasHeaders = true) {
     const reader = new FileReader();
     reader.onload = (e) => {
         const data = new Uint8Array(e.target.result);
-        // Use the passed XLSX instance
         const workbook = XLSX.read(data, { type: "array" });
 
         let targetSheet = sheetName;
@@ -494,7 +532,11 @@ function readExcelFile(file, sheetName = null, XLSX, callback) {
         }
 
         const worksheet = workbook.Sheets[targetSheet];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        let jsonData = XLSX.utils.sheet_to_json(worksheet, hasHeaders ? {} : { header: 1 });
+        
+        if (!hasHeaders) {
+            jsonData = applySyntheticHeaders(jsonData);
+        }
 
         if (callback) callback(jsonData);
         else processParsedData(jsonData); // Fallback

@@ -117,19 +117,20 @@ export function plotPoints(dataOverride) {
 
     // SECURITY FIX: Use DOM elements instead of string concatenation to prevent XSS
     const container = document.createElement("div");
-    container.className = "text-xs";
+    container.className = "text-xs max-w-[300px] overflow-x-auto custom-scrollbar";
     const table = document.createElement("table");
-    table.className = "table-auto";
+    table.className = "w-full min-w-max text-left border-collapse";
 
     for (const [key, value] of Object.entries(point)) {
       if (!key.startsWith("_")) {
         const tr = document.createElement("tr");
 
         const tdKey = document.createElement("td");
-        tdKey.className = "font-bold pr-2";
+        tdKey.className = "font-bold pr-3 py-1 border-b border-gray-100 align-top text-gray-700 whitespace-nowrap";
         tdKey.textContent = key + ":";
 
         const tdValue = document.createElement("td");
+        tdValue.className = "py-1 border-b border-gray-100 break-words text-gray-900";
         tdValue.textContent = value; // Safe: textContent escapes HTML
 
         tr.appendChild(tdKey);
@@ -147,7 +148,11 @@ export function plotPoints(dataOverride) {
       opacity: 1,
       fillOpacity: 0.8,
     })
-      .bindPopup(container) // Leaflet accepts DOM nodes
+      .bindPopup(container, {
+          autoPan: false,
+          maxHeight: 250,
+          maxWidth: 320
+      })
       .addTo(layerGroup);
   });
 

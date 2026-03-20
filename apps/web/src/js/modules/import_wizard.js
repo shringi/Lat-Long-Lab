@@ -15,20 +15,94 @@ let wizardState = {
     hasUtm: false,
     utmZone: "",
     mergeSpaces: false,
+    hasHeaders: true,
+    userToggledHeaders: false,
     onConfirm: null,
     pickerMap: null,
     pickerLayer: null,
     tempZone: null,
 };
 
+function guessHasHeaders(data) {
+    if (!data || data.length < 2) return true;
+    const row1 = data[0];
+    const row2 = data[1];
+
+    const arr1 = Array.isArray(row1) ? row1 : Object.values(row1);
+    const arr2 = Array.isArray(row2) ? row2 : Object.values(row2);
+
+    // Check if rows contain valid numbers (or space-separated numbers if auto-split failed)
+    const isNum = (v) => {
+        if (v === null || v === undefined || v === "") return false;
+        const str = String(v).trim();
+        if (str === "") return false;
+        // Allows numbers, dots, minus, plus, e/E for scientific, and spaces/tabs
+        return /^[\d\.\-\+eE\s\t]+$/.test(str);
+    };
+    const row1HasNumbers = arr1.some(isNum);
+    const row2HasNumbers = arr2.some(isNum);
+
+    if (!row1HasNumbers && row2HasNumbers) return true; // Row 1 is strings, Row 2 has numbers -> Header!
+    if (row1HasNumbers && row2HasNumbers) return false; // Both rows have numbers -> Coordinate list, No Header!
+
+    return true; // Default
+}
+
 export function initImportWizard() {
     console.log("Import Wizard Initialized");
     // Bind Event Listeners
     const getEl = (id) => document.getElementById(id);
 
+    // Initialize Custom UTM Zone Autocomplete
+    const utmZoneInput = getEl("wizardUtmZone");
+    const utmZoneList = getEl("wizardUtmAutocomplete");
+    if (utmZoneInput && utmZoneList) {
+        const validZones = [];
+        for (let i = 1; i <= 60; i++) {
+            validZones.push(`${i}N`);
+            validZones.push(`${i}S`);
+        }
+
+        utmZoneInput.addEventListener("input", (e) => {
+            const val = e.target.value.toUpperCase();
+            utmZoneInput.value = val; // Force uppercase visually
+            utmZoneList.innerHTML = "";
+
+            if (!val) {
+                utmZoneList.classList.add("hidden");
+                return;
+            }
+
+            const matches = validZones.filter((z) => z.startsWith(val));
+            if (matches.length > 0 && matches[0] !== val) {
+                utmZoneList.classList.remove("hidden");
+                matches.forEach((m) => {
+                    const li = document.createElement("li");
+                    li.className = "px-3 py-1.5 hover:bg-blue-50 cursor-pointer text-gray-700 border-b border-gray-100 last:border-0";
+                    li.textContent = m;
+                    li.addEventListener("click", () => {
+                        utmZoneInput.value = m;
+                        utmZoneList.classList.add("hidden");
+                    });
+                    utmZoneList.appendChild(li);
+                });
+            } else {
+                utmZoneList.classList.add("hidden");
+            }
+        });
+
+        // Hide autocomplete when clicking elsewhere
+        document.addEventListener("click", (e) => {
+            if (e.target !== utmZoneInput) {
+                utmZoneList.classList.add("hidden");
+            }
+        });
+    }
+
     getEl("wizardCloseBtn").addEventListener("click", closeWizard);
     getEl("wizardCancelBtn").addEventListener("click", closeWizard);
     getEl("wizardConfirmBtn").addEventListener("click", handleConfirm);
+    getEl("wizardBackBtn").addEventListener("click", goBackToStep1);
 
     const wizardCustomDelimiter = getEl("wizardCustomDelimiter");
     const customContainer = getEl("wizardCustomDelimiterContainer");
@@ -41,12 +115,15 @@ export function initImportWizard() {
         if (val === "custom") {
             customContainer.classList.remove("hidden");
             wizardState.delimiter = wizardCustomDelimiter.value;
+        } else if (val === "whitespace") {
+            customContainer.classList.add("hidden");
+            wizardState.delimiter = "whitespace";
         } else {
             customContainer.classList.add("hidden");
             wizardState.delimiter = val;
         }
 
-        if (val === " " || val === "\t" || val === "custom") {
+        if (val === " " || val === "\t" || val === "custom" || val === "whitespace") {
             mergeContainer.classList.remove("hidden");
         } else {
             mergeContainer.classList.add("hidden");
@@ -72,47 +149,51 @@ export function initImportWizard() {
         updatePreview();
     });
 
+    getEl("wizardHasHeaders").addEventListener("change", (e) => {
+        wizardState.hasHeaders = e.target.checked;
+        wizardState.userToggledHeaders = true;
+        updatePreview();
+    });
+
     getEl("wizardSheet").addEventListener("change", (e) => {
         updateExcelPreview(e.target.value);
     });
 
     getEl("wizardHasUtm").addEventListener("change", (e) => {
         wizardState.hasUtm = e.target.checked;
-        const latLonGroup = getEl("wizardLatLonGroup");
-        const utmGroup = getEl("wizardUtmGroup");
+        const confirmBtnText = getEl("wizardConfirmBtnText");
+        
+        // Hide warning instantly when toggled
+        if (wizardState.hasUtm) {
+            const warningEl = document.getElementById("wizardWarning");
+            if (warningEl) warningEl.classList.add("hidden");
+        }
 
         if (wizardState.hasUtm) {
-            latLonGroup.classList.add("hidden");
-            utmGroup.classList.remove("hidden");
-
-            // Re-run guess logic to ensure fields are populated if possible
-            if (wizardState.previewData && wizardState.previewData.length > 0) {
-                const headers = wizardState.previewData[0]; // Assuming first row is headers
-                // Headers might be array or object depending on parse mode. 
-                // In handleCSVPreload we passed isArrayMode=true to renderPreviewTable, but Papa parse results.data is array of arrays if header:false (default).
-                // Wait, handleCSVPreload defaults header:false? explicit header option isn't set, so it returns array of arrays.
-                // So headers is indeed results.data[0]. 
-                // However, we need to be careful if it's an object array (header:true). 
-                // Let's check how populateColumnSelectors handles it. It expects array of strings.
-
-                // If previewData is array of objects (header:true), keys are headers.
-                let headerKeys = [];
-                if (Array.isArray(headers)) {
-                    headerKeys = headers;
-                } else if (typeof headers === 'object') {
-                    headerKeys = Object.keys(headers);
-                }
-
-                const guess = guessColumns(headerKeys);
-                if (guess.easting && !getEl("wizardEastingCol").value) getEl("wizardEastingCol").value = guess.easting;
-                if (guess.northing && !getEl("wizardNorthingCol").value) getEl("wizardNorthingCol").value = guess.northing;
-            }
-
+            confirmBtnText.textContent = "Continue to UTM Config \u2192";
         } else {
-            latLonGroup.classList.remove("hidden");
-            utmGroup.classList.add("hidden");
+            confirmBtnText.textContent = "Import Data";
         }
     });
+
+    // Dynamic Validation Clearance
+    const clearUtmErrorIfValid = () => {
+        const warning = document.getElementById("wizardWarning");
+        const warningText = document.getElementById("wizardWarningText");
+        
+        // Only clear if the current error is specifically the UTM Zone error
+        if (warningText.innerHTML.includes("Invalid Global UTM Zone")) {
+            const tempZone = getEl("wizardUtmZone").value.trim().toUpperCase();
+            const tempCol = getEl("wizardZoneCol").value;
+            const validPattern = /^([1-9]|[1-5][0-9]|60)[NS]$/;
+            
+            if (tempCol || validPattern.test(tempZone)) {
+                warning.classList.add("hidden");
+            }
+        }
+    };
+    getEl("wizardUtmZone").addEventListener("input", clearUtmErrorIfValid);
+    getEl("wizardZoneCol").addEventListener("change", clearUtmErrorIfValid);
 
     // UTM Picker
     getEl("wizardMapPickerBtn").addEventListener("click", openUtmPicker);
@@ -141,13 +222,20 @@ export function openImportWizard(
         hasUtm: false,
         utmZone: "",
         mergeSpaces: false,
+        hasHeaders: true,
+        userToggledHeaders: false,
         onConfirm: onConfirmCallback,
         pickerMap: wizardState.pickerMap, // Keep map instance if exists
         pickerLayer: wizardState.pickerLayer,
         tempZone: null,
+        step: 1, // Manage UI Steps
     };
 
     // Reset UI visibility (Hide all specific groups first)
+    document.getElementById("wizardStep1").classList.remove("hidden");
+    document.getElementById("wizardStepUtm").classList.add("hidden");
+    document.getElementById("wizardBackBtn").classList.add("hidden");
+    document.getElementById("wizardConfirmBtnText").textContent = "Import Data";
     document.getElementById("wizardDelimiterGroup").classList.add("hidden");
     document.getElementById("wizardSheetGroup").classList.add("hidden");
     document.getElementById("wizardGisGroup").classList.add("hidden");
@@ -155,6 +243,7 @@ export function openImportWizard(
     document.getElementById("wizardCustomDelimiterContainer").classList.add("hidden");
     document.getElementById("wizardMergeSpacesContainer").classList.add("hidden");
     document.getElementById("wizardDelimiterWarning").classList.add("hidden");
+    document.getElementById("wizardFormatToggles").classList.add("hidden");
 
     // Reset inputs
     document.getElementById("wizardDelimiter").value = "";
@@ -162,6 +251,7 @@ export function openImportWizard(
     document.getElementById("wizardMergeSpaces").checked = false;
     document.getElementById("wizardEncoding").value = "UTF-8";
     document.getElementById("wizardHasUtm").checked = false;
+    document.getElementById("wizardHasHeaders").checked = true;
     document.getElementById("wizardUtmZone").value = "";
 
     // Clear Selectors
@@ -212,9 +302,8 @@ export function openImportWizard(
     // Standard CSV/Excel Mode
     document.getElementById("wizardEncodingGroup").classList.remove("hidden");
     document.getElementById("wizardCoordConfigGroup").classList.remove("hidden");
-
-    document.getElementById("wizardLatLonGroup").classList.remove("hidden");
-    document.getElementById("wizardUtmGroup").classList.add("hidden"); // Default hidden
+    document.getElementById("wizardFormatToggles").classList.remove("hidden");
+    document.getElementById("wizardFooterUtmToggleGroup").classList.remove("hidden");
 
     // Detect Type & Preview
     if (file) {
@@ -238,6 +327,21 @@ export function openImportWizard(
 
 function closeWizard() {
     document.getElementById("importWizardModal").classList.add("hidden");
+    const warningEl = document.getElementById("wizardWarning");
+    if (warningEl) warningEl.classList.add("hidden");
+}
+
+function goBackToStep1() {
+    wizardState.step = 1;
+    document.getElementById("wizardStepUtm").classList.add("hidden");
+    document.getElementById("wizardStep1").classList.remove("hidden");
+    document.getElementById("wizardBackBtn").classList.add("hidden");
+    document.getElementById("wizardFooterUtmToggleGroup").classList.remove("hidden");
+    document.getElementById("wizardConfirmBtnText").textContent = "Continue to UTM Config \u2192";
+    
+    // Clear warning when going back
+    const warningEl = document.getElementById("wizardWarning");
+    if (warningEl) warningEl.classList.add("hidden");
 }
 
 function handleConfirm() {
@@ -247,19 +351,113 @@ function handleConfirm() {
         return;
     }
 
+    // Two-step logic for standard parsing
+    if (wizardState.step === 1 && wizardState.hasUtm) {
+        wizardState.step = 2;
+        document.getElementById("wizardStep1").classList.add("hidden");
+        document.getElementById("wizardStepUtm").classList.remove("hidden");
+        document.getElementById("wizardBackBtn").classList.remove("hidden");
+        document.getElementById("wizardFooterUtmToggleGroup").classList.add("hidden");
+        document.getElementById("wizardConfirmBtnText").textContent = "Process UTM Data";
+        
+        // Clear warning on step change
+        const warningEl = document.getElementById("wizardWarning");
+        if (warningEl) warningEl.classList.add("hidden");
+
+        // Auto-populate UTM Guess if possible
+        if (wizardState.previewData && wizardState.previewData.length > 0) {
+            const headers = wizardState.previewData[0];
+            let headerKeys = Array.isArray(headers) ? headers : Object.keys(headers);
+            const guess = guessColumns(headerKeys);
+            if (guess.easting && !document.getElementById("wizardEastingCol").value) document.getElementById("wizardEastingCol").value = guess.easting;
+            if (guess.northing && !document.getElementById("wizardNorthingCol").value) document.getElementById("wizardNorthingCol").value = guess.northing;
+        }
+
+        return; // Break out, wait for next confirm click
+    }
+
+    const warning = document.getElementById("wizardWarning");
+    const warningText = document.getElementById("wizardWarningText");
+    warning.classList.add("hidden");
+
+    // Validation for Step 1 (Lat/Lng) Out-of-bounds
+    if (wizardState.step === 1 && !wizardState.hasUtm) {
+        const latCol = document.getElementById("wizardLatCol").value;
+        const lngCol = document.getElementById("wizardLngCol").value;
+        const hasHeaders = document.getElementById("wizardHasHeaders").checked;
+
+        if (latCol && lngCol && wizardState.previewData && wizardState.previewData.length > 0) {
+
+            // Map column names to array indices
+            let latIndex = -1;
+            let lngIndex = -1;
+            const headerRow = hasHeaders ? wizardState.previewData[0] : null;
+
+            if (hasHeaders && headerRow) {
+                latIndex = headerRow.indexOf(latCol);
+                lngIndex = headerRow.indexOf(lngCol);
+            } else {
+                if (latCol.startsWith("Column ")) latIndex = parseInt(latCol.replace("Column ", "")) - 1;
+                if (lngCol.startsWith("Column ")) lngIndex = parseInt(lngCol.replace("Column ", "")) - 1;
+            }
+
+            if (latIndex >= 0 && lngIndex >= 0) {
+                let firstRow = null;
+                // Start from index 1 if hasHeaders is true, else index 0
+                const startIndex = hasHeaders ? 1 : 0;
+                for (let i = startIndex; i < Math.min(startIndex + 3, wizardState.previewData.length); i++) {
+                    const row = wizardState.previewData[i];
+                    if (!row) continue;
+                    const latV = parseFloat(row[latIndex]);
+                    const lngV = parseFloat(row[lngIndex]);
+                    if (!isNaN(latV) && !isNaN(lngV)) {
+                        firstRow = row;
+                        break;
+                    }
+                }
+                if (firstRow) {
+                    const latVal = parseFloat(firstRow[latIndex]);
+                    const lngVal = parseFloat(firstRow[lngIndex]);
+                    if (latVal > 90 || latVal < -90 || lngVal > 180 || lngVal < -180) {
+                        warning.classList.remove("hidden");
+                        warningText.innerHTML = "<strong>Out of Bounds:</strong> Values exceed valid Latitude (-90 to 90) or Longitude (-180 to 180). Check 'Data has UTM coordinates' if needed.";
+                        return; // Prevent import
+                    }
+                }
+            }
+        }
+    }
+
+    // Validation for Step 2 (UTM Zone)
+    if (wizardState.step === 2 && wizardState.hasUtm) {
+        const zoneCol = document.getElementById("wizardZoneCol").value;
+        const zone = document.getElementById("wizardUtmZone").value.trim().toUpperCase();
+        
+        if (!zoneCol) {
+            const validPattern = /^([1-9]|[1-5][0-9]|60)[NS]$/;
+            if (!validPattern.test(zone)) {
+                warning.classList.remove("hidden");
+                warningText.innerHTML = "<strong>Invalid Global UTM Zone:</strong> Please provide a valid zone (e.g. 18N, 32S) or select a Zone Column.";
+                return; // Prevent import
+            }
+        }
+    }
+
     // Gather Options for CSV/Excel
     const options = {
-        delimiter: wizardState.delimiter,
-        encoding: wizardState.encoding,
+        format: wizardState.format,
+        encoding: document.getElementById("wizardEncoding").value,
+        delimiter: document.getElementById("wizardDelimiter").value,
+        mergeSpaces: document.getElementById("wizardMergeSpaces").checked,
+        hasHeaders: document.getElementById("wizardHasHeaders").checked,
         sheetName: document.getElementById("wizardSheet").value,
         hasUtm: document.getElementById("wizardHasUtm").checked,
-        utmZone: document.getElementById("wizardUtmZone").value.trim(),
-        mergeSpaces: wizardState.mergeSpaces,
-        // Column Mapping
         latCol: document.getElementById("wizardLatCol").value,
         lngCol: document.getElementById("wizardLngCol").value,
+        utmZone: document.getElementById("wizardUtmZone").value,
         eastingCol: document.getElementById("wizardEastingCol").value,
         northingCol: document.getElementById("wizardNorthingCol").value,
+        zoneCol: document.getElementById("wizardZoneCol").value,
     };
 
     if (wizardState.onConfirm) {
@@ -272,6 +470,9 @@ function handleConfirm() {
 
 export function preprocessText(text, delimiter) {
     if (!text || !delimiter) return text;
+    if (delimiter === "whitespace") {
+        return text.replace(/[ \t]+/g, " ");
+    }
     const escaped = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(escaped + "+", "g");
     return text.replace(regex, delimiter);
@@ -282,13 +483,17 @@ function handleCSVPreload(file) {
     document.getElementById("wizardDelimiterGroup").classList.remove("hidden");
     document.getElementById("wizardSheetGroup").classList.add("hidden");
 
-    if (wizardState.mergeSpaces && wizardState.delimiter) {
+    if (wizardState.delimiter === "whitespace" || (wizardState.mergeSpaces && wizardState.delimiter)) {
         const reader = new FileReader();
         reader.onload = (e) => {
-            const preprocessed = preprocessText(e.target.result, wizardState.delimiter);
+            const delimToPreprocess = wizardState.delimiter === "whitespace" ? "whitespace" : wizardState.delimiter;
+            const preprocessed = preprocessText(e.target.result, delimToPreprocess);
+
+            const PapaConfigDelim = wizardState.delimiter === "whitespace" ? " " : wizardState.delimiter;
+
             Papa.parse(preprocessed, {
                 preview: 5,
-                delimiter: wizardState.delimiter,
+                delimiter: PapaConfigDelim,
                 complete: onCsvPreviewComplete,
                 error: onCsvPreviewError
             });
@@ -315,13 +520,9 @@ function onCsvPreviewComplete(results) {
         const delimSelect = document.getElementById("wizardDelimiter");
         // Only override the UI if the dropdown is currently set to "Auto-Detect" (value is "").
         if (delimSelect.value === "") {
-            // Check if auto-detect failed to find multiple columns
+            // We no longer toggle the warning immediately here, validatePreview will handle it
             if (results.data && results.data.length > 0) {
-                const row = results.data[0];
-                const numCols = Array.isArray(row) ? row.length : Object.keys(row).length;
-                if (numCols <= 1 && delimWarning) {
-                    delimWarning.classList.remove("hidden");
-                }
+                // (kept for structure, but removed warning display direct call)
             }
 
             const validOptions = Array.from(delimSelect.options).map(o => o.value);
@@ -338,11 +539,31 @@ function onCsvPreviewComplete(results) {
     }
 
     wizardState.previewData = results.data;
-    renderPreviewTable(results.data, true);
 
-    const headers = results.data.length > 0 ? results.data[0] : [];
-    populateColumnSelectors(headers);
-    checkForUtmNudge(headers);
+    // Apply auto-detect override for headers if untouched
+    if (!wizardState.userToggledHeaders) {
+        wizardState.hasHeaders = guessHasHeaders(results.data);
+        document.getElementById("wizardHasHeaders").checked = wizardState.hasHeaders;
+    }
+
+    let customHeaders = null;
+    let computedHeaders = [];
+
+    if (!wizardState.hasHeaders) {
+        let numCols = 0;
+        if (results.data && results.data.length > 0) {
+            const firstRow = results.data[0];
+            numCols = Array.isArray(firstRow) ? firstRow.length : Object.keys(firstRow).length;
+        }
+        customHeaders = Array.from({ length: numCols }, (_, i) => `Column ${i + 1}`);
+        computedHeaders = customHeaders;
+    } else {
+        computedHeaders = results.data.length > 0 ? (Array.isArray(results.data[0]) ? results.data[0] : Object.keys(results.data[0])) : [];
+    }
+
+    renderPreviewTable(results.data, true, customHeaders);
+    populateColumnSelectors(computedHeaders);
+    checkForUtmNudge(computedHeaders);
 }
 
 function onCsvPreviewError(err) {
@@ -350,20 +571,37 @@ function onCsvPreviewError(err) {
 }
 
 function handleTextPreload(text) {
+    if (!text) return;
+
+    // Auto-detect Whitespace if the user pasted raw coordinates (no commas)
+    if (wizardState.delimiter === "") {
+        const lines = text.trim().split('\n').filter(l => l.trim() !== "");
+        if (lines.length > 0 && !lines[0].includes(",")) {
+            // If line contains spaces OR tabs, and fits our numeric coordinate heuristic
+            if ((lines[0].includes(" ") || lines[0].includes("\t")) && /^[\d\.\-\+eE\s\t]+$/.test(lines[0])) {
+                wizardState.delimiter = "whitespace";
+                document.getElementById("wizardDelimiter").value = "whitespace";
+            }
+        }
+    }
+
     let processText = text;
-    if (wizardState.mergeSpaces && wizardState.delimiter) {
+    if (wizardState.delimiter === "whitespace") {
+        processText = preprocessText(text, "whitespace");
+    } else if (wizardState.mergeSpaces && wizardState.delimiter) {
         processText = preprocessText(text, wizardState.delimiter);
     }
 
+    const PapaConfigDelim = wizardState.delimiter === "whitespace" ? " " : (wizardState.delimiter || "");
+
     const results = Papa.parse(processText, {
         preview: 5,
-        delimiter: wizardState.delimiter || "",
+        delimiter: PapaConfigDelim,
         delimitersToGuess: [',', '\t', '|', ';', ' '],
     });
 
     onCsvPreviewComplete(results);
 }
-// Code inside handleTextPreload was replaced by common callback above.
 
 function handleExcelPreload(file) {
     // Show Excel UI, Hide Delimiter
@@ -406,12 +644,30 @@ function updateExcelPreview(sheetName) {
         defval: "",
     }); // Array of arrays
     const snippet = json.slice(0, 6); // Header + 5 rows
-    renderPreviewTable(snippet, true);
+    wizardState.previewData = snippet;
 
-    // Populate Columns from first row (headers)
-    const headers = json.length > 0 ? json[0] : [];
-    populateColumnSelectors(headers);
-    checkForUtmNudge(headers);
+    if (!wizardState.userToggledHeaders) {
+        wizardState.hasHeaders = guessHasHeaders(snippet);
+        document.getElementById("wizardHasHeaders").checked = wizardState.hasHeaders;
+    }
+
+    let customHeaders = null;
+    let computedHeaders = [];
+
+    if (!wizardState.hasHeaders) {
+        let numCols = 0;
+        if (snippet && snippet.length > 0) {
+            numCols = snippet[0].length;
+        }
+        customHeaders = Array.from({ length: numCols }, (_, i) => `Column ${i + 1}`);
+        computedHeaders = customHeaders;
+    } else {
+        computedHeaders = snippet.length > 0 ? snippet[0] : [];
+    }
+
+    renderPreviewTable(snippet, true, customHeaders);
+    populateColumnSelectors(computedHeaders);
+    checkForUtmNudge(computedHeaders);
 }
 
 function updatePreview() {
@@ -425,7 +681,7 @@ function updatePreview() {
     }
 }
 
-function renderPreviewTable(data, isArrayMode = false) {
+function renderPreviewTable(data, isArrayMode = false, customHeaders = null) {
     const tableHead = document.querySelector("#wizardPreviewTable thead");
     const tableBody = document.querySelector("#wizardPreviewTable tbody");
     tableHead.innerHTML = "";
@@ -437,21 +693,27 @@ function renderPreviewTable(data, isArrayMode = false) {
     }
     document.getElementById("wizardPreviewEmpty").classList.add("hidden");
 
+    let headers = customHeaders;
+    let rowsToRender = data;
+
+    if (!headers) {
+        headers = isArrayMode ? data[0] : Object.keys(data[0]);
+        rowsToRender = isArrayMode ? data.slice(1) : data;
+    }
+
     // Headers
-    const headers = isArrayMode ? data[0] : Object.keys(data[0]);
     const headerRow = document.createElement("tr");
     headers.forEach((h) => {
         const th = document.createElement("th");
         th.className =
-            "px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b";
+            "px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 border-b";
         th.textContent = h;
         headerRow.appendChild(th);
     });
     tableHead.appendChild(headerRow);
 
-    // Body
-    const rows = isArrayMode ? data.slice(1) : data;
-    rows.forEach((row) => {
+    // Rows
+    rowsToRender.forEach((row) => {
         const tr = document.createElement("tr");
         if (isArrayMode) {
             row.forEach((cell) => {
@@ -470,6 +732,43 @@ function renderPreviewTable(data, isArrayMode = false) {
         }
         tableBody.appendChild(tr);
     });
+
+    validatePreview(data, headers);
+}
+
+function validatePreview(data, computedHeaders) {
+    const confirmBtn = document.getElementById("wizardConfirmBtn");
+    const warningEl = document.getElementById("wizardDelimiterWarning");
+    const warningText = warningEl.querySelector("span");
+
+    let numCols = computedHeaders ? computedHeaders.length : 0;
+
+    // Rule 1: Must have >= 2 columns
+    if (numCols < 2) {
+        warningEl.classList.remove("hidden");
+        warningText.textContent = "Cannot proceed. Please select the correct delimiter to split your data into at least 2 columns.";
+        confirmBtn.disabled = true;
+        return;
+    }
+
+    // Rule 2: If headers are OFF, but row 1 looks completely like non-numeric text
+    if (!wizardState.hasHeaders && data && data.length > 0) {
+        const firstRow = data[0];
+        const cells = Array.isArray(firstRow) ? firstRow : Object.values(firstRow);
+        // Clean out spaces to just check if characters are present
+        const numericCells = cells.filter(c => /^[\d\.\-\+eE\s\t]+$/.test(String(c).trim())).length;
+        if (numericCells < 2) {
+            warningEl.classList.remove("hidden");
+            warningText.textContent = "Validation Warning: Row 1 contains text. If your data has a header row, please check the 'My data has a header row' box below to avoid mapping text as coordinates.";
+            // Don't hard-block, but show the severe warning
+            confirmBtn.disabled = false;
+            return;
+        }
+    }
+
+    // All clear
+    warningEl.classList.add("hidden");
+    confirmBtn.disabled = false;
 }
 
 // --- Column Mapping Logic ---
@@ -489,10 +788,21 @@ function populateColumnSelectors(headers) {
         "wizardLngCol",
         "wizardEastingCol",
         "wizardNorthingCol",
+        "wizardZoneCol"
     ];
+    
     selects.forEach((id) => {
         const el = document.getElementById(id);
+        if (!el) return;
         el.innerHTML = "";
+        
+        if (id === "wizardZoneCol") {
+            const defaultOpt = document.createElement("option");
+            defaultOpt.value = "";
+            defaultOpt.textContent = "-- Use Global --";
+            el.appendChild(defaultOpt);
+        }
+        
         headers.forEach((h) => el.appendChild(createOpt(h)));
     });
 
@@ -504,10 +814,9 @@ function populateColumnSelectors(headers) {
     if (guess.lng) document.getElementById("wizardLngCol").value = guess.lng;
 
     // Set UTM defaults
-    if (guess.easting)
-        document.getElementById("wizardEastingCol").value = guess.easting;
-    if (guess.northing)
-        document.getElementById("wizardNorthingCol").value = guess.northing;
+    if (guess.easting) document.getElementById("wizardEastingCol").value = guess.easting;
+    if (guess.northing) document.getElementById("wizardNorthingCol").value = guess.northing;
+    if (guess.zone) document.getElementById("wizardZoneCol").value = guess.zone;
 }
 
 function guessColumns(headers) {
@@ -516,8 +825,9 @@ function guessColumns(headers) {
     const riskyLat = /(^|[^a-z])(lat|y)($|[^a-z])/i;
     const riskyLng = /(^|[^a-z])(lng|lon|long|x)($|[^a-z])/i;
 
-    const utmEast = /easting|utm_e|^x$/i; // X is also easting (exact match)
-    const utmNorth = /northing|utm_n|^y$/i; // Y is also northing (exact match)
+    const utmEast = /easting|utm_e|^x$|utm_x|^e$/i;
+    const utmNorth = /northing|utm_n|^y$|utm_y|^n$/i;
+    const utmZoneRe = /zone|^z$|utm_z/i;
 
     let latCol =
         headers.find((h) => safeLat.test(h)) ||
@@ -528,8 +838,9 @@ function guessColumns(headers) {
 
     let eastCol = headers.find((h) => utmEast.test(h));
     let northCol = headers.find((h) => utmNorth.test(h));
+    let zoneCol = headers.find((h) => utmZoneRe.test(h));
 
-    return { lat: latCol, lng: lngCol, easting: eastCol, northing: northCol };
+    return { lat: latCol, lng: lngCol, easting: eastCol, northing: northCol, zone: zoneCol };
 }
 
 function checkForUtmNudge(headersOrRow) {
@@ -552,7 +863,7 @@ function checkForUtmNudge(headersOrRow) {
         const text = document.getElementById("wizardWarningText");
         warning.classList.remove("hidden");
         text.textContent =
-            "It looks like your data contains UTM coordinates. You can configure them below.";
+            "Data contains UTM coordinates!?. Toggle `Data has UTM coordinates` at the bottom!";
     }
 }
 
@@ -578,7 +889,9 @@ function closeUtmPicker() {
 
 function confirmUtmPicker() {
     if (wizardState.tempZone) {
-        document.getElementById("wizardUtmZone").value = wizardState.tempZone;
+        const inputEl = document.getElementById("wizardUtmZone");
+        inputEl.value = wizardState.tempZone;
+        inputEl.dispatchEvent(new Event("input"));
     }
     closeUtmPicker();
 }
@@ -593,11 +906,11 @@ function initUtmMap() {
         attributionControl: false,
     });
 
-    // Optional Base Layer (Carto Light for context)
+    // Base Layer
     L.tileLayer(
         "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png",
         {
-            opacity: 0.3,
+            opacity: 1.0,
         },
     ).addTo(map);
 

@@ -60,6 +60,30 @@ export function switchTab(tabName) {
   }
 }
 
+export function switchInputTab(tabName) {
+  const types = ["File", "Url", "Paste", "Sample"];
+  types.forEach((t) => {
+    const btn = getEl(`inputType${t}`);
+    const panel = getEl(`panelInput${t}`);
+    if (btn) {
+      if (t === tabName) {
+        btn.classList.remove("text-gray-500", "hover:text-gray-700");
+        btn.classList.add("bg-white", "shadow-sm", "text-gray-800");
+      } else {
+        btn.classList.add("text-gray-500", "hover:text-gray-700");
+        btn.classList.remove("bg-white", "shadow-sm", "text-gray-800");
+      }
+    }
+    if (panel) {
+      if (t === tabName) {
+        panel.classList.remove("hidden");
+      } else {
+        panel.classList.add("hidden");
+      }
+    }
+  });
+}
+
 export function switchViewMode(mode) {
   const mainContent = getEl("mainContent");
   const viewModeControls = getEl("viewModeControls");
@@ -218,6 +242,12 @@ export function updateStats(count) {
     "opacity-50",
     "pointer-events-none",
   );
+
+  // Hide empty state locks
+  const processEmpty = getEl("processEmptyState");
+  const exportEmpty = getEl("exportEmptyState");
+  if (processEmpty) processEmpty.classList.add("hidden");
+  if (exportEmpty) exportEmpty.classList.add("hidden");
 }
 
 export function showToast(message, type = "info") {
