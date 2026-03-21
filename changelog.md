@@ -27,3 +27,11 @@
 
 - [x] 1.5.1 (2026-03-19): Delimiter detection enhancements 
   - Added support for Space/Tab/ and optional Custom delimeter.
+- [x] 1.6.0 (2026-03-21):
+  - UI improvements in the side bar and the import wizard.
+    - File|URL|Paste|Sample options appear in the side bar.
+    - In the import wizard UTM's are handles separately.
+    - Added support for dedicated utm zone column.
+  - Data validation for lat/long columns.
+  - Auto detection of whitespace as delimiter.
+  - Column names if data is header less/Toggle header option. 
