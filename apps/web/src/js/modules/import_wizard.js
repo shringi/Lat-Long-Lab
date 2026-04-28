@@ -2,6 +2,7 @@ import { showToast } from "./ui.js";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import L from "leaflet";
+import { parseCoordinate } from "./data.js";
 
 // State for the wizard
 let wizardState = {
@@ -408,16 +409,16 @@ function handleConfirm() {
                 for (let i = startIndex; i < Math.min(startIndex + 3, wizardState.previewData.length); i++) {
                     const row = wizardState.previewData[i];
                     if (!row) continue;
-                    const latV = parseFloat(row[latIndex]);
-                    const lngV = parseFloat(row[lngIndex]);
+                    const latV = parseCoordinate(row[latIndex]);
+                    const lngV = parseCoordinate(row[lngIndex]);
                     if (!isNaN(latV) && !isNaN(lngV)) {
                         firstRow = row;
                         break;
                     }
                 }
                 if (firstRow) {
-                    const latVal = parseFloat(firstRow[latIndex]);
-                    const lngVal = parseFloat(firstRow[lngIndex]);
+                    const latVal = parseCoordinate(firstRow[latIndex]);
+                    const lngVal = parseCoordinate(firstRow[lngIndex]);
                     if (latVal > 90 || latVal < -90 || lngVal > 180 || lngVal < -180) {
                         warning.classList.remove("hidden");
                         warningText.innerHTML = "<strong>Out of Bounds:</strong> Values exceed valid Latitude (-90 to 90) or Longitude (-180 to 180). Check 'Data has UTM coordinates' if needed.";

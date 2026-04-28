@@ -81,12 +81,12 @@
         <div id="tabContainer" class="flex border-b border-gray-200 transition-all duration-300">
             <button id="tabInput"
                 class="flex-1 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 focus:outline-none transition-colors flex items-center justify-center space-x-2 group"
-                title="Input">
+                title="Import">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                 </svg>
-                <span class="tab-text">Input</span>
+                <span class="tab-text">Import</span>
             </button>
             <button id="tabProcess"
                 class="flex-1 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none transition-colors flex items-center justify-center space-x-2 group"
@@ -109,24 +109,24 @@
             </button>
         </div>
 
-        <!-- Input Content -->
+        <!-- Import Content -->
         <div id="contentInput" class="flex-1 overflow-y-auto p-4 space-y-4">
 
 
             <!-- Segmented Control for Input Type -->
             <div class="flex bg-gray-100 p-1 rounded-lg">
+                <button id="inputTypePaste"
+                    class="flex-1 text-xs font-semibold py-1.5 rounded-md bg-white shadow-sm text-gray-800 transition-all">Paste</button>
                 <button id="inputTypeFile"
-                    class="flex-1 text-xs font-semibold py-1.5 rounded-md bg-white shadow-sm text-gray-800 transition-all">File</button>
+                    class="flex-1 text-xs font-semibold py-1.5 rounded-md text-gray-500 hover:text-gray-700 transition-all">File</button>
                 <button id="inputTypeUrl"
                     class="flex-1 text-xs font-semibold py-1.5 rounded-md text-gray-500 hover:text-gray-700 transition-all">URL</button>
-                <button id="inputTypePaste"
-                    class="flex-1 text-xs font-semibold py-1.5 rounded-md text-gray-500 hover:text-gray-700 transition-all">Paste</button>
                 <button id="inputTypeSample"
                     class="flex-1 text-xs font-semibold py-1.5 rounded-md text-gray-500 hover:text-gray-700 transition-all">Sample</button>
             </div>
 
             <!-- Panel: File Upload -->
-            <div id="panelInputFile" class="space-y-4">
+            <div id="panelInputFile" class="hidden space-y-4 pt-2">
                 <div
                     class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer group relative">
                     <input id="csvFile" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.geojson,.json,.kml,.kmz"
@@ -157,7 +157,7 @@
             </div>
 
             <!-- Panel: Paste Area -->
-            <div id="panelInputPaste" class="hidden space-y-4 pt-2">
+            <div id="panelInputPaste" class="space-y-4">
                 <p class="text-xs text-gray-500">Paste raw text or coordinate strings.</p>
                 <div>
                     <textarea id="csvInput" rows="5"
@@ -199,11 +199,11 @@
                     </path>
                 </svg>
                 <p class="text-sm font-medium text-gray-600">No Data Loaded</p>
-                <p class="text-xs text-gray-400 mt-1 max-w-[200px]">Please load your structured data in the Input tab
+                <p class="text-xs text-gray-400 mt-1 max-w-[200px]">Please load your structured data in the Import tab
                     before processing.</p>
                 <button id="processGoToInputBtn"
                     class="mt-4 px-4 py-2 bg-blue-50 text-blue-600 hover:text-white text-xs font-semibold rounded hover:bg-blue-600 transition-colors select-input-tab">Go
-                    to Input</button>
+                    to Import</button>
             </div>
 
             <!-- 1. FILTER CARD -->
@@ -356,7 +356,7 @@
                 </svg>
                 <span class="footer-text">View on GitHub</span>
             </a>
-            <span class="footer-version bg-gray-200 px-1.5 py-0.5 rounded text-[10px] font-mono">v1.6.0</span>
+            <span class="footer-version bg-gray-200 px-1.5 py-0.5 rounded text-[10px] font-mono">v1.6.1</span>
         </div>
     </aside>
 

@@ -24,7 +24,6 @@
   - **Import Wizard**: Intermediate dialog for parsing Excel/CSV with preview.
   - **UTM Support**: Offline UTM Zone Picker and auto-conversion.
   - **Single Sheet Optimization**: Smartly handles multi-sheet Excel files.
-
 - [x] 1.5.1 (2026-03-19): Delimiter detection enhancements 
   - Added support for Space/Tab/ and optional Custom delimeter.
 - [x] 1.6.0 (2026-03-21):
@@ -35,3 +34,5 @@
   - Data validation for lat/long columns.
   - Auto detection of whitespace as delimiter.
   - Column names if data is header less/Toggle header option. 
+- [x] 1.6.1 (2026-04-28):
+  - European CSV format (comma as decimal and semicolon as delimiter) is natively supported with automatic detection.

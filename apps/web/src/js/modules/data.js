@@ -59,6 +59,36 @@ export function handleDataLoad(file, text) {
     }
 }
 
+/**
+ * Parses a coordinate string, handling European decimal commas.
+ * Examples: "48.12" -> 48.12, "48,12" -> 48.12, "1.234,56" -> 1234.56, "1,234.56" -> 1234.56
+ */
+export function parseCoordinate(val) {
+    if (typeof val === 'number') return val;
+    if (typeof val !== 'string') return NaN;
+    
+    let cleanVal = val.trim().replace(/\s/g, ''); // Remove spaces
+    if (!cleanVal) return NaN;
+
+    const lastComma = cleanVal.lastIndexOf(',');
+    const lastPeriod = cleanVal.lastIndexOf('.');
+
+    if (lastComma > -1 && lastPeriod > -1) {
+        if (lastComma > lastPeriod) {
+            // European: period is thousands, comma is decimal
+            cleanVal = cleanVal.replace(/\./g, '').replace(',', '.');
+        } else {
+            // US: comma is thousands, period is decimal
+            cleanVal = cleanVal.replace(/,/g, '');
+        }
+    } else if (lastComma > -1 && lastPeriod === -1) {
+        // Only comma. Treat as decimal.
+        cleanVal = cleanVal.replace(',', '.');
+    }
+
+    return parseFloat(cleanVal);
+}
+
 // --- GIS Readers ---
 
 function readGeoJsonFile(file) {
@@ -465,9 +495,13 @@ async function convertUtmToLatLng(data, defaultZone, eastCol, northCol, zoneColI
     let convertedCount = 0;
     const newData = data.map((row) => {
         try {
-            const e = parseFloat(row[eastCol]);
-            const n = parseFloat(row[northCol]);
+            const e = parseCoordinate(row[eastCol]);
+            const n = parseCoordinate(row[northCol]);
             if (isNaN(e) || isNaN(n)) return row;
+
+            // Overwrite original strings with clean floats for export
+            row[eastCol] = e;
+            row[northCol] = n;
 
             // Zone: Row-specific or Default
             let zoneStr = defaultZone;
@@ -566,15 +600,22 @@ export function applyColumnMapping(latCol, lngCol, providedData = null) {
 
     const validPoints = cleanData
         .filter((row) => {
-            const lat = parseFloat(row[latCol]);
-            const lng = parseFloat(row[lngCol]);
+            const lat = parseCoordinate(row[latCol]);
+            const lng = parseCoordinate(row[lngCol]);
             return !isNaN(lat) && !isNaN(lng);
         })
         .map((row) => {
+            const lat = parseCoordinate(row[latCol]);
+            const lng = parseCoordinate(row[lngCol]);
+            
+            // Overwrite original strings with clean floats for export
+            row[latCol] = lat;
+            row[lngCol] = lng;
+
             return {
                 ...row,
-                _lat: parseFloat(row[latCol]),
-                _lng: parseFloat(row[lngCol]),
+                _lat: lat,
+                _lng: lng,
             };
         });
 
