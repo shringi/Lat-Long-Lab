@@ -2,9 +2,9 @@ import { state } from "./core/state.js";
 import {
   initMap,
   setSelectionCallback,
-  filterPointsInBounds,
-  getDrawnItems,
   invalidateMapSize,
+  triggerSpatialFilter,
+  resetSpatialFilter,
 } from "./modules/map.js";
 import { initTable } from "./modules/table.js";
 import {
@@ -14,11 +14,11 @@ import {
   showToast,
   switchTab,
   toggleTableVisibility,
-  updateFilterUIState,
   hideColumnMappingModal,
   makeDraggable,
   toggleSidebar,
   switchInputTab,
+  switchProcessTab,
 } from "./modules/ui.js";
 import {
   handleDataLoad,
@@ -35,8 +35,8 @@ import { worldGeoJSON } from "./world_data.js";
 // Global Dependencies for Legacy Plugins
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import "leaflet-draw/dist/leaflet.draw.css";
-import "leaflet-draw";
+import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
+import "@geoman-io/leaflet-geoman-free";
 import "leaflet-providers";
 
 import $ from "jquery";
@@ -96,7 +96,8 @@ function setupEventListeners() {
   const urlBtn = getEl("urlBtn");
   const enrichBtn = getEl("enrichBtn");
   const exportBtn = getEl("exportBtn");
-  const filterToggle = getEl("filterToggle");
+  const applyFilterBtn = getEl("applyFilterBtn");
+  const clearFilterBtn = getEl("clearFilterBtn");
   const downloadTableBtn = getEl("downloadTableBtn");
   const tabInput = getEl("tabInput");
   const tabProcess = getEl("tabProcess");
@@ -109,6 +110,18 @@ function setupEventListeners() {
   const latColSelect = getEl("latColSelect");
 
   // Data Loading Listeners
+  if (csvTextInput && loadBtn) {
+    csvTextInput.addEventListener("input", () => {
+      loadBtn.disabled = csvTextInput.value.trim().length === 0;
+    });
+  }
+
+  if (urlInput && urlBtn) {
+    urlInput.addEventListener("input", () => {
+      urlBtn.disabled = urlInput.value.trim().length === 0;
+    });
+  }
+
   if (csvFileInput) {
     csvFileInput.addEventListener("change", (e) => {
       if (e.target.files.length > 0) {
@@ -141,6 +154,9 @@ function setupEventListeners() {
   const enrichUtmBtn = getEl("enrichUtmBtn");
   if (enrichUtmBtn) enrichUtmBtn.addEventListener("click", addUTM);
 
+  if (applyFilterBtn) applyFilterBtn.addEventListener("click", triggerSpatialFilter);
+  if (clearFilterBtn) clearFilterBtn.addEventListener("click", resetSpatialFilter);
+
   if (exportBtn) exportBtn.addEventListener("click", handleExport);
   if (downloadTableBtn)
     downloadTableBtn.addEventListener("click", handleExport);
@@ -151,33 +167,15 @@ function setupEventListeners() {
     if (btn) btn.addEventListener("click", () => switchInputTab(t));
   });
 
+  ["Filter", "AddColumns"].forEach((t) => {
+    const btn = getEl(`processType${t}`);
+    if (btn) btn.addEventListener("click", () => switchProcessTab(t));
+  });
+
   // Empty State Fallback Listeners
   document.querySelectorAll(".select-input-tab").forEach((btn) => {
     btn.addEventListener("click", () => switchTab("input"));
   });
-
-  if (filterToggle) {
-    filterToggle.addEventListener("change", (e) => {
-      state.isFilteringEnabled = e.target.checked;
-      updateFilterUIState();
-
-      if (state.isFilteringEnabled) {
-        const drawnItems = getDrawnItems();
-        if (drawnItems) {
-          const layers = drawnItems.getLayers();
-          if (layers.length > 0 && layers[0] instanceof L.Rectangle) {
-            filterPointsInBounds(layers[0].getBounds());
-          } else {
-            state.filteredPoints = [];
-            updateSelectionUI();
-          }
-        }
-      } else {
-        state.filteredPoints = [...state.allPoints];
-        updateSelectionUI();
-      }
-    });
-  }
 
   if (tabInput) tabInput.addEventListener("click", () => switchTab("input"));
   if (tabProcess)

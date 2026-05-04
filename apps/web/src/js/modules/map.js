@@ -1,11 +1,13 @@
 import { state } from "../core/state.js";
 import L from "leaflet";
+import * as turf from "@turf/turf";
 
 console.log("MAP MODULE LOADED");
 
 let map;
 let drawnItems;
 let layerGroup;
+let pendingFilterLayer = null;
 let onSelectionChanged = null;
 
 export function setSelectionCallback(callback) {
@@ -42,45 +44,64 @@ export function initMap() {
 
   const overlayMaps = {
     Points: layerGroup,
-    Selection: drawnItems,
   };
 
   L.control.layers(baseMaps, overlayMaps).addTo(map);
 
-  const drawControl = new L.Control.Draw({
-    draw: {
-      polyline: false,
-      polygon: false,
-      circle: false,
-      circlemarker: false,
-      marker: false,
-      rectangle: {
-        shapeOptions: {
-          color: "#4f46e5",
-          weight: 2,
-        },
-      },
-    },
-    edit: {
-      featureGroup: drawnItems,
-      remove: true,
-    },
+  // Initialize Geoman Controls
+  map.pm.addControls({
+    position: "topleft",
+    drawCircle: true,
+    drawCircleMarker: false,
+    drawMarker: false,
+    drawPolyline: false,
+    drawText: false,
+    cutPolygon: true,
+    rotateMode: true,
+    drawPolygon: true,
+    drawRectangle: true,
+    editMode: true,
+    dragMode: true,
+    removalMode: true,
   });
-  map.addControl(drawControl);
 
-  map.on(L.Draw.Event.CREATED, function (e) {
+  map.pm.setPathOptions({
+    color: "#4f46e5",
+    weight: 2,
+  });
+
+  // Handle new shapes (Draw but do not apply filter yet)
+  map.on("pm:create", function (e) {
+    drawnItems.eachLayer((l) => l.remove());
     drawnItems.clearLayers();
-    const layer = e.layer;
-    drawnItems.addLayer(layer);
-    if (state.isFilteringEnabled) {
-      filterPointsInBounds(layer.getBounds());
+
+    pendingFilterLayer = e.layer;
+    drawnItems.addLayer(pendingFilterLayer);
+
+    // Notify UI that a shape is ready to be applied
+    if (onSelectionChanged) onSelectionChanged("ready");
+  });
+
+  // Handle cut operations (Geoman replaces the original layer with a new one)
+  map.on("pm:cut", function (e) {
+    if (pendingFilterLayer === e.originalLayer) {
+      drawnItems.removeLayer(e.originalLayer);
+      pendingFilterLayer = e.layer;
+      drawnItems.addLayer(pendingFilterLayer);
     }
   });
 
-  map.on(L.Draw.Event.DELETED, function () {
-    if (state.isFilteringEnabled) {
-      state.filteredPoints = [];
-      if (onSelectionChanged) onSelectionChanged();
+  // Handle shape removal
+  map.on("pm:remove", function (e) {
+    if (drawnItems.hasLayer(e.layer)) {
+      drawnItems.removeLayer(e.layer);
+      
+      // Only clear UI if this was an explicit user deletion, 
+      // not a programmatic removal during "Apply Filter"
+      if (pendingFilterLayer === e.layer) {
+        pendingFilterLayer = null;
+        if (onSelectionChanged) onSelectionChanged("cleared");
+      }
     }
   });
 
@@ -88,7 +109,7 @@ export function initMap() {
   return map;
 }
 
-export function plotPoints(dataOverride) {
+export function plotPoints(dataOverride, fitBounds = true) {
   const pointsToPlot =
     dataOverride ||
     (state.isFilteringEnabled ? state.filteredPoints : state.allPoints);
@@ -156,24 +177,68 @@ export function plotPoints(dataOverride) {
       .addTo(layerGroup);
   });
 
-  if (pointsToPlot.length > 0 && map) {
+  if (fitBounds && pointsToPlot.length > 0 && map) {
     const bounds = L.latLngBounds(pointsToPlot.map((p) => [p._lat, p._lng]));
     map.fitBounds(bounds);
   }
 }
 
-export function filterPointsInBounds(bounds) {
-  if (!state.isFilteringEnabled) return;
-  state.filteredPoints = state.allPoints.filter((p) => {
-    const latLng = L.latLng(p._lat, p._lng);
-    return bounds.contains(latLng);
-  });
-  if (onSelectionChanged) onSelectionChanged();
+export function triggerSpatialFilter() {
+  if (!pendingFilterLayer) return;
+
+  state.isFilteringEnabled = true;
+  
+  let geojson;
+  try {
+    if (pendingFilterLayer instanceof L.Circle) {
+      const center = [pendingFilterLayer.getLatLng().lng, pendingFilterLayer.getLatLng().lat];
+      const radius = pendingFilterLayer.getRadius() / 1000; // Turf uses kilometers
+      geojson = turf.circle(center, radius, { steps: 64, units: 'kilometers' });
+    } else {
+      geojson = pendingFilterLayer.toGeoJSON();
+    }
+
+    state.filteredPoints = state.allPoints.filter((p) => {
+      // Validate coordinates before passing to Turf
+      if (isNaN(p._lng) || isNaN(p._lat)) return false;
+      const pt = turf.point([p._lng, p._lat]);
+      return turf.booleanPointInPolygon(pt, geojson);
+    });
+  } catch (error) {
+    console.error("Spatial Filtering Error:", error);
+    // If Turf fails, default to all points and disable filtering
+    state.isFilteringEnabled = false;
+    state.filteredPoints = [...state.allPoints];
+  } finally {
+    // ALWAYS remove the drawn shape from map to avoid zombie layers
+    const layerToRemove = pendingFilterLayer;
+    pendingFilterLayer = null; // Nullify before removal to prevent pm:remove loop
+
+    if (drawnItems && layerToRemove) {
+      drawnItems.removeLayer(layerToRemove);
+    }
+    if (layerToRemove) {
+      layerToRemove.remove();
+    }
+  }
+
+  if (onSelectionChanged) onSelectionChanged("applied");
+  plotPoints(null, false);
 }
 
-export function getDrawnItems() {
-  return drawnItems;
+export function resetSpatialFilter() {
+  state.isFilteringEnabled = false;
+  state.filteredPoints = [...state.allPoints];
+
+  if (pendingFilterLayer) {
+    pendingFilterLayer.remove();
+    pendingFilterLayer = null;
+  }
+
+  if (onSelectionChanged) onSelectionChanged("reset");
+  plotPoints(null, false);
 }
+
 
 export function invalidateMapSize() {
   if (map) map.invalidateSize();

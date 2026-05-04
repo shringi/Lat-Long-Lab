@@ -25,21 +25,29 @@ let wizardState = {
 };
 
 function guessHasHeaders(data) {
-    if (!data || data.length < 2) return true;
+    if (!data || data.length === 0) return true;
+
+    const isNum = (v) => {
+        if (v === null || v === undefined || v === "") return false;
+        const str = String(v).trim();
+        if (str === "") return false;
+        // Allows numbers, dots, commas, minus, plus, e/E for scientific, and spaces/tabs
+        return /^[\d\.\,\-\+eE\s\t]+$/.test(str);
+    };
+
+    if (data.length === 1) {
+        const row1 = data[0];
+        const arr1 = Array.isArray(row1) ? row1 : Object.values(row1);
+        if (arr1.some(isNum)) return false; // The single line is data, not a header
+        return true;
+    }
+
     const row1 = data[0];
     const row2 = data[1];
 
     const arr1 = Array.isArray(row1) ? row1 : Object.values(row1);
     const arr2 = Array.isArray(row2) ? row2 : Object.values(row2);
 
-    // Check if rows contain valid numbers (or space-separated numbers if auto-split failed)
-    const isNum = (v) => {
-        if (v === null || v === undefined || v === "") return false;
-        const str = String(v).trim();
-        if (str === "") return false;
-        // Allows numbers, dots, minus, plus, e/E for scientific, and spaces/tabs
-        return /^[\d\.\-\+eE\s\t]+$/.test(str);
-    };
     const row1HasNumbers = arr1.some(isNum);
     const row2HasNumbers = arr2.some(isNum);
 
@@ -574,14 +582,33 @@ function onCsvPreviewError(err) {
 function handleTextPreload(text) {
     if (!text) return;
 
-    // Auto-detect Whitespace if the user pasted raw coordinates (no commas)
     if (wizardState.delimiter === "") {
         const lines = text.trim().split('\n').filter(l => l.trim() !== "");
-        if (lines.length > 0 && !lines[0].includes(",")) {
-            // If line contains spaces OR tabs, and fits our numeric coordinate heuristic
-            if ((lines[0].includes(" ") || lines[0].includes("\t")) && /^[\d\.\-\+eE\s\t]+$/.test(lines[0])) {
-                wizardState.delimiter = "whitespace";
-                document.getElementById("wizardDelimiter").value = "whitespace";
+        if (lines.length > 0) {
+            // Check first 5 lines to see if it's European format (comma as decimal)
+            const sampleLines = lines.slice(0, 5);
+            const hasCommaDecimal = sampleLines.some(l => /\d,\d/.test(l));
+            const firstLine = lines[0]; // Still use first line for fallback checks if needed, but we should use a valid data line for delim check
+            const dataLine = hasCommaDecimal ? sampleLines.find(l => /\d,\d/.test(l)) : firstLine;
+
+            if (hasCommaDecimal) {
+                // European format detected. Comma is likely a decimal separator, not a delimiter.
+                if (dataLine.includes(';')) {
+                    wizardState.delimiter = ";";
+                    document.getElementById("wizardDelimiter").value = ";";
+                } else if (dataLine.includes('\t')) {
+                    wizardState.delimiter = "\t";
+                    document.getElementById("wizardDelimiter").value = "\t";
+                } else if (dataLine.includes('|')) {
+                    wizardState.delimiter = "|";
+                    document.getElementById("wizardDelimiter").value = "|";
+                }
+            } else if (!firstLine.includes(",")) {
+                // Auto-detect Whitespace if the user pasted raw coordinates (no commas)
+                if ((firstLine.includes(" ") || firstLine.includes("\t")) && /^[\d\.\-\+eE\s\t]+$/.test(firstLine)) {
+                    wizardState.delimiter = "whitespace";
+                    document.getElementById("wizardDelimiter").value = "whitespace";
+                }
             }
         }
     }
@@ -840,6 +867,14 @@ function guessColumns(headers) {
     let eastCol = headers.find((h) => utmEast.test(h));
     let northCol = headers.find((h) => utmNorth.test(h));
     let zoneCol = headers.find((h) => utmZoneRe.test(h));
+
+    // Fallback: If no coordinates are identified and there are at least 2 columns,
+    // guess that the first column is Latitude and the second is Longitude.
+    // This is especially useful for pasted data without headers.
+    if (!latCol && !lngCol && headers.length >= 2) {
+        latCol = headers[0];
+        lngCol = headers[1];
+    }
 
     return { lat: latCol, lng: lngCol, easting: eastCol, northing: northCol, zone: zoneCol };
 }

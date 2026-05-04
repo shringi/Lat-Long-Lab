@@ -1,12 +1,12 @@
 import $ from "jquery";
 import { state } from "../core/state.js";
-// We can import plotPoints directly now that map.js is a module!
 import { plotPoints } from "./map.js";
 import { showToast } from "./ui.js";
 
 console.log("TABLE MODULE LOADED");
 
 let dataTable = null;
+let isUpdatingTable = false;
 
 export function initTable() {
   console.log("App.initTable starting (Module)...");
@@ -34,8 +34,11 @@ export function updateTable(data) {
   console.log("App.updateTable called with data:", data ? data.length : 0);
   if (!dataTable) return;
 
+  isUpdatingTable = true;
+
   if (!data || data.length === 0) {
     dataTable.clear().draw();
+    isUpdatingTable = false;
     return;
   }
 
@@ -107,27 +110,21 @@ export function updateTable(data) {
     ], // removed autoWidth: false
   });
 
-  // Re-attach listener
+  // Sync map with table filtering (search, column filters, etc.)
+  dataTable.off("draw");
   dataTable.on("draw", function () {
-    if (!state.isFilteringEnabled) {
-      const filteredData = dataTable
-        .rows({ search: "applied" })
-        .data()
-        .toArray();
-      console.log("DataTable Draw - Filtered Data Count:", filteredData.length);
+    if (isUpdatingTable) return;
 
-      state.filteredPoints = filteredData;
-      plotPoints(filteredData);
-    }
+    const filteredData = dataTable
+      .rows({ search: "applied" })
+      .data()
+      .toArray();
+    
+    state.filteredPoints = filteredData;
+    plotPoints(filteredData, false);
   });
 
-  // Trigger initial plot
-  if (!state.isFilteringEnabled) {
-    const filteredData = dataTable.rows({ search: "applied" }).data().toArray();
-    console.log("Initial Table Load - Data Count:", filteredData.length);
-    state.filteredPoints = filteredData;
-    plotPoints(filteredData);
-  }
+  isUpdatingTable = false;
 }
 
 // Debounce timer

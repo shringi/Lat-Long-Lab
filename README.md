@@ -1,12 +1,12 @@
 # Lat-Long Lab
 
-![Lat-Long Lab](apps/web/src/public/icons/logo_192_v1.png)
+![Lat-Long Lab](apps/web/src/public/icons/logo_192.png)
 
 **A super light, privacy focused web app for a quick latitude-longitude visualization and data filtering.**
 
 https://shringi.github.io/Lat-Long-Lab/
 
-Current Version: 1.6.1
+Current Version: 1.7.0
 
 Last Updated on: 2026-Apr-28
 
@@ -26,20 +26,19 @@ We often encounter datasets containing latitude and longitude points along with 
 
 - **Versatile Data Loading**:
     - Upload **CSV, Excel (.xlsx, .xls), TXT, KML, KMZ, GeoJSON** files.
-    - **Import Wizard**: Intelligent, automatic detection of Latitude/Longitude or UTM coordinates (Zone/Easting/Northing). Features robust delimiter support including Comma, Semicolon, Space, Tab, and Custom delimiters, with an option to merge consecutive whitespaces for fixed-width data.
+    - **Import Wizard**: Automatic detection of Latitude/Longitude or UTM coordinates (Zone/Easting/Northing). 
+    - **Delimiter support**: including Comma, Semicolon, Space, Tab, and Custom delimiters
     - **Paste** data directly from your clipboard.
     - **Fetch** data from a URL (CSV/JSON).
-- **Interactive Mapping**:
-    - Visualize thousands of points instantly on a Leaflet map.
+- **Interactive Mapping and filtering**:
+    - Visualize thousands of points instantly on a the map.
     - Switch between different basemaps (OpenStreetMap, Satellite, etc.).
-- **Geographic Filtering**:
-    - Draw a **rectangular area** on the map to select specific points.
-    - Filter your dataset to include only points within the selected region.
+    - Draw a **rectangular area** or filter from the table to select specific points.
 - **Data Enrichment**:
     - **Country Tagging**: Automatically tag points with their country name using offline spatial join.
     - **UTM Conversion**: Calculate and append UTM Zone, Easting, and Northing columns to your Lat/Long data.
 - **Data Inspection**:
-    - View your data in a powerful, sortable, and searchable table (powered by [DataTables](https://datatables.net/)).
+    - View property of a specific data point on click.
     - Toggle between **Full Map**, **Split View**, and **Full Table** using the top-center controls.
 - **Export**:
     - Download your filtered or enriched dataset as:
@@ -57,23 +56,24 @@ We often encounter datasets containing latitude and longitude points along with 
 ## Usage Instructions
 
 ### 1. Getting Started
-You can test the application immediately without providing external files:
-- **Sample Data:** Click **"Load Sample Data (Cities)"** to load a representative dataset.
-- **File Upload:** Upload supported files (`.csv`, `.xlsx`, `.kml`, `.geojson` etc.) via the file input.
-- **Import Wizard:** If your data describes locations using UTM coordinates, check the "My data has UTM coordinates" box in the wizard to map Easting and Northing columns.
-- **Direct Input:** Paste raw CSV data directly into the provided text area.
-- **Fetch from URL:** Enter a direct link to a CSV or JSON file and click "Fetch".
+Start with the **Import** tab with one of the following option.
+- **Paste:** Paste raw CSV data directly into the provided text area.
+- **URL:** Enter a direct link to a CSV or JSON file and click "Fetch".
+- **File:** Upload supported files (`.csv`, `.xlsx`, `.kml`, `.geojson` etc.) via the file input.
+- **Sample:** You can also test the application immediately without providing external files just click **"Load Sample Data (Cities)"** to load a representative dataset.
 
-### 2. Exploration & Filtering
+After this an import wizard will appear.
+- **Import Wizard:**
+  - Helps you choose file delimiter, latitude and longitude columns, and other import options. 
+- If your data had column header describes locations using UTM coordinates, check the "My data has UTM coordinates" box in the wizard to map Easting and Northing columns.
+
+### 2. Process Data
 - **Visualization:** Points are rendered as clustered markers on the map. Zooming in reveals individual data points.
-- **Spatial Filtering:** Activate the **Rectangle Tool** from the map toolbar to define a region of interest. Toggle **"Filter by Map Selection"** to restrict the dataset to points within the bounded area.
+- **Spatial Filtering:** Use different spatial filtering tools to filter data. You can choose rectangle, circle or a custom polygon to filter the points by first drawing on the map, and then pressing the **Apply Filter** button in the **Filter Data** section. You can reset the changes by pressing the **Clear Filter (Reset)** button. 
 
 ### 3. Data Enrichment
-This feature allows for local spatial joins and coordinate conversions:
-1.  Filter your data to a specific region (optional).
-2.  Navigate to the **"Process"** tab.
-3.  Select **"Add Country Column"** to tag points with countries.
-4.  Select **"Add UTM Columns"** to generate metric coordinates.
+- Select **"Add Country Column"** to tag points with countries.
+- Select **"Add UTM Columns"** to generate metric coordinates.
 
 ### 4. Data Export
 - Navigate to the **"Export"** tab or the Data Table view.
@@ -94,8 +94,7 @@ If you encounter unexpected behavior, a **Debug Console** is available:
 3.  When reporting issues on GitHub, please look for "Error" messages in this console and include them in your report.
 
 ## Reporting Bugs & Feature Requests
-
-We welcome feedback! If you encounter any issues or have ideas for new features:
+If you encounter any issues or have ideas for new features:
 
 1.  Navigate to the **[Issues](https://github.com/shringi/Lat-Long-Lab/issues)** tab.
 2.  Click **"New Issue"**.
@@ -106,6 +105,7 @@ We welcome feedback! If you encounter any issues or have ideas for new features:
 
 Built with open-source power:
 - [Leaflet](https://leafletjs.com/)
+- [Leaflet.Geoman](https://github.com/geoman-io/Leaflet.Geoman)
 - [DataTables](https://datatables.net/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [PapaParse](https://www.papaparse.com/)

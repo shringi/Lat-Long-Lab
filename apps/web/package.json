@@ -1,6 +1,6 @@
 {
   "name": "lat-long-lab",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "description": "![Lat-Long Lab](icons/logo_192.png)",
   "main": "index.js",
   "scripts": {
@@ -33,6 +33,7 @@
     "vitest": "^4.0.16"
   },
   "dependencies": {
+    "@geoman-io/leaflet-geoman-free": "^2.19.3",
     "@mapbox/shp-write": "^0.4.3",
     "@turf/turf": "^7.3.1",
     "datatables.net": "^2.3.6",
@@ -41,7 +42,6 @@
     "jquery": "^3.7.1",
     "jszip": "^3.10.1",
     "leaflet": "^1.9.4",
-    "leaflet-draw": "^1.0.4",
     "leaflet-providers": "^3.0.0",
     "papaparse": "^5.5.3",
     "proj4": "^2.20.2",

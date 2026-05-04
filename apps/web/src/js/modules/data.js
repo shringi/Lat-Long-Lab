@@ -60,14 +60,25 @@ export function handleDataLoad(file, text) {
 }
 
 /**
- * Parses a coordinate string, handling European decimal commas.
- * Examples: "48.12" -> 48.12, "48,12" -> 48.12, "1.234,56" -> 1234.56, "1,234.56" -> 1234.56
+ * Parses a coordinate string, handling European decimal commas and quoted values.
+ * Examples: "48.12" -> 48.12, '"48.12"' -> 48.12, "48,12" -> 48.12,
+ *           "1.234,56" -> 1234.56, "1,234.56" -> 1234.56, "48°" -> 48
  */
 export function parseCoordinate(val) {
     if (typeof val === 'number') return val;
     if (typeof val !== 'string') return NaN;
-    
-    let cleanVal = val.trim().replace(/\s/g, ''); // Remove spaces
+
+    let cleanVal = val.trim();
+    if (!cleanVal) return NaN;
+
+    // Strip surrounding literal quote characters some CSV tools leave in
+    if ((cleanVal.startsWith('"') && cleanVal.endsWith('"')) ||
+        (cleanVal.startsWith("'") && cleanVal.endsWith("'"))) {
+        cleanVal = cleanVal.slice(1, -1).trim();
+    }
+
+    // Strip degree signs and other non-numeric symbols, preserve - + . ,
+    cleanVal = cleanVal.replace(/[°\s]/g, '');
     if (!cleanVal) return NaN;
 
     const lastComma = cleanVal.lastIndexOf(',');
@@ -75,14 +86,14 @@ export function parseCoordinate(val) {
 
     if (lastComma > -1 && lastPeriod > -1) {
         if (lastComma > lastPeriod) {
-            // European: period is thousands, comma is decimal
+            // European: period is thousands separator, comma is decimal
             cleanVal = cleanVal.replace(/\./g, '').replace(',', '.');
         } else {
-            // US: comma is thousands, period is decimal
+            // US: comma is thousands separator, period is decimal
             cleanVal = cleanVal.replace(/,/g, '');
         }
     } else if (lastComma > -1 && lastPeriod === -1) {
-        // Only comma. Treat as decimal.
+        // Only comma present — treat as decimal separator
         cleanVal = cleanVal.replace(',', '.');
     }
 

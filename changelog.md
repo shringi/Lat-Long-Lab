@@ -36,3 +36,9 @@
   - Column names if data is header less/Toggle header option. 
 - [x] 1.6.1 (2026-04-28):
   - European CSV format (comma as decimal and semicolon as delimiter) is natively supported with automatic detection.
+- [x] 1.7.0 (2026-05-04): 
+  - Fixed spatial filtering using leaflet-geoman.
+  - Fixed quoted lat-long into proper numeric format.
+  - Process tab now has two tabs, Filter and Add Columns. And users can switch between them.
+  - Auto detection of European CSV format.
+  - Buttons/Tabs have hover text instructions.

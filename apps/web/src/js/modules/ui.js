@@ -84,6 +84,30 @@ export function switchInputTab(tabName) {
   });
 }
 
+export function switchProcessTab(tabName) {
+  const types = ["Filter", "AddColumns"];
+  types.forEach((t) => {
+    const btn = getEl(`processType${t}`);
+    const panel = getEl(`panelProcess${t}`);
+    if (btn) {
+      if (t === tabName) {
+        btn.classList.remove("text-gray-500", "hover:text-gray-700");
+        btn.classList.add("bg-white", "shadow-sm", "text-gray-800");
+      } else {
+        btn.classList.add("text-gray-500", "hover:text-gray-700");
+        btn.classList.remove("bg-white", "shadow-sm", "text-gray-800");
+      }
+    }
+    if (panel) {
+      if (t === tabName) {
+        panel.classList.remove("hidden");
+      } else {
+        panel.classList.add("hidden");
+      }
+    }
+  });
+}
+
 export function switchViewMode(mode) {
   const mainContent = getEl("mainContent");
   const viewModeControls = getEl("viewModeControls");
@@ -143,10 +167,12 @@ export function toggleTableVisibility(show) {
   if (onViewChanged) setTimeout(onViewChanged, 300);
 }
 
-export function updateSelectionUI() {
+export function updateSelectionUI(action) {
   const selectedCountSpan = getEl("selectedCount");
   const enrichBtn = getEl("enrichBtn");
   const enrichUtmBtn = getEl("enrichUtmBtn");
+  const applyFilterBtn = getEl("applyFilterBtn");
+  const clearFilterBtn = getEl("clearFilterBtn");
 
   const section = getEl("selectionSection");
 
@@ -160,6 +186,28 @@ export function updateSelectionUI() {
     section.classList.add("opacity-50", "pointer-events-none");
   }
 
+  // Handle explicit filter workflow states
+  if (action === "ready") {
+    if (applyFilterBtn) applyFilterBtn.disabled = false;
+    showToast("Shape drawn. Click 'Apply Filter' in the sidebar to complete.", "success");
+  } else if (action === "cleared") {
+    if (applyFilterBtn) applyFilterBtn.disabled = true;
+  } else if (action === "applied") {
+    if (applyFilterBtn) {
+      applyFilterBtn.classList.add("hidden");
+      applyFilterBtn.disabled = true;
+    }
+    if (clearFilterBtn) clearFilterBtn.classList.remove("hidden");
+    updateFilterUIState();
+  } else if (action === "reset") {
+    if (clearFilterBtn) clearFilterBtn.classList.add("hidden");
+    if (applyFilterBtn) {
+      applyFilterBtn.classList.remove("hidden");
+      applyFilterBtn.disabled = true;
+    }
+    updateFilterUIState();
+  }
+
   if (state.isFilteringEnabled) {
     updateTable(state.filteredPoints);
   } else {
@@ -170,19 +218,17 @@ export function updateSelectionUI() {
 export function updateFilterUIState() {
   const filterHelpText = getEl("filterHelpText");
   const enrichBtn = getEl("enrichBtn");
-  const filterToggle = getEl("filterToggle");
 
   if (state.isFilteringEnabled) {
     if (filterHelpText)
       filterHelpText.textContent =
-        "Only points inside the rectangle will be enriched.";
+        "Only points inside the drawn shape will be enriched.";
     if (enrichBtn) enrichBtn.textContent = "Add country column";
   } else {
     if (filterHelpText)
       filterHelpText.textContent = "All loaded points will be enriched.";
     if (enrichBtn) enrichBtn.textContent = "Add country column";
   }
-  if (filterToggle) filterToggle.checked = state.isFilteringEnabled;
 }
 
 export function showColumnMappingModal(headers, defaults = {}) {
