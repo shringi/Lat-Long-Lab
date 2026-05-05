@@ -31,12 +31,12 @@ We often encounter datasets containing latitude and longitude points along with 
     - **Paste** data directly from your clipboard.
     - **Fetch** data from a URL (CSV/JSON).
 - **Interactive Mapping and filtering**:
-    - Visualize thousands of points instantly on a the map.
+    - Visualize points instantly on a the map.
     - Switch between different basemaps (OpenStreetMap, Satellite, etc.).
     - Draw a **rectangular area** or filter from the table to select specific points.
-- **Data Enrichment**:
-    - **Country Tagging**: Automatically tag points with their country name using offline spatial join.
-    - **UTM Conversion**: Calculate and append UTM Zone, Easting, and Northing columns to your Lat/Long data.
+- **Add Columns**:
+    - **Country**: Automatically add the country name to the points.
+    - **UTM**: Calculate and append UTM Zone, Easting, and Northing columns to your Lat/Long data.
 - **Data Inspection**:
     - View property of a specific data point on click.
     - Toggle between **Full Map**, **Split View**, and **Full Table** using the top-center controls.
@@ -47,20 +47,18 @@ We often encounter datasets containing latitude and longitude points along with 
         - **KML / KMZ** (Google Earth)
         - **Shapefile** (ESRI/QGIS)
 - **Privacy-First**:
-    - 100% Client-side processing. Your data doesn't leave your browser.
+    - 100% Client-side processing. Your data doesn't leave your browser. Computation and visualization are done locally on your device.
 - **Modern UI & PWA**:
     - **Progressive Web App**: Install as a native app on Chrome/Edge and works offline. Click the install button appearing in the address bar.
-    - **Collapsible Sidebar**: Maximize screen real estate with the new Rail Mode.
-    - **Unified View Control**: Seamlessly switch between layout modes.
 
 ## Usage Instructions
 
 ### 1. Getting Started
 Start with the **Import** tab with one of the following option.
 - **Paste:** Paste raw CSV data directly into the provided text area.
-- **URL:** Enter a direct link to a CSV or JSON file and click "Fetch".
+- **URL:** Enter a direct link to a CSV or JSON file and click "Fetch". Example, load the countries from a url using the following link: `https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/refs/heads/master/csv/countries.csv`
 - **File:** Upload supported files (`.csv`, `.xlsx`, `.kml`, `.geojson` etc.) via the file input.
-- **Sample:** You can also test the application immediately without providing external files just click **"Load Sample Data (Cities)"** to load a representative dataset.
+- **Sample:** You can also test the application immediately without providing external files just click **"Load Sample Data (Cities)"** to load a representative sample dataset.
 
 After this an import wizard will appear.
 - **Import Wizard:**
@@ -88,7 +86,7 @@ For advanced troubleshooting and development:
 
 ## Troubleshooting & Debugging
 
-If you encounter unexpected behavior, a **Debug Console** is available:
+If you encounter unexpected behavior, first reload the app and repeat the process. If the issue persists, use the **Debug Console**:
 1.  Click the **Debug Icon (🐞)** located in the bottom-right corner of the screen.
 2.  This console displays real-time execution logs and error messages.
 3.  When reporting issues on GitHub, please look for "Error" messages in this console and include them in your report.
