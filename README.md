@@ -79,12 +79,6 @@ After this an import wizard will appear.
 - Select your desired format (**CSV, Shapefile, KML, GeoJSON**).
 - Click **Download** to export the processed dataset, including any applied filters and enriched attributes.
 
-### 5. Debug Console
-For advanced troubleshooting and development:
-- **Open:** Click the floating  🐞 icon in the bottom-right corner.
-- **Functionality:** View real-time logs, errors, and system status.
-- **Controls:** Minimize, Clear, Copy. (Draggable).
-
 ## Troubleshooting & Debugging
 If you encounter unexpected behavior, first reload the app and repeat the process. If the issue persists, use the **Debug Console**:
 1.  Click the **Debug Icon (🐞)** located in the bottom-right corner of the screen.
