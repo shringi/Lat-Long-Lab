@@ -56,7 +56,7 @@ We often encounter datasets containing latitude and longitude points along with 
 ### 1. Getting Started
 Start with the **Import** tab with one of the following option.
 - **Paste:** Paste raw CSV data directly into the provided text area.
-- **URL:** Enter a direct link to a CSV or JSON file and click "Fetch". Example, load the countries from a url using the following link: `https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/refs/heads/master/csv/countries.csv`
+- **URL:** Enter a direct link to a CSV or JSON file and click "Fetch". Example, load the countries from a url using the following link: `https://raw.githubusercontent.com/prasertcbs/basic-dataset/refs/heads/master/worldbank_countries.csv`
 - **File:** Upload supported files (`.csv`, `.xlsx`, `.kml`, `.geojson` etc.) via the file input.
 - **Sample:** You can also test the application immediately without providing external files just click **"Load Sample Data (Cities)"** to load a representative sample dataset.
 
@@ -68,12 +68,13 @@ After this an import wizard will appear.
 ### 2. Process Data
 - **Visualization:** Points are rendered as clustered markers on the map. Zooming in reveals individual data points.
 - **Spatial Filtering:** Use different spatial filtering tools to filter data. You can choose rectangle, circle or a custom polygon to filter the points by first drawing on the map, and then pressing the **Apply Filter** button in the **Filter Data** section. You can reset the changes by pressing the **Clear Filter (Reset)** button. 
+- **Tabular Filtering:** Filter the data based on the table columns. The filter and sort icons are located at the top of each column.
 
-### 3. Data Enrichment
+### 3. Add columns
 - Select **"Add Country Column"** to tag points with countries.
 - Select **"Add UTM Columns"** to generate metric coordinates.
 
-### 4. Data Export
+### 4. Export Data
 - Navigate to the **"Export"** tab or the Data Table view.
 - Select your desired format (**CSV, Shapefile, KML, GeoJSON**).
 - Click **Download** to export the processed dataset, including any applied filters and enriched attributes.
@@ -85,7 +86,6 @@ For advanced troubleshooting and development:
 - **Controls:** Minimize, Clear, Copy. (Draggable).
 
 ## Troubleshooting & Debugging
-
 If you encounter unexpected behavior, first reload the app and repeat the process. If the issue persists, use the **Debug Console**:
 1.  Click the **Debug Icon (🐞)** located in the bottom-right corner of the screen.
 2.  This console displays real-time execution logs and error messages.
@@ -114,9 +114,7 @@ Built with open-source power:
 - [JSZip](https://stuk.github.io/jszip/)
 
 ## Development
-
 This repository is structured as a Monorepo.
-
 ### Project Structure
 - `apps/web`: The core web application code.
 - `package.json`: Root configuration managing workspaces.
